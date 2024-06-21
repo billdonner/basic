@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 // MARK: - Data Models
@@ -112,15 +111,10 @@ enum ChallengeStatus: Int, Codable {
     case abandoned         // 4
 }
 
-enum AllocationStatus: Codable {
-    case success
-    case partial
-    case failure
-}
-
 // Assuming a mock PlayData JSON file in the main bundle
 let jsonFileName = "playdata.json"
-
+let starting_size = 3 // Example size, can be 3 to 6
+let starting_topics = ["Actors", "Animals"] // Example topics
 // The app's main entry point
 @main
 struct ChallengeGameApp: App {
@@ -128,7 +122,7 @@ struct ChallengeGameApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TestAllocatorView()
+          TestView(size: starting_size, topics: starting_topics)
                 .environmentObject(challengeManager)
                 .onAppear {
                     do {
@@ -164,7 +158,7 @@ func loadPlayData(from filename: String) throws -> PlayData {
 // Get the file path for storing challenge statuses
 func getChallengeStatusesFilePath() -> URL {
     let fileManager = FileManager.default
-    let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
     return urls[0].appendingPathComponent("challengeStatuses.json")
 }
 
@@ -207,6 +201,20 @@ class ChallengeManager : ObservableObject {
     var playData: PlayData?
     var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
     
+    func resetChallengeStatuses(at challengeIndices: [Int]) {
+        for index in challengeIndices {
+            if index >= 0 && index < challengeStatuses.count {
+                challengeStatuses[index] = .inReserve
+            }
+        }
+    }
+    func resetAllChallengeStatuses() {
+        if let playData = playData {
+            self.challengeStatuses = [ChallengeStatus](repeating: .inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
+        } else {
+            self.challengeStatuses = []
+        }
+    }
     // Extracts all challenges from PlayData
     func getAllChallenges() -> [Challenge] {
         guard let playData = playData else { return [] }
@@ -214,44 +222,49 @@ class ChallengeManager : ObservableObject {
     }
     
     // Allocates N challenges from all challenges
-    func allocateChallenges(_ n: Int) -> Bool {
+    func allocateChallenges(_ n: Int) -> [Challenge]? {
         let allChallenges = getAllChallenges()
+        var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
         for index in 0..<allChallenges.count {
             if challengeStatuses[index] == .inReserve {
                 challengeStatuses[index] = .allocated
+                allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
                 if allocatedCount == n { break }
             }
         }
-        return allocatedCount == n
+        return allocatedCount == n ? allocatedChallenges : nil
     }
     
     // Allocates N challenges where the topic is specified
-    func allocateChallenges(for topic: String, count n: Int) -> Bool {
-      defer {
-        saveChallengeStatuses(challengeStatuses)
-      }
+    func allocateChallenges(for topic: String, count n: Int) -> [Challenge]? {
+        defer {
+            saveChallengeStatuses(challengeStatuses)
+        }
         let allChallenges = getAllChallenges()
+        var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
         for index in 0..<allChallenges.count {
             if allChallenges[index].topic == topic && challengeStatuses[index] == .inReserve {
                 challengeStatuses[index] = .allocated
+                allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
                 if allocatedCount == n { break }
             }
         }
-        return allocatedCount == n
+        return allocatedCount == n ? allocatedChallenges : nil
     }
     
     // Allocates N challenges nearly evenly from specified topics, taking from any topic in the list if needed
-    func allocateChallenges(forTopics topics: [String], count n: Int) -> Bool {
+    func allocateChallenges(forTopics topics: [String], count n: Int) -> [Challenge]? {
         let allChallenges = getAllChallenges()
         var topicChallengeMap: [String: [Int]] = [:]
+        var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
-      defer {
-        saveChallengeStatuses(challengeStatuses)
-      }
+        defer {
+            saveChallengeStatuses(challengeStatuses)
+        }
         // Initialize the topicChallengeMap
         for (index, challenge) in allChallenges.enumerated() {
             if topics.contains(challenge.topic) && challengeStatuses[index] == .inReserve {
@@ -265,7 +278,7 @@ class ChallengeManager : ObservableObject {
         // Check if all topics together have enough challenges
         let totalAvailableChallenges = topics.flatMap { topicChallengeMap[$0] ?? [] }.count
         guard totalAvailableChallenges >= n else {
-            return false
+            return nil
         }
         
         // Allocate challenges from each topic nearly evenly
@@ -274,6 +287,7 @@ class ChallengeManager : ObservableObject {
             let challengesToAllocate = min(challengesPerTopicInitial, availableChallenges.count)
             for index in availableChallenges.prefix(challengesToAllocate) {
                 challengeStatuses[index] = .allocated
+                allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
             }
         }
@@ -284,58 +298,59 @@ class ChallengeManager : ObservableObject {
             let remainingAvailableChallenges = topics.flatMap { topicChallengeMap[$0] ?? [] }
             for index in remainingAvailableChallenges.prefix(additionalChallengesNeeded) {
                 challengeStatuses[index] = .allocated
+                allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
             }
         }
         
-        return allocatedCount == n
+        return allocatedCount == n ? allocatedChallenges : nil
     }
     
     // Replaces one challenge with another, marking the old one as abandoned
-    func replaceChallenge(at index: Int) -> Bool {
-        guard index >= 0 && index < getAllChallenges().count else { return false }
-      defer {
-        saveChallengeStatuses(challengeStatuses)
-      }
+    func replaceChallenge(at index: Int) -> Challenge? {
+        guard index >= 0 && index < getAllChallenges().count else { return nil }
+        defer {
+            saveChallengeStatuses(challengeStatuses)
+        }
         // Mark the old challenge as abandoned
         challengeStatuses[index] = .abandoned
-
+        
         // Allocate a new challenge from the same topic
         let topic = getAllChallenges()[index].topic
         let topicChallenges = getAllChallenges().enumerated().filter { $0.element.topic == topic && challengeStatuses[$0.offset] == .inReserve }
         
         guard let newChallengeIndex = topicChallenges.first?.offset else {
-            return false
+            return nil
         }
         
         challengeStatuses[newChallengeIndex] = .allocated
-        return true
+        return getAllChallenges()[newChallengeIndex]
     }
-
+    
     // Replaces the last topic allocated
-    func replaceLastAllocatedTopic() -> Bool {
+    func replaceLastAllocatedTopic() -> Challenge? {
         // Get the index of the last allocated challenge
         guard let lastAllocatedIndex = challengeStatuses.lastIndex(of: .allocated) else {
-            return false
+            return nil
         }
         
         // Replace the last allocated challenge
         return replaceChallenge(at: lastAllocatedIndex)
     }
-  
+    
     // Helper functions to get counts
     func allocatedChallengesCount(for topic: Topic) -> Int {
         return countChallenges(for: topic, with: .allocated)
     }
-  
+    
     func abandonedChallengesCount(for topic: Topic) -> Int {
         return countChallenges(for: topic, with: .abandoned)
     }
-
+    
     func freeChallengesCount(for topic: Topic) -> Int {
         return getAllChallenges().enumerated().filter { $0.element.topic == topic.name && challengeStatuses[$0.offset] == .inReserve }.count
     }
-  
+    
     func countChallenges(for topic: Topic, with status: ChallengeStatus) -> Int {
         let allChallenges = getAllChallenges()
         return allChallenges.enumerated().filter { index, challenge in
@@ -344,101 +359,175 @@ class ChallengeManager : ObservableObject {
     }
 }
 
-// The main content view
-struct TestAllocatorView: View {
+// MARK: - GameBoard Class
+
+class GameBoard {
+    var board: [[Challenge]]
+    var status: [[ChallengeStatus]]
+    var size: Int
+    var topics: [String]
+    
+    init(size: Int, topics: [String], challenges: [Challenge]) {
+        self.size = size
+        self.topics = topics
+        self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
+        self.status = Array(repeating: Array(repeating: .inReserve, count: size), count: size)
+        populateBoard(with: challenges)
+    }
+    
+    func populateBoard(with challenges: [Challenge]) {
+        var challengeIndex = 0
+        for row in 0..<size {
+            for col in 0..<size {
+                if challengeIndex < challenges.count {
+                    board[row][col] = challenges[challengeIndex]
+                    status[row][col] = .allocated
+                    challengeIndex += 1
+                }
+            }
+        }
+    }
+    
+    func resetBoard() -> [Challenge] {
+        var unplayedChallenges: [Challenge] = []
+        for row in 0..<size {
+            for col in 0..<size {
+                if status[row][col] == .allocated {
+                    unplayedChallenges.append(board[row][col])
+                    status[row][col] = .inReserve
+                }
+            }
+        }
+        return unplayedChallenges
+    }
+    
+    func replaceChallenge(at position: (Int, Int), with newChallenge: Challenge) {
+        let (row, col) = position
+        if row >= 0 && row < size && col >= 0 && col < size {
+            status[row][col] = .abandoned
+            board[row][col] = newChallenge
+            status[row][col] = .allocated
+        }
+    }
+    
+    func getUnplayedChallenges() -> [Challenge] {
+        var unplayedChallenges: [Challenge] = []
+        for row in 0..<size {
+            for col in 0..<size {
+                if status[row][col] == .allocated {
+                    unplayedChallenges.append(board[row][col])
+                }
+            }
+        }
+        return unplayedChallenges
+    }
+}
+
+// MARK: - TestView and Preview
+
+struct TestView: View {
+  let size:Int
+  let topics:[String]
     @EnvironmentObject var challengeManager: ChallengeManager
-    @State var succ = false
+    @State private var gameBoard: GameBoard?
+    
     var body: some View {
         VStack {
-            Text("Current - \(jsonFileName)").font(.headline).opacity(succ ? 1.0:0.5)
-            AllocatorView().background(Color.indigo).foregroundColor(.white)
-            if let playData = challengeManager.playData {
-                Button (action: {
-                    succ = challengeManager.allocateChallenges(forTopics : ["Actors","Animals"] , count:16)
-                }) {
-                    Text("allocate 4x4")
-                }
-                Button (action: {
-                    succ = challengeManager.allocateChallenges(forTopics : ["Actors","Animals"] , count:36)
-                }) {
-                    Text("allocate 6x6")
-                }
-                Text("Hacking").font(.headline).opacity(succ ? 1.0:0.5)
-                //IT IS EXTREMELY IMPORTANT TO NOT USE FORM OR LIST HERE
-                ScrollView {
-                    ForEach(playData.topicData.topics, id: \.name) { topic in
-                        VStack {
-                            HStack {
-                                Text(topic.name)
-                                Spacer()
-                                Text("A: \(challengeManager.allocatedChallengesCount(for: topic))")
-                                Text("F: \(challengeManager.freeChallengesCount(for: topic))")
-                                Text("G: \(challengeManager.abandonedChallengesCount(for: topic))")
-                            }
-                            HStack{
-                                Button (action: {
-                                    succ = challengeManager.allocateChallenges(for : topic.name, count:1)
-                                }) {
-                                    Text("a 1").opacity(succ ? 1.0:0.5)
-                                }
-                                
-                                Button (action: {
-                                    succ = challengeManager.allocateChallenges(for : topic.name, count:10)
-                                }) {
-                                    Text("a 10").opacity(succ ? 1.0:0.5)
-                                }
-                                
-                                Button (action: {
-                                    succ = challengeManager.replaceLastAllocatedTopic()
-                                }) {
-                                    Text("r 1").opacity(succ ? 1.0:0.5)
+            if let gameBoard = gameBoard {
+                ScrollView([.horizontal, .vertical]) {
+                    VStack(spacing: 10) {
+                        ForEach(0..<gameBoard.size, id: \.self) { row in
+                            HStack(spacing: 10) {
+                                ForEach(0..<gameBoard.size, id: \.self) { col in
+                                    VStack {
+                                        Text(gameBoard.board[row][col].question)
+                                            .padding(8)
+                                            .frame(width: 120, height: 120)
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                    
+                                            .border(borderColor(for: gameBoard.status[row][col]), width: 8)
+                                            .cornerRadius(8)
+                                    }
                                 }
                             }
                         }
-                        .safeAreaPadding()
-                    }
-                }.background(Color.yellow)
-                //IMPORTANT
-            } else {
-                Text("Loading...")
-            }
-        }
-    }
-}
-    
-struct AllocatorView: View {
-    @EnvironmentObject var challengeManager: ChallengeManager
-    @State var succ = false
-    var body: some View {
-        VStack {
-            if let playData = challengeManager.playData {
-
-                //IT IS EXTREMELY IMPORTANT TO NOT USE FORM OR LIST HERE
-                ScrollView {
-                    ForEach(playData.topicData.topics, id: \.name) { topic in
-                        VStack(spacing:0) {
-                            HStack {
-                                Text(topic.name)
-                                Spacer()
-                                Text("A: \(challengeManager.allocatedChallengesCount(for: topic))")
-                                Text("F: \(challengeManager.freeChallengesCount(for: topic))")
-                                Text("G: \(challengeManager.abandonedChallengesCount(for: topic))")
-                            }
-                        }.padding(.horizontal)
                     }
                 }
-                //IMPORTANT
             } else {
                 Text("Loading...")
+                    .onAppear {
+                
+                      startNewGame(size: size, topics: topics)
+                    }
             }
         }
     }
-}
     
-struct TestAllocatorView_Previews: PreviewProvider {
-    static var previews: some View {
-        TestAllocatorView() .environment(
-            ChallengeManager(playData: try! loadPlayData(from: jsonFileName)))
+  func startNewGame(size:Int, topics:[String]) {
+        if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
+            gameBoard = GameBoard(size: size, topics: topics, challenges: challenges)
+            randomlyMarkCells()
+        } else {
+            print("Failed to allocate challenges for the game board.")
+        }
+    }
+    
+    func randomlyMarkCells() {
+        guard let gameBoard = gameBoard else { return }
+        let totalCells = gameBoard.size * gameBoard.size
+        let correctCount = totalCells / 3
+        let incorrectCount = totalCells / 2
+        
+        var correctMarked = 0
+        var incorrectMarked = 0
+        
+        for row in 0..<gameBoard.size {
+            for col in 0..<gameBoard.size {
+                if correctMarked < correctCount {
+                    gameBoard.status[row][col] = .playedCorrectly
+                    correctMarked += 1
+                } else if incorrectMarked < incorrectCount {
+                    gameBoard.status[row][col] = .playedIncorrectly
+                    incorrectMarked += 1
+                }
+            }
+        }
+    }
+    
+    func borderColor(for status: ChallengeStatus) -> Color {
+        switch status {
+        case .playedCorrectly:
+            return .green
+        case .playedIncorrectly:
+            return .red
+        default:
+            return .clear
+        }
     }
 }
+
+#Preview {
+  let size = 3 // Example size, can be 3 to 6
+  let topics = ["Actors", "Animals"] // Example topics
+  TestView(size: size, topics: topics)
+        .environmentObject(ChallengeManager(playData: try! loadPlayData(from: jsonFileName)))
+}
+/*
  
+ ### Explanation
+ 1. **GameBoard Class**:
+ - The `GameBoard` class is initialized with a size and an array of topics.
+ - It has methods to populate the board with challenges, reset the board, replace a challenge, and get unplayed challenges.
+ 
+ 2. **ChallengeManager Enhancements**:
+ - Added methods to allocate and return challenges, ensuring detailed error handling.
+ 
+ 3. **TestView**:
+ - Displays the game board using a `ScrollView` and nested `HStack` and `VStack`.
+ - Each cell is sized to 120x120 pixels with 2 pixels of padding.
+ - The border color is green if the challenge is played correctly and red if played incorrectly.
+ - A test function `randomlyMarkCells` randomly marks 1/3 of the cells as correct and 1/2 as incorrect.
+ 
+ 4. **Preview**
+ */
