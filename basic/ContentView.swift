@@ -1,4 +1,73 @@
 import SwiftUI
+// MARK: - ColorScheme
+
+fileprivate extension Color {
+#if os(macOS)
+  typealias SystemColor = NSColor
+#else
+  typealias SystemColor = UIColor
+#endif
+  
+  var colorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
+    var r: CGFloat = 0
+    var g: CGFloat = 0
+    var b: CGFloat = 0
+    var a: CGFloat = 0
+    
+#if os(macOS)
+    SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a)
+    // Note that non RGB color will raise an exception, that I don't now how to catch because it is an Objc exception.
+#else
+    guard SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a) else {
+      // Pay attention that the color should be convertible into RGB format
+      // Colors using hue, saturation and brightness won't work
+      return nil
+    }
+#endif
+    
+    return (r, g, b, a)
+  }
+}
+
+extension Color: Codable {
+  enum CodingKeys: String, CodingKey {
+    case red, green, blue
+  }
+  
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let r = try container.decode(Double.self, forKey: .red)
+    let g = try container.decode(Double.self, forKey: .green)
+    let b = try container.decode(Double.self, forKey: .blue)
+    
+    self.init(red: r, green: g, blue: b)
+  }
+  
+  public func encode(to encoder: Encoder) throws {
+    guard let colorComponents = self.colorComponents else {
+      return
+    }
+    
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(colorComponents.red, forKey: .red)
+    try container.encode(colorComponents.green, forKey: .green)
+    try container.encode(colorComponents.blue, forKey: .blue)
+  }
+}
+
+
+struct ColorScheme: Codable {
+    let topic: String
+    let foregroundColor: Color
+    let backgroundColor: Color
+    
+    init(topic: String, foregroundColor: Color, backgroundColor: Color) {
+        self.topic = topic
+        self.foregroundColor = foregroundColor
+        self.backgroundColor = backgroundColor
+    }
+}
+
 
 // MARK: - Data Models
 
@@ -109,6 +178,71 @@ enum ChallengeStatus: Int, Codable {
     case playedCorrectly   // 2
     case playedIncorrectly // 3
     case abandoned         // 4
+}
+// MARK: - Modified GameBoard Class
+
+class GameBoard {
+    var board: [[Challenge]]
+    var status: [[ChallengeStatus]]
+    var size: Int
+    var topics: [String]
+    var colorSchemes: [String: ColorScheme]
+    
+    init(size: Int, topics: [String], challenges: [Challenge], colorSchemes: [String: ColorScheme]) {
+        self.size = size
+        self.topics = topics
+        self.colorSchemes = colorSchemes
+        self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
+        self.status = Array(repeating: Array(repeating: .inReserve, count: size), count: size)
+        populateBoard(with: challenges)
+    }
+    
+    func populateBoard(with challenges: [Challenge]) {
+        var challengeIndex = 0
+        for row in 0..<size {
+            for col in 0..<size {
+                if challengeIndex < challenges.count {
+                    board[row][col] = challenges[challengeIndex]
+                    status[row][col] = .allocated
+                    challengeIndex += 1
+                }
+            }
+        }
+    }
+    
+    func resetBoard() -> [Challenge] {
+        var unplayedChallenges: [Challenge] = []
+        for row in 0..<size {
+            for col in 0..<size {
+                if status[row][col] == .allocated {
+                    unplayedChallenges.append(board[row][col])
+                    status[row][col] = .inReserve
+                }
+            }
+        }
+        return unplayedChallenges
+    }
+    
+    func replaceChallenge(at position: (Int, Int), with newChallenge: Challenge) {
+        let (row, col) = position
+        if row >= 0 && row < size && col >= 0 && col < size {
+            status[row][col] = .abandoned
+            board[row][col] = newChallenge
+            status[row][col] = .allocated
+        }
+    }
+    
+    func getUnplayedChallenges() -> [Challenge] {
+        var unplayedChallenges: [Challenge] = []
+        for row in 0..<size {
+            for col in 0..<size {
+                if status[row][col] == .allocated {
+                    unplayedChallenges.append(board[row][col])
+                }
+            }
+        }
+        return unplayedChallenges
+    }
 }
 
 // Assuming a mock PlayData JSON file in the main bundle
@@ -359,77 +493,39 @@ class ChallengeManager : ObservableObject {
     }
 }
 
-// MARK: - GameBoard Class
-
-class GameBoard {
-    var board: [[Challenge]]
-    var status: [[ChallengeStatus]]
-    var size: Int
-    var topics: [String]
-    
-    init(size: Int, topics: [String], challenges: [Challenge]) {
-        self.size = size
-        self.topics = topics
-        self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
-        self.status = Array(repeating: Array(repeating: .inReserve, count: size), count: size)
-        populateBoard(with: challenges)
-    }
-    
-    func populateBoard(with challenges: [Challenge]) {
-        var challengeIndex = 0
-        for row in 0..<size {
-            for col in 0..<size {
-                if challengeIndex < challenges.count {
-                    board[row][col] = challenges[challengeIndex]
-                    status[row][col] = .allocated
-                    challengeIndex += 1
-                }
-            }
-        }
-    }
-    
-    func resetBoard() -> [Challenge] {
-        var unplayedChallenges: [Challenge] = []
-        for row in 0..<size {
-            for col in 0..<size {
-                if status[row][col] == .allocated {
-                    unplayedChallenges.append(board[row][col])
-                    status[row][col] = .inReserve
-                }
-            }
-        }
-        return unplayedChallenges
-    }
-    
-    func replaceChallenge(at position: (Int, Int), with newChallenge: Challenge) {
-        let (row, col) = position
-        if row >= 0 && row < size && col >= 0 && col < size {
-            status[row][col] = .abandoned
-            board[row][col] = newChallenge
-            status[row][col] = .allocated
-        }
-    }
-    
-    func getUnplayedChallenges() -> [Challenge] {
-        var unplayedChallenges: [Challenge] = []
-        for row in 0..<size {
-            for col in 0..<size {
-                if status[row][col] == .allocated {
-                    unplayedChallenges.append(board[row][col])
-                }
-            }
-        }
-        return unplayedChallenges
-    }
-}
-
 // MARK: - TestView and Preview
+/*
+ 
+ ### Explanation
+ 1. **GameBoard Class**:
+ - The `GameBoard` class is initialized with a size and an array of topics.
+ - It has methods to populate the board with challenges, reset the board, replace a challenge, and get unplayed challenges.
+ 
+ 2. **ChallengeManager Enhancements**:
+ - Added methods to allocate and return challenges, ensuring detailed error handling.
+ 
+ 3. **TestView**:
+ - Displays the game board using a `ScrollView` and nested `HStack` and `VStack`.
+ - Each cell is sized to 120x120 pixels with 2 pixels of padding.
+ - The border color is green if the challenge is played correctly and red if played incorrectly.
+ - A test function `randomlyMarkCells` randomly marks 1/3 of the cells as correct and 1/2 as incorrect.
+ 
+ 4. **Preview**
+ */
+
+
+
+// MARK: - Modified TestView
 
 struct TestView: View {
-  let size:Int
-  let topics:[String]
+    let size: Int
+    let topics: [String]
     @EnvironmentObject var challengeManager: ChallengeManager
     @State private var gameBoard: GameBoard?
+    @State private var colorSchemes: [String: ColorScheme] = [
+        "Actors": ColorScheme(topic: "Actors", foregroundColor: .white, backgroundColor: .blue),
+        "Animals": ColorScheme(topic: "Animals", foregroundColor: .black, backgroundColor: .green)
+    ]
     
     var body: some View {
         VStack {
@@ -443,9 +539,8 @@ struct TestView: View {
                                         Text(gameBoard.board[row][col].question)
                                             .padding(8)
                                             .frame(width: 120, height: 120)
-                                            .background(Color.blue)
-                                            .foregroundColor(.white)
-                                    
+                                            .background(colorSchemes[gameBoard.board[row][col].topic]?.backgroundColor ?? Color.gray)
+                                            .foregroundColor(colorSchemes[gameBoard.board[row][col].topic]?.foregroundColor ?? Color.white)
                                             .border(borderColor(for: gameBoard.status[row][col]), width: 8)
                                             .cornerRadius(8)
                                     }
@@ -457,16 +552,15 @@ struct TestView: View {
             } else {
                 Text("Loading...")
                     .onAppear {
-                
-                      startNewGame(size: size, topics: topics)
+                        startNewGame(size: size, topics: topics)
                     }
             }
         }
     }
     
-  func startNewGame(size:Int, topics:[String]) {
+    func startNewGame(size: Int, topics: [String]) {
         if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
-            gameBoard = GameBoard(size: size, topics: topics, challenges: challenges)
+            gameBoard = GameBoard(size: size, topics: topics, challenges: challenges, colorSchemes: colorSchemes)
             randomlyMarkCells()
         } else {
             print("Failed to allocate challenges for the game board.")
@@ -506,28 +600,3 @@ struct TestView: View {
         }
     }
 }
-
-#Preview {
-  let size = 3 // Example size, can be 3 to 6
-  let topics = ["Actors", "Animals"] // Example topics
-  TestView(size: size, topics: topics)
-        .environmentObject(ChallengeManager(playData: try! loadPlayData(from: jsonFileName)))
-}
-/*
- 
- ### Explanation
- 1. **GameBoard Class**:
- - The `GameBoard` class is initialized with a size and an array of topics.
- - It has methods to populate the board with challenges, reset the board, replace a challenge, and get unplayed challenges.
- 
- 2. **ChallengeManager Enhancements**:
- - Added methods to allocate and return challenges, ensuring detailed error handling.
- 
- 3. **TestView**:
- - Displays the game board using a `ScrollView` and nested `HStack` and `VStack`.
- - Each cell is sized to 120x120 pixels with 2 pixels of padding.
- - The border color is green if the challenge is played correctly and red if played incorrectly.
- - A test function `randomlyMarkCells` randomly marks 1/3 of the cells as correct and 1/2 as incorrect.
- 
- 4. **Preview**
- */
