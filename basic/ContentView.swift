@@ -1,59 +1,4 @@
 import SwiftUI
-// MARK: - ColorScheme
-
-fileprivate extension Color {
-#if os(macOS)
-  typealias SystemColor = NSColor
-#else
-  typealias SystemColor = UIColor
-#endif
-  
-  var colorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
-    var r: CGFloat = 0
-    var g: CGFloat = 0
-    var b: CGFloat = 0
-    var a: CGFloat = 0
-    
-#if os(macOS)
-    SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a)
-    // Note that non RGB color will raise an exception, that I don't now how to catch because it is an Objc exception.
-#else
-    guard SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a) else {
-      // Pay attention that the color should be convertible into RGB format
-      // Colors using hue, saturation and brightness won't work
-      return nil
-    }
-#endif
-    
-    return (r, g, b, a)
-  }
-}
-
-extension Color: Codable {
-  enum CodingKeys: String, CodingKey {
-    case red, green, blue
-  }
-  
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    let r = try container.decode(Double.self, forKey: .red)
-    let g = try container.decode(Double.self, forKey: .green)
-    let b = try container.decode(Double.self, forKey: .blue)
-    
-    self.init(red: r, green: g, blue: b)
-  }
-  
-  public func encode(to encoder: Encoder) throws {
-    guard let colorComponents = self.colorComponents else {
-      return
-    }
-    
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(colorComponents.red, forKey: .red)
-    try container.encode(colorComponents.green, forKey: .green)
-    try container.encode(colorComponents.blue, forKey: .blue)
-  }
-}
 
 
 struct ColorScheme: Codable {
@@ -245,39 +190,6 @@ class GameBoard {
     }
 }
 
-// Assuming a mock PlayData JSON file in the main bundle
-let jsonFileName = "playdata.json"
-let starting_size = 3 // Example size, can be 3 to 6
-let starting_topics = ["Actors", "Animals"] // Example topics
-// The app's main entry point
-@main
-struct ChallengeGameApp: App {
-    private var challengeManager = ChallengeManager()
-
-    var body: some Scene {
-        WindowGroup {
-          TestView(size: starting_size, topics: starting_topics)
-                .environmentObject(challengeManager)
-                .onAppear {
-                    do {
-                        try challengeManager.playData = loadPlayData(from: jsonFileName)
-                        if let playData = challengeManager.playData {
-                            if let loadedStatuses = loadChallengeStatuses() {
-                                challengeManager.challengeStatuses = loadedStatuses
-                            } else {
-                                challengeManager.challengeStatuses = [ChallengeStatus](repeating: .inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
-                            }
-                        }
-                    } catch {
-                        print("Failed to load PlayData: \(error)")
-                    }
-                }
-                .onDisappear {
-                    saveChallengeStatuses(challengeManager.challengeStatuses)
-                }
-        }
-    }
-}
 
 // Loads the PlayData from a JSON file in the main bundle
 func loadPlayData(from filename: String) throws -> PlayData {
@@ -409,6 +321,7 @@ class ChallengeManager : ObservableObject {
         // Calculate how many challenges to allocate per topic initially
         let challengesPerTopicInitial = n / topics.count
         
+        
         // Check if all topics together have enough challenges
         let totalAvailableChallenges = topics.flatMap { topicChallengeMap[$0] ?? [] }.count
         guard totalAvailableChallenges >= n else {
@@ -512,42 +425,98 @@ class ChallengeManager : ObservableObject {
  
  4. **Preview**
  */
-
-
-
 // MARK: - Modified TestView
-
+   
 struct TestView: View {
     let size: Int
     let topics: [String]
+    let tapGesture: (_ row: Int, _ col: Int) -> Void
+    
     @EnvironmentObject var challengeManager: ChallengeManager
     @State private var gameBoard: GameBoard?
     @State private var colorSchemes: [String: ColorScheme] = [
         "Actors": ColorScheme(topic: "Actors", foregroundColor: .white, backgroundColor: .blue),
-        "Animals": ColorScheme(topic: "Animals", foregroundColor: .black, backgroundColor: .green)
+        "Animals": ColorScheme(topic: "Animals", foregroundColor: .black, backgroundColor: .green),
+        "Cars": ColorScheme(topic: "Cars", foregroundColor: .yellow, backgroundColor: .indigo)
     ]
+    @State private var hideCellContent = true
+    
+    fileprivate func makeOneCell(_ row: Int, _ col: Int, gameBoard: GameBoard, cellSize: CGFloat) -> some View {
+        return VStack {
+            Text(hideCellContent ? " " : gameBoard.board[row][col].question)
+                .padding(8)
+                .frame(width: cellSize, height: cellSize)
+                .background(colorSchemes[gameBoard.board[row][col].topic]?.backgroundColor ?? Color.gray)
+                .foregroundColor(colorSchemes[gameBoard.board[row][col].topic]?.foregroundColor ?? Color.white)
+                .border(borderColor(for: gameBoard.status[row][col]), width: 8)
+                .cornerRadius(8)
+                .onTapGesture {
+                    tapGesture(row, col)
+                }
+        }
+    }
     
     var body: some View {
         VStack {
+            HStack {
+                Button(action: {
+                    startNewGame(size: size, topics: topics)
+                    hideCellContent = false
+                }) {
+                    Text("Start Game")
+                        .padding()
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .disabled(!hideCellContent)
+                .opacity(hideCellContent ? 1 : 0.5)
+                
+                Button(action: {
+                    endGame()
+                    hideCellContent = true
+                }) {
+                    Text("End Game")
+                        .padding()
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .disabled(hideCellContent)
+                .opacity(!hideCellContent ? 1 : 0.5)
+                
+                Button(action: {
+                    challengeManager.resetAllChallengeStatuses()
+                    hideCellContent = true
+                    clearAllCells()
+                }) {
+                    Text("Full Reset")
+                        .padding()
+                        .background(Color.black)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .disabled(!hideCellContent)
+                .opacity(hideCellContent ? 1 : 0.5)
+            }
+            .padding()
+            
             if let gameBoard = gameBoard {
-                ScrollView([.horizontal, .vertical]) {
-                    VStack(spacing: 10) {
-                        ForEach(0..<gameBoard.size, id: \.self) { row in
-                            HStack(spacing: 10) {
-                                ForEach(0..<gameBoard.size, id: \.self) { col in
-                                    VStack {
-                                        Text(gameBoard.board[row][col].question)
-                                            .padding(8)
-                                            .frame(width: 120, height: 120)
-                                            .background(colorSchemes[gameBoard.board[row][col].topic]?.backgroundColor ?? Color.gray)
-                                            .foregroundColor(colorSchemes[gameBoard.board[row][col].topic]?.foregroundColor ?? Color.white)
-                                            .border(borderColor(for: gameBoard.status[row][col]), width: 8)
-                                            .cornerRadius(8)
+                GeometryReader { geometry in
+                    let cellSize = min(geometry.size.width, geometry.size.height) / CGFloat(gameBoard.size)
+                    
+                    ScrollView([.horizontal, .vertical]) {
+                        VStack(spacing: 10) {
+                            ForEach(0..<gameBoard.size, id: \.self) { row in
+                                HStack(spacing: 10) {
+                                    ForEach(0..<gameBoard.size, id: \.self) { col in
+                                        makeOneCell(row, col, gameBoard: gameBoard, cellSize: cellSize)
                                     }
                                 }
                             }
                         }
                     }
+                    .padding()
                 }
             } else {
                 Text("Loading...")
@@ -555,6 +524,18 @@ struct TestView: View {
                         startNewGame(size: size, topics: topics)
                     }
             }
+            Spacer()
+            Divider()
+            VStack {
+                HStack {
+                    Text("Allocated: \(allocatedChallengesCount())")
+                    Text("Free: \(freeChallengesCount())")
+                    // Text("PlayingNow: \(playingNow)")
+                }
+                AllocatorView(colorSchemes: colorSchemes)
+                
+            }.frame(height: 150)
+            
         }
     }
     
@@ -564,6 +545,22 @@ struct TestView: View {
             randomlyMarkCells()
         } else {
             print("Failed to allocate challenges for the game board.")
+        }
+    }
+    
+    func endGame() {
+        if let gameBoard = gameBoard {
+            let unplayedChallenges = gameBoard.resetBoard()
+            challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
+        }
+    }
+    
+    func clearAllCells() {
+        guard let gameBoard = gameBoard else { return }
+        for row in 0..<gameBoard.size {
+            for col in 0..<gameBoard.size {
+                gameBoard.status[row][col] = .inReserve
+            }
         }
     }
     
@@ -584,6 +581,8 @@ struct TestView: View {
                 } else if incorrectMarked < incorrectCount {
                     gameBoard.status[row][col] = .playedIncorrectly
                     incorrectMarked += 1
+                } else {
+                    gameBoard.status[row][col] = .allocated
                 }
             }
         }
@@ -599,4 +598,165 @@ struct TestView: View {
             return .clear
         }
     }
+    
+    func allocatedChallengesCount() -> Int {
+        return challengeManager.challengeStatuses.filter { $0 == .allocated }.count
+    }
+    
+    func freeChallengesCount() -> Int {
+        return challengeManager.challengeStatuses.filter { $0 == .inReserve }.count
+    }
+}
+ 
+
+func colorOf(topic:String, in dict:[String:ColorScheme])->Color {
+  guard let z = dict[topic] else {return .black}
+  return z.backgroundColor
+}
+/////////////
+struct AllocatorView: View {
+    let colorSchemes: [String: ColorScheme]
+    @EnvironmentObject var challengeManager: ChallengeManager
+    @Environment(\.colorScheme) var colorScheme
+    @State var succ = false
+
+    var body: some View {
+        Group {
+            if let playData = challengeManager.playData {
+                ScrollView {
+                    ForEach(playData.topicData.topics, id: \.name) { topic in
+                        if challengeManager.allocatedChallengesCount(for: topic) > 0 {
+                            HStack {
+                                RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
+                                    .frame(width: 24)
+                                    .padding()
+                                    .foregroundColor(colorOf(topic: topic.name, in: colorSchemes))
+                                Text(topic.name)
+                                Spacer()
+                                Text("\(challengeManager.allocatedChallengesCount(for: topic)) - "
+                                   + "\(challengeManager.freeChallengesCount(for: topic)) - "
+                                   + "\(challengeManager.abandonedChallengesCount(for: topic))")
+                            }
+                            .padding(.horizontal)
+                            .foregroundColor(textColor)
+                        }
+                    }
+                }
+            } else {
+                Text("Loading...")
+                    .foregroundColor(textColor)
+            }
+        }
+        .background(backgroundColor)
+        .padding()
+    }
+
+    // Computed properties for background and text colors
+    private var backgroundColor: Color {
+        colorScheme == .dark ? Color(white: 0.2) : Color(white: 0.96)
+    }
+    
+    private var textColor: Color {
+        colorScheme == .dark ? Color.white : Color.black
+    }
+}
+
+// Assuming you have the challengeManager and colorSchemes to preview the view
+struct AllocatorView_Previews: PreviewProvider {
+    static var previews: some View {
+        AllocatorView(colorSchemes: [:])
+            .environmentObject(ChallengeManager())
+    }
+}
+
+// Assuming a mock PlayData JSON file in the main bundle
+let jsonFileName = "playdata.json"
+let starting_size = 3 // Example size, can be 3 to 6
+let starting_topics = ["Actors", "Animals","Cars"] // Example topics
+
+// The app's main entry point
+@main
+struct ChallengeGameApp: App {
+  private var challengeManager = ChallengeManager()
+  
+  var body: some Scene {
+    WindowGroup {
+      TestView(size: starting_size, topics: starting_topics,tapGesture: { row, col in
+      print("tapped \(row) \(col)")})
+        .environmentObject(challengeManager)
+        .onAppear {
+          do {
+            try challengeManager.playData = loadPlayData(from: jsonFileName)
+            if let playData = challengeManager.playData {
+              if let loadedStatuses = loadChallengeStatuses() {
+                challengeManager.challengeStatuses = loadedStatuses
+              } else {
+                challengeManager.challengeStatuses = [ChallengeStatus](repeating: .inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
+              }
+            }
+          } catch {
+            print("Failed to load PlayData: \(error)")
+          }
+        }
+      
+        .onDisappear {
+          saveChallengeStatuses(challengeManager.challengeStatuses)
+        }
+    }
+  }
+}
+// MARK: - ColorScheme
+
+fileprivate extension Color {
+#if os(macOS)
+  typealias SystemColor = NSColor
+#else
+  typealias SystemColor = UIColor
+#endif
+  
+  var colorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
+    var r: CGFloat = 0
+    var g: CGFloat = 0
+    var b: CGFloat = 0
+    var a: CGFloat = 0
+    
+#if os(macOS)
+    SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a)
+    // Note that non RGB color will raise an exception, that I don't now how to catch because it is an Objc exception.
+#else
+    guard SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a) else {
+      // Pay attention that the color should be convertible into RGB format
+      // Colors using hue, saturation and brightness won't work
+      return nil
+    }
+#endif
+    
+    return (r, g, b, a)
+  }
+}
+
+extension Color: Codable {
+  enum CodingKeys: String, CodingKey {
+    case red, green, blue
+  }
+  
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let r = try container.decode(Double.self, forKey: .red)
+    let g = try container.decode(Double.self, forKey: .green)
+    let b = try container.decode(Double.self, forKey: .blue)
+    
+    self.init(red: r, green: g, blue: b)
+  }
+  
+  public func encode(to encoder: Encoder) throws {
+    guard let colorComponents = self.colorComponents else {
+      return
+    }
+    
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(colorComponents.red, forKey: .red)
+    try container.encode(colorComponents.green, forKey: .green)
+    try container.encode(colorComponents.blue, forKey: .blue)
+  }
 }
