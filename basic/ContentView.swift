@@ -1,5 +1,15 @@
 import SwiftUI
 
+// Assuming a mock PlayData JSON file in the main bundle
+let jsonFileName = "playdata.json"
+let starting_size = 6 // Example size, can be 3 to 6
+let starting_topics = ["Actors", "Animals","Cars"] // Example topics
+
+struct IdentifiablePoint: Identifiable {
+  let id = UUID()
+  let row: Int
+  let col: Int
+}
 
 struct ColorScheme: Codable {
     let topic: String
@@ -352,7 +362,12 @@ class ChallengeManager : ObservableObject {
         
         return allocatedCount == n ? allocatedChallenges : nil
     }
-    
+    // get challenge at index
+  func getChallenge(at index: Int) -> Challenge? {
+    guard index >= 0 && index < getAllChallenges().count else { return nil }
+    return getAllChallenges()[index]
+  }
+  
     // Replaces one challenge with another, marking the old one as abandoned
     func replaceChallenge(at index: Int) -> Challenge? {
         guard index >= 0 && index < getAllChallenges().count else { return nil }
@@ -426,7 +441,7 @@ class ChallengeManager : ObservableObject {
  4. **Preview**
  */
 // MARK: - Modified TestView
-   
+
 struct TestView: View {
     let size: Int
     let topics: [String]
@@ -440,6 +455,9 @@ struct TestView: View {
         "Cars": ColorScheme(topic: "Cars", foregroundColor: .yellow, backgroundColor: .indigo)
     ]
     @State private var hideCellContent = true
+    private let spacing: CGFloat = 5
+    // Adding a shrink factor to slightly reduce the cell size
+    private let shrinkFactor: CGFloat = 0.9
     
     fileprivate func makeOneCell(_ row: Int, _ col: Int, gameBoard: GameBoard, cellSize: CGFloat) -> some View {
         return VStack {
@@ -503,21 +521,22 @@ struct TestView: View {
             
             if let gameBoard = gameBoard {
                 GeometryReader { geometry in
-                    let cellSize = min(geometry.size.width, geometry.size.height) / CGFloat(gameBoard.size)
+                    let totalSpacing = spacing * CGFloat(gameBoard.size - 1)
+                    let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
+                    let cellSize = (axisSize / CGFloat(gameBoard.size)) * shrinkFactor  // Apply shrink factor
                     
-                    ScrollView([.horizontal, .vertical]) {
-                        VStack(spacing: 10) {
+//                    ScrollView([.horizontal, .vertical]) {
+                  VStack(alignment:.center, spacing: spacing) {
                             ForEach(0..<gameBoard.size, id: \.self) { row in
-                                HStack(spacing: 10) {
+                                HStack(spacing: spacing) {
                                     ForEach(0..<gameBoard.size, id: \.self) { col in
                                         makeOneCell(row, col, gameBoard: gameBoard, cellSize: cellSize)
                                     }
                                 }
                             }
                         }
-                    }
                     .padding()
-                }
+              }
             } else {
                 Text("Loading...")
                     .onAppear {
@@ -607,7 +626,27 @@ struct TestView: View {
         return challengeManager.challengeStatuses.filter { $0 == .inReserve }.count
     }
 }
- 
+
+// Preview Provider for SwiftUI preview
+struct TestView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ForEach([3, 4, 5, 6], id: \.self) { size in
+                TestView(
+                    size: size,
+                    topics: ["Actors", "Animals", "Cars"],
+                    tapGesture: { row, col in
+                        print("Tapped cell at row \(row), col \(col)")
+                    }
+                )
+                .environmentObject(ChallengeManager())  // Ensure to add your ChallengeManager
+                .previewLayout(.fixed(width: 300, height: 300))
+                .previewDisplayName("Size \(size)x\(size)")
+            }
+        }
+    }
+}
+
 
 func colorOf(topic:String, in dict:[String:ColorScheme])->Color {
   guard let z = dict[topic] else {return .black}
@@ -670,19 +709,19 @@ struct AllocatorView_Previews: PreviewProvider {
 }
 
 // Assuming a mock PlayData JSON file in the main bundle
-let jsonFileName = "playdata.json"
-let starting_size = 3 // Example size, can be 3 to 6
-let starting_topics = ["Actors", "Animals","Cars"] // Example topics
 
 // The app's main entry point
 @main
 struct ChallengeGameApp: App {
   private var challengeManager = ChallengeManager()
+  @State var tapped :IdentifiablePoint? = nil
   
   var body: some Scene {
     WindowGroup {
-      TestView(size: starting_size, topics: starting_topics,tapGesture: { row, col in
-      print("tapped \(row) \(col)")})
+      TestView(size: starting_size, topics: starting_topics){ row, col in
+        print("tapped \(row) \(col)")
+        tapped=IdentifiablePoint(row: row,col: col)
+      }
         .environmentObject(challengeManager)
         .onAppear {
           do {
@@ -698,9 +737,18 @@ struct ChallengeGameApp: App {
             print("Failed to load PlayData: \(error)")
           }
         }
-      
         .onDisappear {
           saveChallengeStatuses(challengeManager.challengeStatuses)
+        }
+        .sheet(item:$tapped) { tapped in
+          let row = tapped.row; let col = tapped.col
+          let index = row*starting_size+col+1 // 1 origined
+          Text ("tapped \( row) \( col) index: \(index)")
+           
+          if  let ch = challengeManager.getChallenge(at:(index)) {
+            Text(ch.question)
+          }
+          
         }
     }
   }

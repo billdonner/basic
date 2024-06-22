@@ -14,8 +14,8 @@
             filePath = "basic/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "343"
-            endingLineNumber = "343"
+            startingLineNumber = "353"
+            endingLineNumber = "353"
             landmarkName = "allocateChallenges(forTopics:count:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,40 +30,10 @@
             filePath = "basic/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "347"
-            endingLineNumber = "347"
+            startingLineNumber = "357"
+            endingLineNumber = "357"
             landmarkName = "allocateChallenges(forTopics:count:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A90EA730-3976-40A4-B620-AB153BE59A7D - c5da81591eb8151"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "basic.ChallengeManager.allocateChallenges(forTopics: Swift.Array&lt;Swift.String&gt;, count: Swift.Int) -&gt; Swift.Optional&lt;Swift.Array&lt;basic.Challenge&gt;&gt;"
-                  moduleName = "basic.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/billdonner/Documents/basic/basic/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "347"
-                  endingLineNumber = "347">
-               </Location>
-               <Location
-                  uuid = "A90EA730-3976-40A4-B620-AB153BE59A7D - c5da81591eb8151"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "basic.ChallengeManager.allocateChallenges(forTopics: Swift.Array&lt;Swift.String&gt;, count: Swift.Int) -&gt; Swift.Optional&lt;Swift.Array&lt;basic.Challenge&gt;&gt;"
-                  moduleName = "basic.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/billdonner/Documents/basic/basic/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "347"
-                  endingLineNumber = "347">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -76,8 +46,8 @@
             filePath = "basic/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "160"
-            endingLineNumber = "160"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
             landmarkName = "resetBoard()"
             landmarkType = "7">
          </BreakpointContent>
@@ -92,8 +62,8 @@
             filePath = "basic/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "168"
-            endingLineNumber = "168"
+            startingLineNumber = "178"
+            endingLineNumber = "178"
             landmarkName = "resetBoard()"
             landmarkType = "7">
          </BreakpointContent>
