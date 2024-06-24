@@ -1,38 +1,42 @@
 //
-//  TestView.swift
+//  FrontView.swift
 //  basic
 //
 //  Created by bill donner on 6/23/24.
 //
 import SwiftUI
 
-struct TestView: View {
+struct FrontView: View {
     let size: Int
     let topics: [String]
-    let tapGesture: (_ row: Int, _ col: Int) -> Void
+  let tapGesture: (_ ch:Challenge?) -> Void
     @EnvironmentObject var appColors: AppColors
     @EnvironmentObject var challengeManager: ChallengeManager
     @State private var gameBoard: GameBoard?
-  
-
     @State private var hideCellContent = true
+  @State private var showingAlert = false
+
     private let spacing: CGFloat = 5
     // Adding a shrink factor to slightly reduce the cell size
     private let shrinkFactor: CGFloat = 0.9
     
     fileprivate func makeOneCell(_ row: Int, _ col: Int, gameBoard: GameBoard, cellSize: CGFloat) -> some View {
       let challenge = gameBoard.board[row][col]
-      let colormix = AppColors.colorFor(topic: challenge.topic)
+      let colormix = appColors.colorFor(topic: challenge.topic)
         return VStack {
-            Text(hideCellContent ? " " : challenge.question)
+          Text(hideCellContent ? " " : challenge.question )
+                
+                //challenge.id + "&" + gameBoard.status[row][col].id)
+            
+            .font(.caption)
                 .padding(8)
                 .frame(width: cellSize, height: cellSize)
                 .background(colormix?.backgroundColor)
                 .foregroundColor(colormix?.foregroundColor)
-                .border(borderColor(for: gameBoard.status[row][col]), width: 24/cellSize)
+                .border(borderColor(for: gameBoard.status[row][col].val), width: 8)
                 .cornerRadius(8)
                 .onTapGesture {
-                    tapGesture(row, col)
+                    tapGesture(challenge)
                 }
         }
     }
@@ -42,11 +46,13 @@ struct TestView: View {
     var body: some View {
         VStack {
             HStack {
+              //Start Game
                 Button(action: {
                   let ok =   startNewGame(size: size, topics: topics)
                     hideCellContent = false
                   if !ok {
                     // ALERT HERE and possible reset
+                    showingAlert = true
                   }
                 }) {
                     Text("Start Game")
@@ -57,10 +63,16 @@ struct TestView: View {
                 }
                 .disabled(!hideCellContent)
                 .opacity(hideCellContent ? 1 : 0.5)
-                
+                .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showingAlert){
+                  Button("OK", role: .cancel) {
+                    hideCellContent = true
+                    clearAllCells()
+                  }
+                }
+              // END GAME
                 Button(action: {
                     endGame()
-                    hideCellContent = true
+                  hideCellContent = true
                 }) {
                     Text("End Game")
                         .padding()
@@ -70,7 +82,7 @@ struct TestView: View {
                 }
                 .disabled(hideCellContent)
                 .opacity(!hideCellContent ? 1 : 0.5)
-                
+                //RESET
                 Button(action: {
                     challengeManager.resetAllChallengeStatuses()
                     hideCellContent = true
@@ -110,19 +122,22 @@ struct TestView: View {
                     .onAppear {
                       let ok =   startNewGame(size: size, topics: topics)
                       if !ok  {
-                        // first game cant load
-                        
+                        //TODO: Alert the User first game cant load, this is fatal
+                        showingAlert = true
                       }
+                    }
+                    .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showingAlert){
+                      Button("OK", role: .cancel) {
+                        challengeManager.resetAllChallengeStatuses()
+                        hideCellContent = true
+                        clearAllCells()
+                        showingAlert = false } //stick the right here
                     }
             }
             Spacer()
             Divider()
             VStack {
-                HStack {
-                    Text("Allocated: \(allocatedChallengesCount())")
-                    Text("Free: \(freeChallengesCount())")
-                    // Text("PlayingNow: \(playingNow)")
-                }
+          
                 AllocatorView()
               
                 
@@ -134,7 +149,7 @@ struct TestView: View {
     func startNewGame(size: Int, topics: [String]) -> Bool {
         if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
             gameBoard = GameBoard(size: size, topics: topics, challenges: challenges)
-            randomlyMarkCells()
+          //randomlyMarkCells()
           return true
         } else {
           print("Failed to allocate \(size) challenges for topic \(topics.joined(separator: ","))")
@@ -154,7 +169,7 @@ struct TestView: View {
         guard let gameBoard = gameBoard else { return }
         for row in 0..<gameBoard.size {
             for col in 0..<gameBoard.size {
-                gameBoard.status[row][col] = .inReserve
+              gameBoard.status[row][col] = ChallengeStatus(id:"",val:.inReserve)
             }
         }
     }
@@ -163,7 +178,7 @@ struct TestView: View {
         guard let gameBoard = gameBoard else { return }
         let totalCells = gameBoard.size * gameBoard.size
         let correctCount = totalCells / 3
-        let incorrectCount = totalCells / 2
+        let incorrectCount = totalCells / 3
         
         var correctMarked = 0
         var incorrectMarked = 0
@@ -171,36 +186,30 @@ struct TestView: View {
         for row in 0..<gameBoard.size {
             for col in 0..<gameBoard.size {
                 if correctMarked < correctCount {
-                    gameBoard.status[row][col] = .playedCorrectly
+                  gameBoard.status[row][col].val = .playedCorrectly
                     correctMarked += 1
                 } else if incorrectMarked < incorrectCount {
-                    gameBoard.status[row][col] = .playedIncorrectly
+                  gameBoard.status[row][col].val = .playedIncorrectly
                     incorrectMarked += 1
                 } else {
-                    gameBoard.status[row][col] = .allocated
+                  gameBoard.status[row][col].val = .allocated
                 }
             }
         }
     }
     
-    func borderColor(for status: ChallengeStatus) -> Color {
+    func borderColor(for status: ChallengeStatusVal) -> Color {
         switch status {
         case .playedCorrectly:
             return .green
         case .playedIncorrectly:
             return .red
         default:
-            return .clear
+            return .yellow
         }
     }
     
-    func allocatedChallengesCount() -> Int {
-        return challengeManager.challengeStatuses.filter { $0 == .allocated }.count
-    }
-    
-    func freeChallengesCount() -> Int {
-        return challengeManager.challengeStatuses.filter { $0 == .inReserve }.count
-    }
+
 }
 
 // Preview Provider for SwiftUI preview
@@ -208,11 +217,11 @@ struct TestView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ForEach([3, 4, 5, 6], id: \.self) { size in
-                TestView(
+                FrontView(
                     size: size,
                     topics: ["Actors", "Animals", "Cars"],
-                    tapGesture: { row, col in
-                        print("Tapped cell at row \(row), col \(col)")
+                    tapGesture: { ch in
+                      print("Tapped cell with challenge \(String(describing: ch))")
                     }
                 )
                 .environmentObject(ChallengeManager())  // Ensure to add your ChallengeManager

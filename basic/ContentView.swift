@@ -2,7 +2,7 @@ import SwiftUI
 
 // Assuming a mock PlayData JSON file in the main bundle
 let jsonFileName = "playdata.json"
-let starting_size = 6 // Example size, can be 3 to 6
+let starting_size = 3 // Example size, can be 3 to 6
 let starting_topics = ["Actors", "Animals","Cars"] // Example topics
 
 struct IdentifiablePoint: Identifiable {
@@ -116,12 +116,17 @@ struct PlayData: Codable {
 
 // MARK: - Enums
 
-enum ChallengeStatus: Int, Codable {
+enum ChallengeStatusVal : Int, Codable  {
     case inReserve         // 0
     case allocated         // 1
     case playedCorrectly   // 2
     case playedIncorrectly // 3
     case abandoned         // 4
+}
+
+struct ChallengeStatus: Codable,Equatable {
+  var id: String
+  var val: ChallengeStatusVal
 }
 
 // Loads the PlayData from a JSON file in the main bundle
@@ -172,65 +177,69 @@ func loadChallengeStatuses() -> [ChallengeStatus]? {
  1. **GameBoard Class**:
  - The `GameBoard` class is initialized with a size and an array of topics.
  - It has methods to populate the board with challenges, reset the board, replace a challenge, and get unplayed challenges.
- 
- 2. **ChallengeManager Enhancements**:
- - Added methods to allocate and return challenges, ensuring detailed error handling.
- 
- 3. **TestView**:
- - Displays the game board using a `ScrollView` and nested `HStack` and `VStack`.
- - Each cell is sized to 120x120 pixels with 2 pixels of padding.
- - The border color is green if the challenge is played correctly and red if played incorrectly.
- - A test function `randomlyMarkCells` randomly marks 1/3 of the cells as correct and 1/2 as incorrect.
- 
+
 /////////////
  
  */
 
+struct TopBehaviorView:View {
+  @EnvironmentObject var challengeManager: ChallengeManager
+  @EnvironmentObject var appColors: AppColors
+  @State var chal :Challenge? = nil
+  var body: some View {
+    FrontView(size: starting_size, topics: starting_topics){ ch in
+      //tap behavior
+      chal = ch
+    }
+    .onAppear {
+      loadAllData(challengeManager: challengeManager)
+      }
+      .onDisappear {
+        saveChallengeStatuses(challengeManager.challengeStatuses)
+      }
+      .sheet(item:$chal) { ch in
+          PlayChallengeView (ch: ch)
+          .environmentObject(appColors)
+          .environmentObject(challengeManager)
+        }
+      }
+  }
+func loadAllData (challengeManager: ChallengeManager) { 
+  do {
+    try challengeManager.playData = loadPlayData(from: jsonFileName)
+    if let playData = challengeManager.playData {
+      if let loadedStatuses = loadChallengeStatuses() {
+        challengeManager.challengeStatuses = loadedStatuses
+      } else {
+        let challenges = playData.gameDatum.flatMap { $0.challenges}
+        var cs:[ChallengeStatus] = []
+        for j in 0..<challenges.count {
+          cs.append(ChallengeStatus(id:challenges[j].id,val:.inReserve))
+        }
+        challengeManager.challengeStatuses = cs
+      }
+    }
+  } catch {
+    print("Failed to load PlayData: \(error)")
+  }
+}
 
 // The app's main entry point
 @main
 struct ChallengeGameApp: App {
   private var challengeManager = ChallengeManager()
   private var appColors = AppColors()
-  @State var tapped :IdentifiablePoint? = nil
-  
   var body: some Scene {
     WindowGroup {
-      TestView(size: starting_size, topics: starting_topics){ row, col in
-        print("tapped \(row) \(col)")
-        tapped=IdentifiablePoint(row: row,col: col)
-      } 
+      TopBehaviorView()
         .environmentObject(appColors)
         .environmentObject(challengeManager)
-        .onAppear {
-          do {
-            try challengeManager.playData = loadPlayData(from: jsonFileName)
-            if let playData = challengeManager.playData {
-              if let loadedStatuses = loadChallengeStatuses() {
-                challengeManager.challengeStatuses = loadedStatuses
-              } else {
-                challengeManager.challengeStatuses = [ChallengeStatus](repeating: .inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
-              }
-            }
-          } catch {
-            print("Failed to load PlayData: \(error)")
-          }
-        }
-        .onDisappear {
-          saveChallengeStatuses(challengeManager.challengeStatuses)
-        }
-        .sheet(item:$tapped) { tapped in
-         
-          if  let ch = challengeManager.getChallenge(row:tapped.row,col:tapped.col) {
-            PlayChallengeView (ch: ch)
-          }
-          else{
-            Color.red
-          }
-          
-        }
     }
   }
+
+  
+
+  
 }
 
 
@@ -291,22 +300,3 @@ extension Color: Codable {
   }
 }
 
-struct TopicCountsView: View {
-  let topic:Topic
-  @EnvironmentObject var appColors: AppColors
-  @EnvironmentObject var challengeManager: ChallengeManager
-  var body: some View {
-    HStack {
-      RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
-        .frame(width: 24)
-        .padding()
-        .foregroundColor(AppColors.colorFor(topic: topic.name)?.backgroundColor)
-      Text(topic.name)
-      Spacer()
-      Text("\(challengeManager.allocatedChallengesCount(for: topic)) - "
-           + "\(challengeManager.freeChallengesCount(for: topic)) - "
-           + "\(challengeManager.abandonedChallengesCount(for: topic))")
-    }
-    .padding(.horizontal)
-  }
-}

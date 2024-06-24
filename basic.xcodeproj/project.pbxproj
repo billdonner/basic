@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		885CEB0C2C28879000234C17 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0B2C28879000234C17 /* AppColors.swift */; };
-		885CEB0E2C289BDD00234C17 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0D2C289BDD00234C17 /* TestView.swift */; };
+		885CEB0E2C289BDD00234C17 /* FrontView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0D2C289BDD00234C17 /* FrontView.swift */; };
 		885CEB102C289C8500234C17 /* AllocatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0F2C289C8500234C17 /* AllocatorView.swift */; };
 		885CEB122C289D0200234C17 /* PlayChallengeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB112C289D0200234C17 /* PlayChallengeView.swift */; };
 		885CEB142C289D5300234C17 /* ChallengeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB132C289D5300234C17 /* ChallengeManager.swift */; };
@@ -41,7 +41,7 @@
 
 /* Begin PBXFileReference section */
 		885CEB0B2C28879000234C17 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		885CEB0D2C289BDD00234C17 /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
+		885CEB0D2C289BDD00234C17 /* FrontView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontView.swift; sourceTree = "<group>"; };
 		885CEB0F2C289C8500234C17 /* AllocatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllocatorView.swift; sourceTree = "<group>"; };
 		885CEB112C289D0200234C17 /* PlayChallengeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayChallengeView.swift; sourceTree = "<group>"; };
 		885CEB132C289D5300234C17 /* ChallengeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeManager.swift; sourceTree = "<group>"; };
@@ -115,7 +115,7 @@
 				885CEB0B2C28879000234C17 /* AppColors.swift */,
 				885CEB152C289DDC00234C17 /* GameBoard.swift */,
 				885CEB132C289D5300234C17 /* ChallengeManager.swift */,
-				885CEB0D2C289BDD00234C17 /* TestView.swift */,
+				885CEB0D2C289BDD00234C17 /* FrontView.swift */,
 				88F6F8D62C1A1E2500A50C31 /* Assets.xcassets */,
 				88F6F8D82C1A1E2500A50C31 /* Preview Content */,
 			);
@@ -278,7 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				885CEB0E2C289BDD00234C17 /* TestView.swift in Sources */,
+				885CEB0E2C289BDD00234C17 /* FrontView.swift in Sources */,
 				88F6F8D52C1A1E2400A50C31 /* ContentView.swift in Sources */,
 				885CEB102C289C8500234C17 /* AllocatorView.swift in Sources */,
 				885CEB162C289DDC00234C17 /* GameBoard.swift in Sources */,

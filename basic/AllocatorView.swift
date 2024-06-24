@@ -6,21 +6,29 @@
 //
 
 import SwiftUI
-
 struct AllocatorView: View {
     @EnvironmentObject var appColors: AppColors
     @EnvironmentObject var challengeManager: ChallengeManager
     @Environment(\.colorScheme) var colorScheme //system light/dark
     
-  @State var succ = false
+    @State var succ = false
 
     var body: some View {
-        Group {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Allocated: \(challengeManager.allocatedChallengesCount())")
+                Text("Free: \(challengeManager.freeChallengesCount())")
+            }
+            .font(.footnote)
+            .padding(.bottom, 8)
+
             if let playData = challengeManager.playData {
                 ScrollView {
-                  ForEach(playData.topicData.topics, id: \.name) { topic in
-                        if challengeManager.allocatedChallengesCount(for: topic) > 0 {
-                          TopicCountsView(topic:topic)
+                    VStack(spacing: 4) {
+                        ForEach(playData.topicData.topics, id: \.name) { topic in
+                            if challengeManager.allocatedChallengesCount(for: topic) > 0 {
+                                TopicCountsView(topic: topic)
+                            }
                         }
                     }
                 }
@@ -49,5 +57,27 @@ struct AllocatorView_Previews: PreviewProvider {
         AllocatorView()
             .environmentObject(ChallengeManager())
             .environmentObject(AppColors())
+    }
+}
+
+struct TopicCountsView: View {
+    let topic: Topic
+    @EnvironmentObject var appColors: AppColors
+    @EnvironmentObject var challengeManager: ChallengeManager
+
+    var body: some View {
+        HStack {
+            RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
+                .frame(width: 24, height: 24)
+                .foregroundColor(appColors.colorFor(topic: topic.name)?.backgroundColor)
+            Text(topic.name)
+            Spacer()
+            Text("\(challengeManager.allocatedChallengesCount(for: topic)) - "
+                + "\(challengeManager.freeChallengesCount(for: topic)) - "
+                + "\(challengeManager.abandonedChallengesCount(for: topic))")
+        }
+        .font(.caption)
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
     }
 }

@@ -6,31 +6,60 @@
 //
 
 import Foundation
+
+enum ChallengeError: Error {
+    case notfound
+}
+
+
 // The manager class to handle Challenge-related operations and state
 @Observable
 class ChallengeManager : ObservableObject {
     internal init(playData: PlayData? = nil) {
         self.playData = playData
-        if let playData = playData {
-            self.challengeStatuses = [ChallengeStatus](repeating: .inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
-        } else {
-            self.challengeStatuses = []
-        }
+      self.challengeStatuses = []
     }
     
     var playData: PlayData?
     var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
     
+  func setStatus(for challenge:Challenge, status: ChallengeStatusVal) throws {
+    defer {
+        saveChallengeStatuses(challengeStatuses)
+    }
+    for (index,cs ) in challengeStatuses.enumerated() {
+      if cs.id == challenge.id || cs.val == .inReserve {
+        challengeStatuses[index] = ChallengeStatus(id:challenge.id,val:status)
+        return
+      }
+    }
+    throw ChallengeError.notfound
+  }
+  
+  func allocatedChallengesCount() -> Int {
+    return  challengeStatuses.filter { $0.val == .allocated }.count
+  }
+  
+  func freeChallengesCount() -> Int {
+    return  challengeStatuses.filter { $0.val  == .inReserve }.count
+  }
+  
     func resetChallengeStatuses(at challengeIndices: [Int]) {
+      defer {
+          saveChallengeStatuses(challengeStatuses)
+      }
         for index in challengeIndices {
             if index >= 0 && index < challengeStatuses.count {
-                challengeStatuses[index] = .inReserve
+              challengeStatuses[index].val = .inReserve
             }
         }
     }
     func resetAllChallengeStatuses() {
+      defer {
+          saveChallengeStatuses(challengeStatuses)
+      }
         if let playData = playData {
-            self.challengeStatuses = [ChallengeStatus](repeating: .inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
+          self.challengeStatuses = [ChallengeStatus](repeating: ChallengeStatus(id:"??",val:.inReserve), count: playData.gameDatum.flatMap { $0.challenges }.count)
         } else {
             self.challengeStatuses = []
         }
@@ -43,12 +72,15 @@ class ChallengeManager : ObservableObject {
     
     // Allocates N challenges from all challenges
     func allocateChallenges(_ n: Int) -> [Challenge]? {
+      defer {
+          saveChallengeStatuses(challengeStatuses)
+      }
         let allChallenges = getAllChallenges()
         var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
         for index in 0..<allChallenges.count {
-            if challengeStatuses[index] == .inReserve {
-                challengeStatuses[index] = .allocated
+          if challengeStatuses[index].val == .inReserve {
+            challengeStatuses[index].val = .allocated
                 allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
                 if allocatedCount == n { break }
@@ -66,8 +98,8 @@ class ChallengeManager : ObservableObject {
         var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
         for index in 0..<allChallenges.count {
-            if allChallenges[index].topic == topic && challengeStatuses[index] == .inReserve {
-                challengeStatuses[index] = .allocated
+          if allChallenges[index].topic == topic && challengeStatuses[index].val == .inReserve {
+              challengeStatuses[index].val = .allocated
                 allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
                 if allocatedCount == n { break }
@@ -87,7 +119,7 @@ class ChallengeManager : ObservableObject {
         }
         // Initialize the topicChallengeMap
         for (index, challenge) in allChallenges.enumerated() {
-            if topics.contains(challenge.topic) && challengeStatuses[index] == .inReserve {
+          if topics.contains(challenge.topic) && challengeStatuses[index].val == .inReserve {
                 topicChallengeMap[challenge.topic, default: []].append(index)
             }
         }
@@ -107,7 +139,7 @@ class ChallengeManager : ObservableObject {
             let availableChallenges = topicChallengeMap[topic] ?? []
             let challengesToAllocate = min(challengesPerTopicInitial, availableChallenges.count)
             for index in availableChallenges.prefix(challengesToAllocate) {
-                challengeStatuses[index] = .allocated
+              challengeStatuses[index].val = .allocated
                 allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
             }
@@ -118,19 +150,20 @@ class ChallengeManager : ObservableObject {
             let additionalChallengesNeeded = n - allocatedCount
             let remainingAvailableChallenges = topics.flatMap { topicChallengeMap[$0] ?? [] }
             for index in remainingAvailableChallenges.prefix(additionalChallengesNeeded) {
-                challengeStatuses[index] = .allocated
+              challengeStatuses[index].val = .allocated
                 allocatedChallenges.append(allChallenges[index])
                 allocatedCount += 1
             }
         }
         
-        return allocatedCount == n ? allocatedChallenges : nil
+      return allocatedCount == n ? allocatedChallenges.shuffled() : nil
     }
     // get challenge at index
   func getChallenge(row: Int,col:Int) -> Challenge? {
     let index = row*starting_size+col 
-    guard index >= 0 && index < getAllChallenges().count else { return nil }
-    return getAllChallenges()[index]
+    let chs = getAllChallenges()
+    guard index >= 0 && index < chs.count else { return nil }
+    return chs[index]
   }
   
     // Replaces one challenge with another, marking the old one as abandoned
@@ -140,48 +173,38 @@ class ChallengeManager : ObservableObject {
             saveChallengeStatuses(challengeStatuses)
         }
         // Mark the old challenge as abandoned
-        challengeStatuses[index] = .abandoned
+      challengeStatuses[index].val = .abandoned
         
         // Allocate a new challenge from the same topic
         let topic = getAllChallenges()[index].topic
-        let topicChallenges = getAllChallenges().enumerated().filter { $0.element.topic == topic && challengeStatuses[$0.offset] == .inReserve }
+      let topicChallenges = getAllChallenges().enumerated().filter { $0.element.topic == topic && challengeStatuses[$0.offset].val == .inReserve }
         
         guard let newChallengeIndex = topicChallenges.first?.offset else {
             return nil
         }
         
-        challengeStatuses[newChallengeIndex] = .allocated
+      challengeStatuses[newChallengeIndex].val = .allocated
         return getAllChallenges()[newChallengeIndex]
     }
     
-    // Replaces the last topic allocated
-    func replaceLastAllocatedTopic() -> Challenge? {
-        // Get the index of the last allocated challenge
-        guard let lastAllocatedIndex = challengeStatuses.lastIndex(of: .allocated) else {
-            return nil
-        }
-        
-        // Replace the last allocated challenge
-        return replaceChallenge(at: lastAllocatedIndex)
-    }
     
     // Helper functions to get counts
     func allocatedChallengesCount(for topic: Topic) -> Int {
-        return countChallenges(for: topic, with: .allocated)
+      return countChallenges(for: topic, with:.allocated)
     }
     
     func abandonedChallengesCount(for topic: Topic) -> Int {
-        return countChallenges(for: topic, with: .abandoned)
+      return countChallenges(for: topic, with: .abandoned)
     }
     
     func freeChallengesCount(for topic: Topic) -> Int {
-        return getAllChallenges().enumerated().filter { $0.element.topic == topic.name && challengeStatuses[$0.offset] == .inReserve }.count
+      return getAllChallenges().enumerated().filter { $0.element.topic == topic.name && challengeStatuses[$0.offset].val == .inReserve }.count
     }
     
-    func countChallenges(for topic: Topic, with status: ChallengeStatus) -> Int {
+    func countChallenges(for topic: Topic, with status: ChallengeStatusVal) -> Int {
         let allChallenges = getAllChallenges()
         return allChallenges.enumerated().filter { index, challenge in
-            index < challengeStatuses.count && challenge.topic == topic.name && challengeStatuses[index] == status
+          index < challengeStatuses.count && challenge.topic == topic.name && challengeStatuses[index].val == status
         }.count
     }
 }
