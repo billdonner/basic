@@ -26,8 +26,6 @@ class ChallengeManager : ObservableObject {
   func getStatus(for challenge:Challenge) throws -> ChallengeStatusVal {
     for index in 0..<challengeStatuses.count {
       if challengeStatuses[index].id == challenge.id { 
-   // for (index,cs ) in challengeStatuses.enumerated() {
-    //  if cs.id == challenge.id {
         return challengeStatuses[index].val
       }
     }
@@ -64,11 +62,15 @@ class ChallengeManager : ObservableObject {
             }
         }
     }
-    func resetAllChallengeStatuses() {
+  func resetAllChallengeStatuses(gameBoard:GameBoard) {
+   
       defer {
           saveChallengeStatuses(challengeStatuses)
       }
         if let playData = playData {
+          //
+          
+          
           self.challengeStatuses = [ChallengeStatus](repeating: ChallengeStatus(id:"??",val:.inReserve), count: playData.gameDatum.flatMap { $0.challenges }.count)
         } else {
             self.challengeStatuses = []

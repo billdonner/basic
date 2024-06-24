@@ -9,17 +9,20 @@ import SwiftUI
 // MARK: - Modified GameBoard Class
 @Observable 
 class GameBoard : ObservableObject {
-    var board: [[Challenge]]
-    var status: [[ChallengeStatus]]
+    var board: [[Challenge]]  // these are copied in for each new game from the ChallengeManager
+    var cellstate: [[ChallengeOutcomes]]
     var size: Int
     var topics: [String]
+  
+  
+  
   func populateBoard(with challenges: [Challenge]) {
       var challengeIndex = 0
       for row in 0..<size {
           for col in 0..<size {
               if challengeIndex < challenges.count {
                   board[row][col] = challenges[challengeIndex]
-                  status[row][col] = ChallengeStatus(id:challenges[challengeIndex].id,val:.allocated)
+                cellstate[row][col] = .unplayed
                   challengeIndex += 1
               }
           }
@@ -27,33 +30,36 @@ class GameBoard : ObservableObject {
   }
 
   func   reinit(size: Int, topics: [String], challenges: [Challenge]){
-    
     self.size = size
     self.topics = topics
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
-     self.status = Array(repeating: Array(repeating: ChallengeStatus(id:"",val:.inReserve), count: size), count: size)
+    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: size), count: size)
     populateBoard(with: challenges)
   }
  
+  static var mock = {
+    GameBoard(size:1,topics:["Fun"],challenges:[Challenge.mock])
+  }
     
   init(size: Int, topics: [String], challenges: [Challenge]) {
         self.size = size
         self.topics = topics
         self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
-         self.status = Array(repeating: Array(repeating: ChallengeStatus(id:"",val:.inReserve), count: size), count: size)
+    self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
         populateBoard(with: challenges)
     }
 
-    func resetBoard() -> [Challenge] {
+  // this returns unplayed challenges
+    func resetBoardReturningUnplayed() -> [Challenge] {
         var unplayedChallenges: [Challenge] = []
         for row in 0..<size {
             for col in 0..<size {
-              if status[row][col].val == .allocated {
-                    unplayedChallenges.append(board[row][col])
-                status[row][col] = ChallengeStatus(id:"",val:.inReserve)
-                }
+              if cellstate[row][col]  == .unplayed {
+                unplayedChallenges.append(board[row][col])
+              }
+              cellstate[row][col] = .unplayed
             }
-        }
+            }
         return unplayedChallenges
     }
     
@@ -61,7 +67,7 @@ class GameBoard : ObservableObject {
         let (row, col) = position
         if row >= 0 && row < size && col >= 0 && col < size {
             board[row][col] = newChallenge
-          status[row][col] = ChallengeStatus(id:newChallenge.id,val:.allocated)
+            cellstate[row][col] = .unplayed // probably dont need this
         }
     }
     
@@ -69,7 +75,7 @@ class GameBoard : ObservableObject {
         var unplayedChallenges: [Challenge] = []
         for row in 0..<size {
             for col in 0..<size {
-              if status[row][col].val == .allocated {
+              if cellstate[row][col] == .unplayed {
                     unplayedChallenges.append(board[row][col])
                 }
             }

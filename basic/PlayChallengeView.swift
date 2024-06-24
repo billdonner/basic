@@ -12,16 +12,19 @@ extension Challenge {
 }
 
 struct PlayChallengeView:View {
-  let ch: Challenge
+  let row : Int
+  let col : Int
   @Binding var playCount: Int
-  @EnvironmentObject var challengeManager: ChallengeManager
+  //@EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var appColors: AppColors
+  @EnvironmentObject var gb: GameBoard
   @Environment(\.dismiss) var dismiss
   var body: some View {
-    let status = (try? challengeManager.getStatus(for:ch).describe()) ?? "err"
+   // let status = (try? challengeManager.getStatus(for:ch).describe()) ?? "err"
+    let ch = gb.board[row][col]
     VStack (spacing:20){
       Text(ch.id)
-      Text(status)
+      //Text(status)
         RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
           .frame(width: 50,height:24)
           .padding()
@@ -30,36 +33,26 @@ struct PlayChallengeView:View {
       }
       Text(ch.question)
       Button(action: {
-        try? challengeManager.setStatus(for: ch, status: ChallengeStatusVal.playedCorrectly)//setStatus(for:ch, status: .playedCorrectly)
+        gb.cellstate[row][col] = .playedCorrectly
         playCount += 1
         dismiss()
-      }) {
-        
-        Text("Mark Correct")
-      }
+      }) {   Text("Mark Correct") }
       Button(action: {
-        try! challengeManager.setStatus(for:ch, status: .playedIncorrectly)
+        gb.cellstate[row][col] = .playedIncorrectly
         playCount += 1
         dismiss()
-      }) {
-        Text("Mark InCorrect")
-      }
+      }) {  Text("Mark InCorrect")  }
+    
       Button(action: {
         playCount += 1
         dismiss()
-      }) {
-       // challengeManager.replaceChallengeAnyTopic (for:ch)
-        Text("Gimmee Only")
-      }
+      }) {  Text("Gimmee Only")  }
     
     Button(action: {
       playCount += 1
       dismiss()
-    }) {
-      //challengeManager.replaceChallengeWithinTopic (for:ch)
-      Text("Gimmee Any")
-    }
-      Button(action: {
+    }) {  Text("Gimmee Any")  }
+    Button(action: {
         dismiss()
       }) {
         Text("Pass/Ignore")
@@ -68,6 +61,8 @@ struct PlayChallengeView:View {
   }
 #Preview{
   @Previewable @State var playCount = 0
-  PlayChallengeView(ch:Challenge.mock, playCount: $playCount).environmentObject(AppColors())
+  PlayChallengeView(row:0,col:0,playCount: $playCount)
+    .environmentObject(AppColors())
+    .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.mock]))
   
 }

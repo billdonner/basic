@@ -10,33 +10,35 @@ struct FrontView: View {
     let size: Int
     let topics: [String]
     @Binding var playCount: Int
-     let tapGesture: (_ ch:Challenge?) -> Void
+  let tapGesture: (_ row:Int, _ col:Int ) -> Void
     @EnvironmentObject var appColors: AppColors
     @EnvironmentObject var challengeManager: ChallengeManager
-  @EnvironmentObject var gameBoard: GameBoard
+    @EnvironmentObject var gameBoard: GameBoard
     @State private var hideCellContent = true
     @State private var showingAlert = false
     @State private var showingSettings = false
     private let spacing: CGFloat = 5
     // Adding a shrink factor to slightly reduce the cell size
     private let shrinkFactor: CGFloat = 0.9
+  @AppStorage("faceUpCards")   var faceUpCards = false
     
-  fileprivate func makeOneCell(challenge:Challenge, status:ChallengeStatus,  cellSize: CGFloat) -> some View {
+  fileprivate func makeOneCell(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
       let colormix = appColors.colorFor(topic: challenge.topic)
         return VStack {
-          Text("\(status.val) " + "\(playCount )" + (hideCellContent ? " " : challenge.question ))
-                
+          Text(//"\(status.val) " + "\(playCount )" +
+            ((hideCellContent || !faceUpCards) ? " " : challenge.question ))
                 //challenge.id + "&" + gameBoard.status[row][col].id)
-            
                 .font(.caption)
                 .padding(8)
                 .frame(width: cellSize, height: cellSize)
                 .background(colormix?.backgroundColor)
                 .foregroundColor(colormix?.foregroundColor)
-                .border(borderColor(for: status.val), width: 8)
+                .border(borderColor(for: status), width: 8)
                 .cornerRadius(8)
                 .onTapGesture {
-                    tapGesture(challenge)
+                  if !hideCellContent {
+                    tapGesture(row,col)
+                  }
                 }
         }
     }
@@ -84,7 +86,10 @@ struct FrontView: View {
                 .opacity(!hideCellContent ? 1 : 0.5)
                 //RESET
                 Button(action: {
-                    challengeManager.resetAllChallengeStatuses()
+                  
+                  
+                  let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
+                  challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
                     hideCellContent = true
                     clearAllCells()
                 }) {
@@ -105,11 +110,11 @@ struct FrontView: View {
                       .padding()
                       .background(Color.white)
                       .foregroundColor(.black)
-                      .border(Color.black,width:2)
+                      .border(Color.black,width:4)
                       .cornerRadius(8)
               }
-          
-              //.opacity(hideCellContent ? 1 : 0.5)
+              .disabled(!hideCellContent)
+              .opacity(hideCellContent ? 1 : 0.5)
               
             }
             .padding()
@@ -126,7 +131,7 @@ struct FrontView: View {
                                 HStack(spacing: spacing) {
                                     ForEach(0..<gameBoard.size, id: \.self) { col in
                           
-                                      makeOneCell(challenge: gameBoard.board[row][col],status:gameBoard.status[row][col], cellSize: cellSize)
+                                      makeOneCell(row:row,col:col,challenge: gameBoard.board[row][col],status:gameBoard.cellstate[row][col], cellSize: cellSize)
                                     }
                                 }
                             }
@@ -149,7 +154,7 @@ struct FrontView: View {
                     }
                     .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showingAlert){
                       Button("OK", role: .cancel) {
-                        challengeManager.resetAllChallengeStatuses()
+                        challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
                         hideCellContent = true
                         clearAllCells()
                         showingAlert = false } //stick the right here
@@ -181,14 +186,14 @@ struct FrontView: View {
     }
     
     func endGame() {
-            let unplayedChallenges = gameBoard.resetBoard()
+            let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
             challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
     }
     
     func clearAllCells() {
         for row in 0..<gameBoard.size {
             for col in 0..<gameBoard.size {
-              gameBoard.status[row][col] = ChallengeStatus(id:"",val:.inReserve)
+              gameBoard.cellstate[row][col] = .unplayed
             }
         }
     }
@@ -204,33 +209,26 @@ struct FrontView: View {
         for row in 0..<gameBoard.size {
             for col in 0..<gameBoard.size {
                 if correctMarked < correctCount {
-                  gameBoard.status[row][col].val = .playedCorrectly
+                  gameBoard.cellstate[row][col] = .playedCorrectly
                     correctMarked += 1
                 } else if incorrectMarked < incorrectCount {
-                  gameBoard.status[row][col].val = .playedIncorrectly
+                  gameBoard.cellstate[row][col]  = .playedIncorrectly
                     incorrectMarked += 1
                 } else {
-                  gameBoard.status[row][col].val = .allocated
+                  gameBoard.cellstate[row][col]  = .unplayed 
                 }
             }
         }
     }
     
-    func borderColor(for status: ChallengeStatusVal) -> Color {
+    func borderColor(for status: ChallengeOutcomes) -> Color {
         switch status {
         case .playedCorrectly:
             return .green
         case .playedIncorrectly:
             return .red
-          
-        case .abandoned:
-          return .black
-          
-        case .inReserve:
-          return .indigo
-          
-        case .allocated:
-            return .yellow
+        case .unplayed:
+          return .yellow
         }
     }
     
@@ -245,10 +243,10 @@ struct TestView_Previews: PreviewProvider {
                 FrontView(
                     size: size,
                     topics: ["Actors", "Animals", "Cars"], playCount: .constant(3),
-                    tapGesture: { ch in
-                      print("Tapped cell with challenge \(String(describing: ch))")
+                    tapGesture: { row,col in
+                      print("Tapped cell with challenge \(row) \(col)")
                     }
-                )
+                )  .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.mock]))
                 .environmentObject(ChallengeManager())  // Ensure to add your ChallengeManager
                 .previewLayout(.fixed(width: 300, height: 300))
                 .previewDisplayName("Size \(size)x\(size)")

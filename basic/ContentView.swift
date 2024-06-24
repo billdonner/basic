@@ -115,7 +115,14 @@ struct PlayData: Codable {
 }
 
 // MARK: - Enums
+// these will be small and fast for all the math done on the matrices
+enum ChallengeOutcomes : Codable,Equatable{
+  case unplayed
+  case playedCorrectly
+  case playedIncorrectly
+}
 
+// these will be ungainly
 enum ChallengeStatusVal : Int, Codable  {
   case inReserve         // 0
   case allocated         // 1
@@ -191,16 +198,15 @@ func loadChallengeStatuses() -> [ChallengeStatus]? {
 /////////////
  
  */
-
 struct TopBehaviorView:View {
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var appColors: AppColors
-  @State var chal :Challenge? = nil
+  @State var chal :IdentifiablePoint? = nil
   @State var playCount = 0
   var body: some View {
-    FrontView(size: starting_size, topics: starting_topics,playCount: $playCount){ ch in
+    FrontView(size: starting_size, topics: starting_topics,playCount: $playCount){ row,col    in
       //tap behavior
-      chal = ch
+      chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
       loadAllData(challengeManager: challengeManager)
@@ -208,8 +214,8 @@ struct TopBehaviorView:View {
       .onDisappear {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
-      .sheet(item:$chal,onDismiss: { print ("Playcount is now \(playCount)")}) { ch in
-        PlayChallengeView (ch: ch, playCount: $playCount)
+      .sheet(item:$chal,onDismiss: { print ("Playcount is now \(playCount)")}) { cha in
+        PlayChallengeView (row:cha.row,col:cha.col, playCount: $playCount)
           .environmentObject(appColors)
           .environmentObject(challengeManager)
         }
