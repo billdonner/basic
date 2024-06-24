@@ -7,6 +7,7 @@
 
 import SwiftUI
 struct AllocatorView: View {
+  @Binding var playCount: Int
     @EnvironmentObject var appColors: AppColors
     @EnvironmentObject var challengeManager: ChallengeManager
     @Environment(\.colorScheme) var colorScheme //system light/dark
@@ -18,6 +19,7 @@ struct AllocatorView: View {
             HStack {
                 Text("Allocated: \(challengeManager.allocatedChallengesCount())")
                 Text("Free: \(challengeManager.freeChallengesCount())")
+                Text("Played: \(playCount)")
             }
             .font(.footnote)
             .padding(.bottom, 8)
@@ -54,7 +56,7 @@ struct AllocatorView: View {
 // Assuming you have the challengeManager and colorSchemes to preview the view
 struct AllocatorView_Previews: PreviewProvider {
     static var previews: some View {
-        AllocatorView()
+      AllocatorView(playCount:.constant(3))
             .environmentObject(ChallengeManager())
             .environmentObject(AppColors())
     }

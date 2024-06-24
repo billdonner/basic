@@ -22,7 +22,17 @@ class ChallengeManager : ObservableObject {
     
     var playData: PlayData?
     var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
-    
+  
+  func getStatus(for challenge:Challenge) throws -> ChallengeStatusVal {
+    for index in 0..<challengeStatuses.count {
+      if challengeStatuses[index].id == challenge.id { 
+   // for (index,cs ) in challengeStatuses.enumerated() {
+    //  if cs.id == challenge.id {
+        return challengeStatuses[index].val
+      }
+    }
+      throw ChallengeError.notfound
+  }
   func setStatus(for challenge:Challenge, status: ChallengeStatusVal) throws {
     defer {
         saveChallengeStatuses(challengeStatuses)
@@ -160,7 +170,7 @@ class ChallengeManager : ObservableObject {
     }
     // get challenge at index
   func getChallenge(row: Int,col:Int) -> Challenge? {
-    let index = row*starting_size+col 
+    let index = row*starting_size+col
     let chs = getAllChallenges()
     guard index >= 0 && index < chs.count else { return nil }
     return chs[index]

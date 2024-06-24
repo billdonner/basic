@@ -9,10 +9,11 @@ import SwiftUI
 struct FrontView: View {
     let size: Int
     let topics: [String]
-  let tapGesture: (_ ch:Challenge?) -> Void
+    @Binding var playCount: Int
+     let tapGesture: (_ ch:Challenge?) -> Void
     @EnvironmentObject var appColors: AppColors
     @EnvironmentObject var challengeManager: ChallengeManager
-    @State private var gameBoard: GameBoard?
+  @EnvironmentObject var gameBoard: GameBoard
     @State private var hideCellContent = true
     @State private var showingAlert = false
     @State private var showingSettings = false
@@ -20,20 +21,19 @@ struct FrontView: View {
     // Adding a shrink factor to slightly reduce the cell size
     private let shrinkFactor: CGFloat = 0.9
     
-    fileprivate func makeOneCell(_ row: Int, _ col: Int, gameBoard: GameBoard, cellSize: CGFloat) -> some View {
-      let challenge = gameBoard.board[row][col]
+  fileprivate func makeOneCell(challenge:Challenge, status:ChallengeStatus,  cellSize: CGFloat) -> some View {
       let colormix = appColors.colorFor(topic: challenge.topic)
         return VStack {
-          Text(hideCellContent ? " " : challenge.question )
+          Text("\(status.val) " + "\(playCount )" + (hideCellContent ? " " : challenge.question ))
                 
                 //challenge.id + "&" + gameBoard.status[row][col].id)
             
-            .font(.caption)
+                .font(.caption)
                 .padding(8)
                 .frame(width: cellSize, height: cellSize)
                 .background(colormix?.backgroundColor)
                 .foregroundColor(colormix?.foregroundColor)
-                .border(borderColor(for: gameBoard.status[row][col].val), width: 8)
+                .border(borderColor(for: status.val), width: 8)
                 .cornerRadius(8)
                 .onTapGesture {
                     tapGesture(challenge)
@@ -114,7 +114,7 @@ struct FrontView: View {
             }
             .padding()
             
-            if let gameBoard = gameBoard {
+          if gameBoard.size > 1 {
                 GeometryReader { geometry in
                     let totalSpacing = spacing * CGFloat(gameBoard.size - 1)
                     let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
@@ -125,7 +125,8 @@ struct FrontView: View {
                             ForEach(0..<gameBoard.size, id: \.self) { row in
                                 HStack(spacing: spacing) {
                                     ForEach(0..<gameBoard.size, id: \.self) { col in
-                                        makeOneCell(row, col, gameBoard: gameBoard, cellSize: cellSize)
+                          
+                                      makeOneCell(challenge: gameBoard.board[row][col],status:gameBoard.status[row][col], cellSize: cellSize)
                                     }
                                 }
                             }
@@ -158,7 +159,7 @@ struct FrontView: View {
             Divider()
             VStack {
           
-                AllocatorView()
+              AllocatorView(playCount:$playCount)
               
                 
             }.frame(height: 150)
@@ -167,8 +168,9 @@ struct FrontView: View {
     }
     
     func startNewGame(size: Int, topics: [String]) -> Bool {
-        if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
-            gameBoard = GameBoard(size: size, topics: topics, challenges: challenges)
+      if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
+      
+          gameBoard.reinit(size: size, topics: topics, challenges: challenges)
           //randomlyMarkCells()
           return true
         } else {
@@ -179,14 +181,11 @@ struct FrontView: View {
     }
     
     func endGame() {
-        if let gameBoard = gameBoard {
             let unplayedChallenges = gameBoard.resetBoard()
             challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
-        }
     }
     
     func clearAllCells() {
-        guard let gameBoard = gameBoard else { return }
         for row in 0..<gameBoard.size {
             for col in 0..<gameBoard.size {
               gameBoard.status[row][col] = ChallengeStatus(id:"",val:.inReserve)
@@ -195,7 +194,6 @@ struct FrontView: View {
     }
     
     func randomlyMarkCells() {
-        guard let gameBoard = gameBoard else { return }
         let totalCells = gameBoard.size * gameBoard.size
         let correctCount = totalCells / 3
         let incorrectCount = totalCells / 3
@@ -224,7 +222,14 @@ struct FrontView: View {
             return .green
         case .playedIncorrectly:
             return .red
-        default:
+          
+        case .abandoned:
+          return .black
+          
+        case .inReserve:
+          return .indigo
+          
+        case .allocated:
             return .yellow
         }
     }
@@ -239,7 +244,7 @@ struct TestView_Previews: PreviewProvider {
             ForEach([3, 4, 5, 6], id: \.self) { size in
                 FrontView(
                     size: size,
-                    topics: ["Actors", "Animals", "Cars"],
+                    topics: ["Actors", "Animals", "Cars"], playCount: .constant(3),
                     tapGesture: { ch in
                       print("Tapped cell with challenge \(String(describing: ch))")
                     }

@@ -13,13 +13,15 @@ extension Challenge {
 
 struct PlayChallengeView:View {
   let ch: Challenge
+  @Binding var playCount: Int
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var appColors: AppColors
   @Environment(\.dismiss) var dismiss
   var body: some View {
+    let status = (try? challengeManager.getStatus(for:ch).describe()) ?? "err"
     VStack (spacing:20){
       Text(ch.id)
-      HStack{
+      Text(status)
         RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
           .frame(width: 50,height:24)
           .padding()
@@ -28,7 +30,8 @@ struct PlayChallengeView:View {
       }
       Text(ch.question)
       Button(action: {
-        try! challengeManager.setStatus(for:ch, status: .playedCorrectly)
+        try? challengeManager.setStatus(for: ch, status: ChallengeStatusVal.playedCorrectly)//setStatus(for:ch, status: .playedCorrectly)
+        playCount += 1
         dismiss()
       }) {
         
@@ -36,11 +39,13 @@ struct PlayChallengeView:View {
       }
       Button(action: {
         try! challengeManager.setStatus(for:ch, status: .playedIncorrectly)
+        playCount += 1
         dismiss()
       }) {
         Text("Mark InCorrect")
       }
       Button(action: {
+        playCount += 1
         dismiss()
       }) {
        // challengeManager.replaceChallengeAnyTopic (for:ch)
@@ -48,6 +53,7 @@ struct PlayChallengeView:View {
       }
     
     Button(action: {
+      playCount += 1
       dismiss()
     }) {
       //challengeManager.replaceChallengeWithinTopic (for:ch)
@@ -60,8 +66,8 @@ struct PlayChallengeView:View {
       }
     }
   }
-}
 #Preview{
-  PlayChallengeView(ch:Challenge.mock).environmentObject(AppColors())
+  @Previewable @State var playCount = 0
+  PlayChallengeView(ch:Challenge.mock, playCount: $playCount).environmentObject(AppColors())
   
 }

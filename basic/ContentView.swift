@@ -117,11 +117,21 @@ struct PlayData: Codable {
 // MARK: - Enums
 
 enum ChallengeStatusVal : Int, Codable  {
-    case inReserve         // 0
-    case allocated         // 1
-    case playedCorrectly   // 2
-    case playedIncorrectly // 3
-    case abandoned         // 4
+  case inReserve         // 0
+  case allocated         // 1
+  case playedCorrectly   // 2
+  case playedIncorrectly // 3
+  case abandoned         // 4
+  
+  func describe () -> String {
+    switch self {
+    case .inReserve : return "RR"
+    case .allocated : return "AA"
+    case .playedCorrectly: return "CC"
+    case .playedIncorrectly: return "XX"
+    case .abandoned: return "ZZ"
+    }
+  }
 }
 
 struct ChallengeStatus: Codable,Equatable {
@@ -186,8 +196,9 @@ struct TopBehaviorView:View {
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var appColors: AppColors
   @State var chal :Challenge? = nil
+  @State var playCount = 0
   var body: some View {
-    FrontView(size: starting_size, topics: starting_topics){ ch in
+    FrontView(size: starting_size, topics: starting_topics,playCount: $playCount){ ch in
       //tap behavior
       chal = ch
     }
@@ -197,8 +208,8 @@ struct TopBehaviorView:View {
       .onDisappear {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
-      .sheet(item:$chal) { ch in
-          PlayChallengeView (ch: ch)
+      .sheet(item:$chal,onDismiss: { print ("Playcount is now \(playCount)")}) { ch in
+        PlayChallengeView (ch: ch, playCount: $playCount)
           .environmentObject(appColors)
           .environmentObject(challengeManager)
         }
@@ -229,11 +240,13 @@ func loadAllData (challengeManager: ChallengeManager) {
 struct ChallengeGameApp: App {
   private var challengeManager = ChallengeManager()
   private var appColors = AppColors()
+  private var gameBoard = GameBoard(size: 1, topics: ["Nuts"], challenges:[ Challenge.mock])
   var body: some Scene {
     WindowGroup {
       TopBehaviorView()
         .environmentObject(appColors)
         .environmentObject(challengeManager)
+        .environmentObject(gameBoard)
     }
   }
 
@@ -242,61 +255,4 @@ struct ChallengeGameApp: App {
   
 }
 
-
-
-// MARK: - ColorScheme
-
-fileprivate extension Color {
-#if os(macOS)
-  typealias SystemColor = NSColor
-#else
-  typealias SystemColor = UIColor
-#endif
-  
-  var colorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
-    var r: CGFloat = 0
-    var g: CGFloat = 0
-    var b: CGFloat = 0
-    var a: CGFloat = 0
-    
-#if os(macOS)
-    SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a)
-    // Note that non RGB color will raise an exception, that I don't now how to catch because it is an Objc exception.
-#else
-    guard SystemColor(self).getRed(&r, green: &g, blue: &b, alpha: &a) else {
-      // Pay attention that the color should be convertible into RGB format
-      // Colors using hue, saturation and brightness won't work
-      return nil
-    }
-#endif
-    
-    return (r, g, b, a)
-  }
-}
-
-extension Color: Codable {
-  enum CodingKeys: String, CodingKey {
-    case red, green, blue
-  }
-  
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    let r = try container.decode(Double.self, forKey: .red)
-    let g = try container.decode(Double.self, forKey: .green)
-    let b = try container.decode(Double.self, forKey: .blue)
-    
-    self.init(red: r, green: g, blue: b)
-  }
-  
-  public func encode(to encoder: Encoder) throws {
-    guard let colorComponents = self.colorComponents else {
-      return
-    }
-    
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(colorComponents.red, forKey: .red)
-    try container.encode(colorComponents.green, forKey: .green)
-    try container.encode(colorComponents.blue, forKey: .blue)
-  }
-}
 

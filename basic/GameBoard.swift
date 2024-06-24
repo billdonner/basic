@@ -7,36 +7,43 @@
 
 import SwiftUI
 // MARK: - Modified GameBoard Class
-
-class GameBoard {
+@Observable 
+class GameBoard : ObservableObject {
     var board: [[Challenge]]
     var status: [[ChallengeStatus]]
     var size: Int
     var topics: [String]
-    
-    init(size: Int, topics: [String], challenges: [Challenge]) {
-      
-      func populateBoard(with challenges: [Challenge]) {
-          var challengeIndex = 0
-          for row in 0..<size {
-              for col in 0..<size {
-                  if challengeIndex < challenges.count {
-                      board[row][col] = challenges[challengeIndex]
-                      status[row][col] = ChallengeStatus(id:challenges[challengeIndex].id,val:.allocated)
-                      challengeIndex += 1
-                  }
+  func populateBoard(with challenges: [Challenge]) {
+      var challengeIndex = 0
+      for row in 0..<size {
+          for col in 0..<size {
+              if challengeIndex < challenges.count {
+                  board[row][col] = challenges[challengeIndex]
+                  status[row][col] = ChallengeStatus(id:challenges[challengeIndex].id,val:.allocated)
+                  challengeIndex += 1
               }
           }
       }
+  }
+
+  func   reinit(size: Int, topics: [String], challenges: [Challenge]){
+    
+    self.size = size
+    self.topics = topics
+    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
+     self.status = Array(repeating: Array(repeating: ChallengeStatus(id:"",val:.inReserve), count: size), count: size)
+    populateBoard(with: challenges)
+  }
+ 
+    
+  init(size: Int, topics: [String], challenges: [Challenge]) {
         self.size = size
         self.topics = topics
         self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
          self.status = Array(repeating: Array(repeating: ChallengeStatus(id:"",val:.inReserve), count: size), count: size)
         populateBoard(with: challenges)
     }
-    
 
-    
     func resetBoard() -> [Challenge] {
         var unplayedChallenges: [Challenge] = []
         for row in 0..<size {
