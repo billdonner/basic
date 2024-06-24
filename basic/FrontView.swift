@@ -14,8 +14,8 @@ struct FrontView: View {
     @EnvironmentObject var challengeManager: ChallengeManager
     @State private var gameBoard: GameBoard?
     @State private var hideCellContent = true
-  @State private var showingAlert = false
-
+    @State private var showingAlert = false
+    @State private var showingSettings = false
     private let spacing: CGFloat = 5
     // Adding a shrink factor to slightly reduce the cell size
     private let shrinkFactor: CGFloat = 0.9
@@ -96,6 +96,21 @@ struct FrontView: View {
                 }
                 .disabled(!hideCellContent)
                 .opacity(hideCellContent ? 1 : 0.5)
+              
+              //SETTINGS
+              Button(action: {
+               showingSettings = true
+              }) {
+                  Text("Settings")
+                      .padding()
+                      .background(Color.white)
+                      .foregroundColor(.black)
+                      .border(Color.black,width:2)
+                      .cornerRadius(8)
+              }
+          
+              //.opacity(hideCellContent ? 1 : 0.5)
+              
             }
             .padding()
             
@@ -116,7 +131,12 @@ struct FrontView: View {
                             }
                         }
                     .padding()
-              }
+                }.sheet(isPresented: $showingSettings){
+                  GameSettingsScreen(ourTopics: topics) {
+                    //needs ehlep
+                    print("GameSettings returned")
+                  }
+                }
             } else {
                 Text("Loading...")
                     .onAppear {
