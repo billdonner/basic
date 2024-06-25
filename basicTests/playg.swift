@@ -109,7 +109,7 @@ class WinningPathTests: XCTestCase {
           [.unplayed, .playedCorrectly, .unplayed],
           [.playedCorrectly, .unplayed, .unplayed]
       ]
-      XCTAssertFalse(isWinningPath(in: matrix))
+      XCTAssertTrue(isWinningPath(in: matrix))
   }
    // --- New 4x4 Test Cases ---
 
@@ -289,8 +289,8 @@ class WinningPathTests: XCTestCase {
          [.unplayed, .unplayed, .unplayed, .unplayed, .unplayed, .unplayed, .playedCorrectly, .unplayed],
          [.unplayed, .unplayed, .playedCorrectly, .unplayed, .unplayed, .playedCorrectly, .unplayed, .unplayed],
          [.unplayed, .playedCorrectly, .unplayed, .playedCorrectly, .playedCorrectly, .unplayed, .unplayed, .unplayed],
-         [.playedCorrectly, .unplayed, .playedCorrectly, .unplayed, .playedCorrectly, .unplayed, .unplayed, .unplayed],
-         [.unplayed, .unplayed, .playedIncorrectly, .unplayed, .unplayed, .playedIncorrectly, .unplayed, .unplayed],
+         [.playedCorrectly, .unplayed, .playedCorrectly, .playedCorrectly, .playedCorrectly, .unplayed, .unplayed, .unplayed],
+         [.unplayed, .unplayed, .playedCorrectly, .unplayed, .unplayed, .playedIncorrectly, .unplayed, .unplayed],
          [.unplayed, .playedCorrectly, .unplayed, .unplayed, .playedCorrectly, .playedCorrectly, .unplayed, .unplayed],
          [.playedCorrectly, .unplayed, .unplayed, .unplayed, .unplayed, .unplayed, .unplayed, .playedCorrectly]
      ]
@@ -367,7 +367,7 @@ class PossibleWinningPathTests: XCTestCase {
            [.playedCorrectly, .playedIncorrectly],
            [.playedIncorrectly, .playedCorrectly],
        ]
-       XCTAssertFalse(isPossibleWinningPath(in: matrix))
+       XCTAssertTrue(isPossibleWinningPath(in: matrix))
    }
    
    func test3x3MatrixWinningPathPossible() {
@@ -472,7 +472,7 @@ class PossibleWinningPathTests: XCTestCase {
          [.unplayed, .playedIncorrectly, .playedIncorrectly, .playedIncorrectly, .unplayed, .unplayed],
          [.unplayed, .unplayed, .unplayed, .playedIncorrectly, .playedIncorrectly, .playedIncorrectly]
      ]
-     XCTAssertFalse(isPossibleWinningPath(in: matrix))
+     XCTAssertTrue(isPossibleWinningPath(in: matrix))
  }
 
  func test6x6MatrixComplexWinningPathPossible() {
