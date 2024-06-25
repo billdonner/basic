@@ -68,9 +68,6 @@ class ChallengeManager : ObservableObject {
           saveChallengeStatuses(challengeStatuses)
       }
         if let playData = playData {
-          //
-          
-          
           self.challengeStatuses = [ChallengeStatus](repeating: ChallengeStatus(id:"??",val:.inReserve), count: playData.gameDatum.flatMap { $0.challenges }.count)
         } else {
             self.challengeStatuses = []

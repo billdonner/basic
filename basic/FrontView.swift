@@ -21,116 +21,20 @@ struct FrontView: View {
     // Adding a shrink factor to slightly reduce the cell size
     private let shrinkFactor: CGFloat = 0.9
   @AppStorage("faceUpCards")   var faceUpCards = false
-    
-  fileprivate func makeOneCell(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
-      let colormix = appColors.colorFor(topic: challenge.topic)
-        return VStack {
-          Text(//"\(status.val) " + "\(playCount )" +
-            ((hideCellContent || !faceUpCards) ? " " : challenge.question ))
-                //challenge.id + "&" + gameBoard.status[row][col].id)
-                .font(.caption)
-                .padding(8)
-                .frame(width: cellSize, height: cellSize)
-                .background(colormix?.backgroundColor)
-                .foregroundColor(colormix?.foregroundColor)
-                .border(borderColor(for: status), width: 8)
-                .cornerRadius(8)
-                .onTapGesture {
-                  if !hideCellContent {
-                    tapGesture(row,col)
-                  }
-                }
-        }
-    }
-    
-  
-  
     var body: some View {
         VStack {
-            HStack {
-              //Start Game
-                Button(action: {
-                  let ok =   startNewGame(size: size, topics: topics)
-                    hideCellContent = false
-                  if !ok {
-                    // ALERT HERE and possible reset
-                    showingAlert = true
-                  }
-                }) {
-                    Text("Start Game")
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .disabled(!hideCellContent)
-                .opacity(hideCellContent ? 1 : 0.5)
-                .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showingAlert){
-                  Button("OK", role: .cancel) {
-                    hideCellContent = true
-                    clearAllCells()
-                  }
-                }
-              // END GAME
-                Button(action: {
-                    endGame()
-                  hideCellContent = true
-                }) {
-                    Text("End Game")
-                        .padding()
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .disabled(hideCellContent)
-                .opacity(!hideCellContent ? 1 : 0.5)
-                //RESET
-                Button(action: {
-                  
-                  
-                  let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
-                  challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
-                    hideCellContent = true
-                    clearAllCells()
-                }) {
-                    Text("Full Reset")
-                        .padding()
-                        .background(Color.black)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .disabled(!hideCellContent)
-                .opacity(hideCellContent ? 1 : 0.5)
-              
-              //SETTINGS
-              Button(action: {
-               showingSettings = true
-              }) {
-                  Text("Settings")
-                      .padding()
-                      .background(Color.white)
-                      .foregroundColor(.black)
-                      .border(Color.black,width:4)
-                      .cornerRadius(8)
-              }
-              .disabled(!hideCellContent)
-              .opacity(hideCellContent ? 1 : 0.5)
-              
-            }
-            .padding()
-            
+        buttons // down below
+            .padding(.horizontal)
+          ScoreBarView(hideCellContent: $hideCellContent)
           if gameBoard.size > 1 {
                 GeometryReader { geometry in
                     let totalSpacing = spacing * CGFloat(gameBoard.size - 1)
                     let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
                     let cellSize = (axisSize / CGFloat(gameBoard.size)) * shrinkFactor  // Apply shrink factor
-                    
-//                    ScrollView([.horizontal, .vertical]) {
                   VStack(alignment:.center, spacing: spacing) {
                             ForEach(0..<gameBoard.size, id: \.self) { row in
                                 HStack(spacing: spacing) {
                                     ForEach(0..<gameBoard.size, id: \.self) { col in
-                          
                                       makeOneCell(row:row,col:col,challenge: gameBoard.board[row][col],status:gameBoard.cellstate[row][col], cellSize: cellSize)
                                     }
                                 }
@@ -140,7 +44,7 @@ struct FrontView: View {
                 }.sheet(isPresented: $showingSettings){
                   GameSettingsScreen(ourTopics: topics) {
                     //needs ehlep
-                    print("GameSettings returned")
+                   // print("GameSettings returned")
                   }
                 }
             } else {
@@ -163,12 +67,8 @@ struct FrontView: View {
             Spacer()
             Divider()
             VStack {
-          
               AllocatorView(playCount:$playCount)
-              
-                
             }.frame(height: 150)
-            
         }
     }
     
@@ -220,23 +120,103 @@ struct FrontView: View {
             }
         }
     }
+     
+  var buttons : some View{
+    HStack {
+      //Start Game
+        Button(action: {
+          let ok =   startNewGame(size: size, topics: topics)
+            hideCellContent = false
+          if !ok {
+            // ALERT HERE and possible reset
+            showingAlert = true
+          }
+        }) {
+            Text("Start Game")
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+        }
+        .disabled(!hideCellContent)
+        .opacity(hideCellContent ? 1 : 0.5)
+        .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showingAlert){
+          Button("OK", role: .cancel) {
+            hideCellContent = true
+            clearAllCells()
+          }
+        }
+      // END GAME
+        Button(action: {
+            endGame()
+          hideCellContent = true
+        }) {
+            Text("End Game")
+                .padding()
+                .background(Color.red)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+        }
+        .disabled(hideCellContent)
+        .opacity(!hideCellContent ? 1 : 0.5)
+        //RESET
+        Button(action: {
+          let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
+          challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
+            hideCellContent = true
+            clearAllCells()
+        }) {
+            Text("Full Reset")
+                .padding()
+                .background(Color.black)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+        }
+        .disabled(!hideCellContent)
+        .opacity(hideCellContent ? 1 : 0.5)
+      
+      //SETTINGS
+      Button(action: {
+       showingSettings = true
+      }) {
+          Text("Settings")
+              .padding()
+              .background(Color.white)
+              .foregroundColor(.black)
+              .border(Color.black,width:4)
+              .cornerRadius(8)
+      }
+      .disabled(!hideCellContent)
+      .opacity(hideCellContent ? 1 : 0.5)
+      
+    }
     
-    func borderColor(for status: ChallengeOutcomes) -> Color {
-        switch status {
-        case .playedCorrectly:
-            return .green
-        case .playedIncorrectly:
-            return .red
-        case .unplayed:
-          return .yellow
+    
+  }
+  fileprivate func makeOneCell(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
+      let colormix = appColors.colorFor(topic: challenge.topic)
+        return VStack {
+          Text(//"\(status.val) " + "\(playCount )" +
+            ((hideCellContent || !faceUpCards) ? " " : challenge.question ))
+                //challenge.id + "&" + gameBoard.status[row][col].id)
+                .font(.caption)
+                .padding(10)
+                .frame(width: cellSize, height: cellSize)
+                .background(colormix?.backgroundColor)
+                .foregroundColor(colormix?.foregroundColor)
+                .border(status.borderColor , width: 8)
+                .cornerRadius(8)
+                .onTapGesture {
+                  if !hideCellContent {
+                    tapGesture(row,col)
+                  }
+                }
         }
     }
     
-
 }
-
 // Preview Provider for SwiftUI preview
-struct TestView_Previews: PreviewProvider {
+struct FrontView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ForEach([3, 4, 5, 6], id: \.self) { size in

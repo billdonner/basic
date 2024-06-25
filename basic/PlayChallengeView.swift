@@ -14,21 +14,27 @@ extension Challenge {
 struct PlayChallengeView:View {
   let row : Int
   let col : Int
+  
   @Binding var playCount: Int
   //@EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var appColors: AppColors
   @EnvironmentObject var gb: GameBoard
   @Environment(\.dismiss) var dismiss
   var body: some View {
-   // let status = (try? challengeManager.getStatus(for:ch).describe()) ?? "err"
     let ch = gb.board[row][col]
+    let state = gb.cellstate[row][col]
     VStack (spacing:20){
-      Text(ch.id)
+      //Text(ch.id)
       //Text(status)
+      HStack{   RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
+          .frame(width: 50,height:24)
+          .padding()
+          .foregroundColor(appColors.colorFor(topic:ch.topic)?.backgroundColor)
         RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
           .frame(width: 50,height:24)
           .padding()
-          .foregroundColor(appColors.colorFor(topic: ch.topic)?.backgroundColor)
+          .foregroundColor(state.borderColor )
+      }
         Text(ch.topic)
       }
       Text(ch.question)

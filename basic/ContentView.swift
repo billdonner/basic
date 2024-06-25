@@ -120,8 +120,18 @@ enum ChallengeOutcomes : Codable,Equatable{
   case unplayed
   case playedCorrectly
   case playedIncorrectly
+  
+  var borderColor:  Color {
+    switch self{
+    case .playedCorrectly:
+      return .green
+    case .playedIncorrectly:
+      return .red
+    case .unplayed:
+      return .gray
+    }
+  }
 }
-
 // these will be ungainly
 enum ChallengeStatusVal : Int, Codable  {
   case inReserve         // 0
