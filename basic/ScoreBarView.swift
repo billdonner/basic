@@ -38,9 +38,7 @@ struct ScoreBarView: View {
                  isPresented: $showAlert){
             Button("OK", role: .cancel) {
                           hideCellContent = true
-           
             }
-
           }.font(.headline).padding()
       }
       

@@ -116,22 +116,7 @@ struct PlayData: Codable {
 
 // MARK: - Enums
 // these will be small and fast for all the math done on the matrices
-enum ChallengeOutcomes : Codable,Equatable{
-  case unplayed
-  case playedCorrectly
-  case playedIncorrectly
-  
-  var borderColor:  Color {
-    switch self{
-    case .playedCorrectly:
-      return .green
-    case .playedIncorrectly:
-      return .red
-    case .unplayed:
-      return .gray
-    }
-  }
-}
+
 // these will be ungainly
 enum ChallengeStatusVal : Int, Codable  {
   case inReserve         // 0
@@ -224,7 +209,7 @@ struct TopBehaviorView:View {
       .onDisappear {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
-      .sheet(item:$chal,onDismiss: { print ("Playcount is now \(playCount)")}) { cha in
+      .sheet(item:$chal ) { cha in
         PlayChallengeView (row:cha.row,col:cha.col, playCount: $playCount)
           .environmentObject(appColors)
           .environmentObject(challengeManager)

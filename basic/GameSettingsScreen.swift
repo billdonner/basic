@@ -150,7 +150,8 @@ fileprivate struct GameSettingsView: View {
   }
 
   fileprivate func paintBoard() {
-//    refreshTopics()
+    refreshTopics()
+//    startNewGame
 //    let x=try?  prepareNewGame(aiPlayData!, reloadTopics:false)
 //    if x != nil
 //    {

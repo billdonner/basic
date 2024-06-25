@@ -10,7 +10,15 @@ import SwiftUI
 extension Challenge {
   static   let mock = Challenge(question: "For Madmen Only", topic: "Animals", hint: "long time ago", answers: ["most","any","old","song"], correct: "old", id: "UUID320239", date: Date.now, aisource: "donner's brain")
 }
-
+extension ChallengeOutcomes {
+  var borderColor: Color {
+    switch self {
+    case .playedCorrectly: .green
+    case .playedIncorrectly:.red
+    case .unplayed:.gray 
+    }
+  }
+}
 struct PlayChallengeView:View {
   let row : Int
   let col : Int
@@ -23,7 +31,7 @@ struct PlayChallengeView:View {
   var body: some View {
     let ch = gb.board[row][col]
     let state = gb.cellstate[row][col]
-    VStack (spacing:20){
+    VStack (spacing:30){
       //Text(ch.id)
       //Text(status)
       HStack{   RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
@@ -36,7 +44,7 @@ struct PlayChallengeView:View {
           .foregroundColor(state.borderColor )
       }
         Text(ch.topic)
-      }
+  
       Text(ch.question)
       Button(action: {
         gb.cellstate[row][col] = .playedCorrectly
@@ -63,12 +71,12 @@ struct PlayChallengeView:View {
       }) {
         Text("Pass/Ignore")
       }
-    }
+    }    }
   }
-#Preview{
-  @Previewable @State var playCount = 0
-  PlayChallengeView(row:0,col:0,playCount: $playCount)
-    .environmentObject(AppColors())
-    .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.mock]))
-  
-}
+//#Preview{
+//  @Previewable @State var playCount = 0
+//  PlayChallengeView(row:0,col:0,playCount: $playCount)
+//    .environmentObject(AppColors())
+//    .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.mock]))
+//  
+//}

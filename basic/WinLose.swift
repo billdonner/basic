@@ -10,45 +10,10 @@ import Foundation
 enum MatrixError: Error {
     case notSquareArray
 }
-
-// Shared toSquareArray Function
-func toSquareArray(_ array: [ChallengeOutcomes]) -> [[ChallengeOutcomes]]? {
-    let size = Int(sqrt(Double(array.count)))
-    if size * size != array.count { return nil } // Ensure the array can be converted into a square matrix
-    
-    var result = [[ChallengeOutcomes]]()
-    for i in 0..<size {
-        var row = [ChallengeOutcomes]()
-        for j in 0..<size {
-            row.append(array[i * size + j]) // Convert to 2D array
-        }
-        result.append(row)
-    }
-    return result
-}
-
-
-func convertToSquareMatrix(_ array: [ChallengeOutcomes]) throws -> [[ChallengeOutcomes]] {
-    // Calculate the square root of the array length
-    let length = array.count
-    let side = Int(sqrt(Double(length)))
-    
-    // Check if length is a perfect square
-    if side * side != length {
-        throw MatrixError.notSquareArray // Not a perfect square, cannot form a square matrix
-    }
-    
-    // Initialize the square matrix
-  var squareMatrix = Array(repeating: Array(repeating: ChallengeOutcomes.unplayed, count: side), count: side)
-    
-    // Fill the square matrix with the elements from the linear array
-    for (index, element) in array.enumerated() {
-        let row = index / side
-        let col = index % side
-        squareMatrix[row][col] = element
-    }
-    
-    return squareMatrix
+enum ChallengeOutcomes : Codable,Equatable{
+  case unplayed
+  case playedCorrectly
+  case playedIncorrectly
 }
 /// This function checks if two given cells in a square matrix are adjacent.
 /// Adjacency is defined as horizontally, vertically, or diagonally neighboring cells.
