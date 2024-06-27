@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum ChallengeOutcomes : Codable, Equatable {
-    case unplayed
-    case playedCorrectly
-    case playedIncorrectly
-}
+////enum ChallengeOutcomes : Codable, Equatable {
+//    case unplayed
+//    case playedCorrectly
+//    case playedIncorrectly
+//}
 
 func areCellsAdjacent(_ cell1: (Int, Int), _ cell2: (Int, Int)) -> Bool {
     let rowDifference = abs(cell1.0 - cell2.0)

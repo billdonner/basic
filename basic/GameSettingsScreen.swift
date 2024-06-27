@@ -327,8 +327,9 @@ fileprivate struct GameSettingsView: View {
           returningTopics = selectedTopics + selectedAdditionalTopics
           //exx(0)
          // startNewGame(size: l_boardSize
-                     //  , topics: returningTopics)
+                     //, topics: returningTopics)
           self.presentationMode.wrappedValue.dismiss()
+          print("-----> NEW GAME \(boardSize)x\(boardSize) topics:\(returningTopics.joined(separator: ",")) ")
         }
       )
     //}
@@ -374,6 +375,8 @@ struct GameSettingsScreen :
 
   @State var returningTopics: [String] = []
   
+  @EnvironmentObject var gameBoard: GameBoard
+  
   var body: some View {
     NavigationView  {
       GameSettingsView(
@@ -388,6 +391,7 @@ struct GameSettingsScreen :
           onExit()
           
         }
+
       .onChange(of: returningTopics,initial:true ) {_,_ in
         //set only the returning topics to isLive
         func qq(_ x:[String],contains y:String)->Bool {

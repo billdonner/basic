@@ -7,24 +7,11 @@
 
 import SwiftUI
 
-extension Challenge {
-  static   let mock = Challenge(question: "For Madmen Only", topic: "Animals", hint: "long time ago", answers: ["most","any","old","song"], correct: "old", id: "UUID320239", date: Date.now, aisource: "donner's brain")
-}
-extension ChallengeOutcomes {
-  var borderColor: Color {
-    switch self {
-    case .playedCorrectly: .green
-    case .playedIncorrectly:.red
-    case .unplayed:.gray 
-    }
-  }
-}
 struct PlayChallengeView:View {
   let row : Int
   let col : Int
   
   @Binding var playCount: Int
-  //@EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var appColors: AppColors
   @EnvironmentObject var gb: GameBoard
   @Environment(\.dismiss) var dismiss
@@ -49,21 +36,25 @@ struct PlayChallengeView:View {
       Button(action: {
         gb.cellstate[row][col] = .playedCorrectly
         playCount += 1
+        gb.saveGameBoard()
         dismiss()
       }) {   Text("Mark Correct") }
       Button(action: {
         gb.cellstate[row][col] = .playedIncorrectly
         playCount += 1
+        gb.saveGameBoard()
         dismiss()
       }) {  Text("Mark InCorrect")  }
     
       Button(action: {
         playCount += 1
+        gb.saveGameBoard()
         dismiss()
       }) {  Text("Gimmee Only")  }
     
     Button(action: {
-      playCount += 1
+      playCount += 1 
+      gb.saveGameBoard()
       dismiss()
     }) {  Text("Gimmee Any")  }
     Button(action: {

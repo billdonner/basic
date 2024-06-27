@@ -15,38 +15,6 @@ struct IdentifiablePoint: Identifiable {
 
 // MARK: - Data Models
 
-struct Challenge: Codable, Equatable, Hashable, Identifiable {
-    public init(question: String, topic: String, hint: String, answers: [String], correct: String, explanation: String? = nil, id: String, date: Date, aisource: String, notes: String? = nil) {
-        self.question = question
-        self.topic = topic
-        self.hint = hint
-        self.answers = answers
-        self.correct = correct
-        self.explanation = explanation
-        self.id = id
-        self.date = date
-        self.aisource = aisource
-        self.notes = notes
-    }
-    
-    public let question: String
-    public let topic: String
-    public let hint: String
-    public let answers: [String]
-    public let correct: String
-    public let explanation: String?
-    public let id: String
-    public let date: Date
-    public let aisource: String
-    public let notes: String?
-    
-    public static func decodeArrayFrom(data: Data) throws -> [Challenge] {
-        try JSONDecoder().decode([Challenge].self, from: data)
-    }
-    public static func decodeFrom(data: Data) throws -> Challenge {
-        try JSONDecoder().decode(Challenge.self, from: data)
-    }
-}
 
 struct Topic: Codable {
     public init(name: String, subject: String, pic: String, notes: String, subtopics: [String]) {
@@ -157,6 +125,12 @@ func getChallengeStatusesFilePath() -> URL {
     let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
     return urls[0].appendingPathComponent("challengeStatuses.json")
 }
+// Get the file path for storing challenge statuses
+func getGameBoardFilePath() -> URL {
+    let fileManager = FileManager.default
+    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
+    return urls[0].appendingPathComponent("gameBoard.json")
+}
 
 // Save the challenge statuses to a file
 func saveChallengeStatuses(_ statuses: [ChallengeStatus]) {
@@ -196,6 +170,7 @@ func loadChallengeStatuses() -> [ChallengeStatus]? {
 struct TopBehaviorView:View {
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var appColors: AppColors
+  @EnvironmentObject var gameBoard: GameBoard
   @State var chal :IdentifiablePoint? = nil
   @State var playCount = 0
   var body: some View {
@@ -204,7 +179,8 @@ struct TopBehaviorView:View {
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
-      loadAllData(challengeManager: challengeManager)
+      loadAllData(challengeManager: challengeManager,gameBoard:gameBoard)
+       
       }
       .onDisappear {
         saveChallengeStatuses(challengeManager.challengeStatuses)
@@ -216,8 +192,16 @@ struct TopBehaviorView:View {
         }
       }
   }
-func loadAllData (challengeManager: ChallengeManager) { 
+func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
+  
   do {
+    if  let gb =  gameBoard.loadGameBoard() {
+      gameBoard.cellstate = gb.cellstate
+      gameBoard.size = gb.size
+      gameBoard.topics = gb.topics
+      gameBoard.board = gb.board
+      gameBoard.gimmees = gb.gimmees
+    }
     try challengeManager.playData = loadPlayData(from: jsonFileName)
     if let playData = challengeManager.playData {
       if let loadedStatuses = loadChallengeStatuses() {
