@@ -8,6 +8,28 @@
 import SwiftUI
 
   extension GameBoard {
+    
+    func saveGameBoard( ) {
+        let filePath = getGameBoardFilePath()
+        do {
+            let data = try JSONEncoder().encode(self)
+            try data.write(to: filePath)
+        } catch {
+            print("Failed to save gameboard: \(error)")
+        }
+    }
+    // Load the GameBoard
+   func loadGameBoard() -> GameBoard? {
+        let filePath = getGameBoardFilePath()
+        do {
+            let data = try Data(contentsOf: filePath)
+            let gb = try JSONDecoder().decode(GameBoard.self, from: data)
+            return gb
+        } catch {
+            print("Failed to load gameboard: \(error)")
+            return nil
+        }
+    }
   // add Persistence to GameBoard
   
   func populateBoard(with challenges: [Challenge]) {
@@ -32,7 +54,7 @@ import SwiftUI
   }
   
   static var mock = {
-    GameBoard(size:1,topics:["Fun"],challenges:[Challenge.mock])
+    GameBoard(size:1,topics:["Fun"],challenges:[Challenge.complexMock])
   }
   
 

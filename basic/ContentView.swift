@@ -186,7 +186,7 @@ struct TopBehaviorView:View {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
       .sheet(item:$chal ) { cha in
-        PlayChallengeView (row:cha.row,col:cha.col, playCount: $playCount)
+        DetailChallengeView (row:cha.row,col:cha.col, playCount: $playCount)
           .environmentObject(appColors)
           .environmentObject(challengeManager)
         }
@@ -225,7 +225,7 @@ func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
 struct ChallengeGameApp: App {
   private var challengeManager = ChallengeManager()
   private var appColors = AppColors()
-  private var gameBoard = GameBoard(size: 1, topics: ["Nuts"], challenges:[ Challenge.mock])
+  private var gameBoard = GameBoard(size: 1, topics: ["Nuts"], challenges:[ Challenge.complexMock])
   var body: some Scene {
     WindowGroup {
       TopBehaviorView()

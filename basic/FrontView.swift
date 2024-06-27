@@ -174,7 +174,7 @@ struct FrontView_Previews: PreviewProvider {
                     tapGesture: { row,col in
                       print("Tapped cell with challenge \(row) \(col)")
                     }
-                )  .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.mock]))
+                )  .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]))
                 .environmentObject(ChallengeManager())  // Ensure to add your ChallengeManager
                 .previewLayout(.fixed(width: 300, height: 300))
                 .previewDisplayName("Size \(size)x\(size)")
