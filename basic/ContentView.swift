@@ -173,9 +173,11 @@ struct TopBehaviorView:View {
   @EnvironmentObject var gameBoard: GameBoard
   @State var chal :IdentifiablePoint? = nil
   @State var playCount = 0
+  @State var isPresentingDetailView =  false
   var body: some View {
     FrontView(size: starting_size, topics: starting_topics,playCount: $playCount){ row,col    in
       //tap behavior
+      isPresentingDetailView = true 
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
@@ -186,7 +188,7 @@ struct TopBehaviorView:View {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
       .sheet(item:$chal ) { cha in
-        DetailChallengeView (row:cha.row,col:cha.col, playCount: $playCount)
+        DetailChallengeView (row:cha.row,col:cha.col, playCount: $playCount, isPresentingDetailView: $isPresentingDetailView)
           .environmentObject(appColors)
           .environmentObject(challengeManager)
         }
