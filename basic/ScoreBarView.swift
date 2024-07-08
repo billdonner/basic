@@ -19,8 +19,8 @@ struct zz:View {
 struct ScoreBarView: View {
   @Binding var hideCellContent: Bool
   @EnvironmentObject var gb: GameBoard
-  @State var showAlert = false
-  @State var winlose = false
+  @State var showWinAlert = false
+  @State var showLoseAlert = false
   
   var body:some View {
     return  VStack{
@@ -28,38 +28,17 @@ struct ScoreBarView: View {
         let showchar = if isWinningPath(in:gb.cellstate ) {"😎"}
         else {
           if isPossibleWinningPath(in:gb.cellstate) {
-            "☡"
+            " "
           } else {
             "❌"
           }
         }
         zz(showchar: showchar)
-          .alert(winlose ? " You Win " : " You Lose ",
-                 isPresented: $showAlert){
-            Button("OK", role: .cancel) {
-                          hideCellContent = true
-            }
-          }.font(.headline).padding()
-      }
-      
-      
-      
-      .onChange(of:gb.cellstate) {
-        if isWinningPath(in:gb.cellstate) {
-          print("--->you have already won but can play on")
-          winlose = true
-          showAlert = true
-        } else {
-          if !isPossibleWinningPath(in:gb.cellstate) {
-            winlose = false
-            showAlert = true
-            print("--->you cant possibly win")
-          }
-        }
       }
     }
   }
 }
+
 #Preview {
   ScoreBarView(hideCellContent: .constant(true))
 }

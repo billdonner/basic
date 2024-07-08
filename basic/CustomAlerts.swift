@@ -187,7 +187,9 @@ fileprivate struct YouLoseAlert: View {
         }
     }
 }
-
+#Preview {
+  HintAlert(title: "Welcome!", message: "This is a custom alert view with spring animation.", buttonTitle: "OK", onButtonTapped: {}, animation: .spring(response: 0.5, dampingFraction: 0.5, blendDuration: 0.5) )
+}
 // Custom alert view with spring animation
 fileprivate struct HintAlert: View {
     let title: String

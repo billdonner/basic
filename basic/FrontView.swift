@@ -18,6 +18,8 @@ struct FrontView: View {
   @State private var showingAlert = false
   @State private var showingSettings = false
   @State private var showingHelp = false
+  @State private var showWinAlert = false
+  @State private var showLoseAlert = false
   private let spacing: CGFloat = 5
   // Adding a shrink factor to slightly reduce the cell size
   private let shrinkFactor: CGFloat = 0.9
@@ -53,7 +55,34 @@ struct FrontView: View {
       VStack {
         AllocatorView(playCount:$playCount,hideCellContent: $hideCellContent)
       }.frame(height: 150)
+    }          
+    .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "a fine job", buttonTitle: "OK"){
+      hideCellContent = true
+      endGame()
+      
     }
+    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "try again", buttonTitle: "OK"){
+      hideCellContent = true
+       endGame()
+    }
+    .onChange(of:gameBoard.cellstate) {
+              if isWinningPath(in:gameBoard.cellstate) {
+                print("--->YOU WIN")
+                //endGame()
+               hideCellContent = true
+                showWinAlert = true
+    
+              } else {
+                if !isPossibleWinningPath(in:gameBoard.cellstate) {
+                  print("--->YOU LOSE")
+                 // endGame()
+                hideCellContent = true
+                  showLoseAlert = true
+    
+                }
+              }
+            }
+    
   }
   
   var mainGrid: some View {

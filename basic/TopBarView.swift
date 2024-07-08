@@ -1,6 +1,7 @@
 import SwiftUI
 struct TopBarView: View {
     let topic: String
+  let hint:String
     let elapsedTime: String
     let additionalInfo: String
     let handlePass: () -> Void
@@ -50,6 +51,7 @@ struct TopBarView: View {
                 .background(Color.orange)
                 .cornerRadius(10)
         }
+        .disabled(hint.count <= 1 )
     }
 
     var elapsedTimeView: some View {
@@ -67,7 +69,7 @@ struct TopBarView: View {
 
 #Preview {
     TopBarView(
-        topic: "American History",
+      topic: "American History", hint: "What can we say about history?",
         elapsedTime: "05:32",
         additionalInfo: "Some extra information",
         handlePass: {},
