@@ -25,8 +25,6 @@ struct DetailChallengeView: View {
   //@State private var showYellow: Bool = false // holds hint and explanation
   
   @State private var dismissToRoot = false
-  @State private var showYouWinAlert = false
-  @State private var showYouLoseAlert = false
   @State private var showHint: Bool = false  // State to show/hide hint
   @State private var answerGiven: Bool = false  // State to prevent further interactions after an answer is given
   // @State private var showAnsweredAlert = false
@@ -40,8 +38,6 @@ struct DetailChallengeView: View {
         dismiss()
       }
     } else {
-      showYouWinAlert = false
-      showYouLoseAlert = false
       answerGiven = false //showAnsweredAlert = false
       showHint=false //  showHintAlert = false
     }

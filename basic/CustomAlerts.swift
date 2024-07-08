@@ -174,6 +174,7 @@ fileprivate struct YouLoseAlert: View {
         .onAppear {
             playSadMusic()
         }
+        .frame(height:300)
     }
     
     private func playSadMusic() {

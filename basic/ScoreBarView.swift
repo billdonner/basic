@@ -17,7 +17,6 @@ struct zz:View {
   }
 }
 struct ScoreBarView: View {
-  @Binding var hideCellContent: Bool
   @EnvironmentObject var gb: GameBoard
   @State var showWinAlert = false
   @State var showLoseAlert = false
@@ -40,5 +39,5 @@ struct ScoreBarView: View {
 }
 
 #Preview {
-  ScoreBarView(hideCellContent: .constant(true))
+  ScoreBarView()
 }

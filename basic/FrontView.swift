@@ -14,8 +14,10 @@ struct FrontView: View {
   @EnvironmentObject var appColors: AppColors
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var gameBoard: GameBoard
+  @State private var isPlayingGame = false
+  @State private var startAfresh = true
   @State private var hideCellContent = true
-  @State private var showingAlert = false
+  @State private var showCantStartAlert = false
   @State private var showingSettings = false
   @State private var showingHelp = false
   @State private var showWinAlert = false
@@ -25,12 +27,11 @@ struct FrontView: View {
   private let shrinkFactor: CGFloat = 0.9
   @AppStorage("faceUpCards")   var faceUpCards = false
   @AppStorage("boardSize")  var boardSize = 6
-  @State private var startAfresh = true
   var body: some View {
     VStack {
       buttons // down below
         .padding(.horizontal)
-      ScoreBarView(hideCellContent: $hideCellContent)
+      ScoreBarView()
       if gameBoard.size > 1 {
         mainGrid
       } else {
@@ -39,15 +40,15 @@ struct FrontView: View {
             let ok =   startNewGame(size: size, topics: topics)
             if !ok  {
               //TODO: Alert the User first game cant load, this is fatal
-              showingAlert = true
+              showCantStartAlert = true
             }
           }
-          .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showingAlert){
+          .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
             Button("OK", role: .cancel) {
               challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
               hideCellContent = true
               clearAllCells()
-              showingAlert = false } //stick the right here
+              showCantStartAlert = false } //stick the right here
           }
       }
       Spacer()
@@ -57,26 +58,22 @@ struct FrontView: View {
       }.frame(height: 150)
     }          
     .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "a fine job", buttonTitle: "OK"){
-      hideCellContent = true
+      //hideCellContent = true
       endGame()
       
     }
     .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "try again", buttonTitle: "OK"){
-      hideCellContent = true
+     // hideCellContent = true
        endGame()
     }
     .onChange(of:gameBoard.cellstate) {
               if isWinningPath(in:gameBoard.cellstate) {
                 print("--->YOU WIN")
-                //endGame()
-               hideCellContent = true
                 showWinAlert = true
     
               } else {
                 if !isPossibleWinningPath(in:gameBoard.cellstate) {
                   print("--->YOU LOSE")
-                 // endGame()
-                hideCellContent = true
                   showLoseAlert = true
     
                 }
@@ -118,7 +115,7 @@ struct FrontView: View {
   }
   var buttons : some View{
     HStack {
-      if hideCellContent {
+      if !isPlayingGame {
         //Start Game
         Button(action: {
           withAnimation {
@@ -126,7 +123,9 @@ struct FrontView: View {
             hideCellContent = false
             if !ok {
               // ALERT HERE and possible reset
-              showingAlert = true
+              showCantStartAlert = true
+            } else {
+              isPlayingGame = true
             }
           }
         }) {
@@ -136,9 +135,9 @@ struct FrontView: View {
             .foregroundColor(.white)
             .cornerRadius(8)
         }
-        .disabled(!hideCellContent)
-        .opacity(hideCellContent ? 1 : 0.5)
-        .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showingAlert){
+        //.disabled(!hideCellContent)
+        //.opacity(hideCellContent ? 1 : 0.5)
+        .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showCantStartAlert){
           Button("OK", role: .cancel) {
             withAnimation {
               hideCellContent = true
@@ -151,7 +150,8 @@ struct FrontView: View {
         Button(action: {
           withAnimation {
             endGame()
-            hideCellContent = true
+           // hideCellContent = true
+            isPlayingGame = false
           }
           
         }) {
@@ -161,8 +161,8 @@ struct FrontView: View {
             .foregroundColor(.white)
             .cornerRadius(8)
         }
-        .disabled(hideCellContent)
-        .opacity(!hideCellContent ? 1 : 0.5)
+        //.disabled(hideCellContent)
+        //.opacity(!hideCellContent ? 1 : 0.5)
       }
       //SETTINGS
       Button(action: {
@@ -174,8 +174,8 @@ struct FrontView: View {
           .foregroundColor(.white)
           .cornerRadius(8)
       }
-      .disabled(!hideCellContent)
-      .opacity(hideCellContent ? 1 : 0.5)
+      .disabled(isPlayingGame)
+      .opacity(!isPlayingGame ? 1 : 0.5)
       
       
       //Help
@@ -254,6 +254,7 @@ private extension FrontView {
   func endGame() {
           let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
           challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
+    isPlayingGame = false
   }
   
   func clearAllCells() {

@@ -188,8 +188,8 @@
             filePath = "basic/FrontView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "106"
-            endingLineNumber = "106"
+            startingLineNumber = "103"
+            endingLineNumber = "103"
             landmarkName = "mainGrid"
             landmarkType = "24">
          </BreakpointContent>
@@ -236,10 +236,10 @@
             filePath = "basic/NewDetailView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "359"
-            endingLineNumber = "359"
-            landmarkName = "markAnswerCorrect()"
-            landmarkType = "9">
+            startingLineNumber = "355"
+            endingLineNumber = "355"
+            landmarkName = "DetailChallengeView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -252,10 +252,10 @@
             filePath = "basic/NewDetailView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "345"
-            endingLineNumber = "345"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "341"
+            endingLineNumber = "341"
+            landmarkName = "DetailChallengeView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -268,10 +268,10 @@
             filePath = "basic/NewDetailView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "237"
+            endingLineNumber = "237"
+            landmarkName = "markCorrectButton"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -284,10 +284,26 @@
             filePath = "basic/NewDetailView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "209"
-            endingLineNumber = "209"
-            landmarkName = "answerButton(answer:buttonWidth:buttonHeight:taller:)"
-            landmarkType = "9">
+            startingLineNumber = "205"
+            endingLineNumber = "205"
+            landmarkName = "DetailChallengeView"
+            landmarkType = "14">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DC671F20-DB65-4DA0-A98A-EB9E6105674D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "basic/FrontView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "70"
+            endingLineNumber = "70"
+            landmarkName = "body"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
