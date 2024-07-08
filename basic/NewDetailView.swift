@@ -9,8 +9,9 @@ struct DetailChallengeView: View {
   @Binding var playCount: Int  // Binding to track play count
   @Binding var isPresentingDetailView: Bool
   @Binding var showSheet: Bool
-  @EnvironmentObject var appColors: AppColors  // Environment object for app colors
+
   @EnvironmentObject var gb: GameBoard  // Environment object for game board
+  @EnvironmentObject var challengeManager:ChallengeManager // Environment object for game board
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   
   @State private var selectedAnswer: String? = nil  // State to track selected answer
@@ -91,7 +92,7 @@ struct DetailChallengeView: View {
   func questionSection(geometry: GeometryProxy) -> some View {
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
-    let topicColor = appColors.colorFor(topic: gb.board[row][col].topic)?.backgroundColor ?? Color.gray
+    let topicColor = AppColors.colorFor(topic: gb.board[row][col].topic)?.backgroundColor ?? Color.gray
     
     return Text(gb.board[row][col].question)
       .font(.headline)
@@ -309,17 +310,24 @@ struct DetailChallengeView: View {
     
     if answerCorrect == false {
       showCorrectAnswer = true
+      
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
         showCorrectAnswer = false
         showBorders = true
         gb.cellstate[row][col] = .playedIncorrectly
+
       }
-    } else {
-      animateBackToBlue = true
+    }
+      else {
+        
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      animateBackToBlue = true
+        try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
         animateBackToBlue = false
         showBorders = true
         gb.cellstate[row][col] = .playedCorrectly
+   
       }
     }
     stopTimer()
@@ -338,7 +346,7 @@ struct DetailChallengeView: View {
   }
   
   func markAnswerCorrect() {
-    selectedAnswer = gb.board[row][col].correct
+   // selectedAnswer = gb.board[row][col].correct
     answerCorrect = true
     answerGiven = true
     animateBackToBlue = true
@@ -347,12 +355,13 @@ struct DetailChallengeView: View {
       showBorders = true
       gb.cellstate[row][col] = .playedCorrectly
       gb.saveGameBoard()
+      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
     }
     stopTimer()
   }
   
   func markAnswerIncorrect() {
-    if let sel = selectedAnswer, sel != gb.board[row][col].correct {
+   // if let sel = selectedAnswer, sel != //gb.board[row][col].correct {
       answerCorrect = false
       answerGiven = true
       showCorrectAnswer = true
@@ -361,10 +370,11 @@ struct DetailChallengeView: View {
         showBorders = true
         gb.cellstate[row][col] = .playedIncorrectly
         gb.saveGameBoard()
+        try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
       }
       stopTimer()
     }
-  }
+  //}
   
   func handleGimmee() {
     playCount += 1
@@ -380,11 +390,11 @@ struct DetailChallengeView: View {
 }
 #Preview {
   DetailChallengeView(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
-    .environmentObject(AppColors())
+
     .environmentObject(GameBoard(size: 1, topics: ["Programming Languages"], challenges: [Challenge.complexMockWithFiveAnswers]))
 }
 #Preview {
   DetailChallengeView(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
-    .environmentObject(AppColors())
+
     .environmentObject(GameBoard(size: 1, topics: ["Quantum Mechanics"], challenges: [Challenge.complexMockWithThreeAnswers]))
 }

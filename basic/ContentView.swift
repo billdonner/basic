@@ -169,7 +169,7 @@ func loadChallengeStatuses() -> [ChallengeStatus]? {
  */
 struct TopBehaviorView:View {
   @EnvironmentObject var challengeManager: ChallengeManager
-  @EnvironmentObject var appColors: AppColors
+
   @EnvironmentObject var gameBoard: GameBoard
   @State var chal :IdentifiablePoint? = nil
   @State var playCount = 0
@@ -190,7 +190,7 @@ struct TopBehaviorView:View {
       }
       .sheet(item:$chal ) { cha in
         DetailChallengeView (row:cha.row,col:cha.col, playCount: $playCount, isPresentingDetailView: $isPresentingDetailView, showSheet: $showSheet)
-          .environmentObject(appColors)
+    
           .environmentObject(challengeManager)
         }
       }
@@ -223,24 +223,4 @@ func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
   }
 }
 
-// The app's main entry point
-@main
-struct ChallengeGameApp: App {
-  private var challengeManager = ChallengeManager()
-  private var appColors = AppColors()
-  private var gameBoard = GameBoard(size: 1, topics: ["Nuts"], challenges:[ Challenge.complexMock])
-  var body: some Scene {
-    WindowGroup {
-      TopBehaviorView()
-        .environmentObject(appColors)
-        .environmentObject(challengeManager)
-        .environmentObject(gameBoard)
-    }
-  }
-
-  
-
-  
-}
-
-
+ 

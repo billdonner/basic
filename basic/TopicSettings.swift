@@ -89,7 +89,7 @@ struct TopicsChooserScreen: View {
 }
 #Preview ("TopicsChooserScreen") {
 
-  TopicsChooserScreen(allTopics: mockTopics, schemes: allSchemes, boardSize: 3, selectedTopics: .constant([]))
+  TopicsChooserScreen(allTopics: mockTopics, schemes: AppColors.allSchemes, boardSize: 3, selectedTopics: .constant([]))
 }
 /// A view for selecting topics from the full list.
 private struct TopicSelectorView: View {
@@ -245,7 +245,7 @@ private struct ArrangerView: View {
   }
 }
 #Preview("ArrangerView") {
-  ArrangerView(topics: .constant(["Topic 1", "Topic 2", "Topic 3"]), selectedSchemeIndex: .constant(2), schemes: allSchemes )
+  ArrangerView(topics: .constant(["Topic 1", "Topic 2", "Topic 3"]), selectedSchemeIndex: .constant(2), schemes: AppColors.allSchemes )
 }
 
 /// Drop delegate for handling drag and drop of topics.

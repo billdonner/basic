@@ -8,8 +8,6 @@
 import SwiftUI
 struct AllocatorView: View {
   @Binding var playCount: Int
-  @Binding var hideCellContent:Bool
-  @EnvironmentObject var appColors: AppColors
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var gameBoard:GameBoard
   @Environment(\.colorScheme) var colorScheme //system light/dark
@@ -17,28 +15,11 @@ struct AllocatorView: View {
   @State var succ = false
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack() {
       HStack {
         Text("Allocated: \(challengeManager.allocatedChallengesCount())")
         Text("Free: \(challengeManager.freeChallengesCount())")
         Text("Played: \(playCount)")
-        Spacer()
-        //RESET
-        Button(action: {
-          let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
-          challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
-          challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
-          hideCellContent = true
-          // clearAllCells()
-        }) {
-          Text("Full Reset")
-            .padding()
-            .background(Color.black.opacity(0.6))
-            .foregroundColor(.red)
-            .cornerRadius(8)
-        }
-        .disabled(!hideCellContent)
-        .opacity(hideCellContent ? 1 : 0.5)
       }
       .font(.footnote)
       .padding(.bottom, 8)
@@ -75,27 +56,31 @@ struct AllocatorView: View {
 // Assuming you have the challengeManager and colorSchemes to preview the view
 struct AllocatorView_Previews: PreviewProvider {
   static var previews: some View {
-    AllocatorView(playCount:.constant(3), hideCellContent: .constant(false))
+    AllocatorView(playCount:.constant(3))
       .environmentObject(ChallengeManager())
-      .environmentObject(AppColors())
+
   }
 }
 
 struct TopicCountsView: View {
   let topic: Topic
-  @EnvironmentObject var appColors: AppColors
+  
   @EnvironmentObject var challengeManager: ChallengeManager
   
   var body: some View {
     HStack {
       RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
         .frame(width: 24, height: 24)
-        .foregroundColor(appColors.colorFor(topic: topic.name)?.backgroundColor)
+        .foregroundColor(AppColors.colorFor(topic: topic.name)?.backgroundColor)
       Text(topic.name)
       Spacer()
       Text("\(challengeManager.allocatedChallengesCount(for: topic)) - "
            + "\(challengeManager.freeChallengesCount(for: topic)) - "
-           + "\(challengeManager.abandonedChallengesCount(for: topic))")
+           + "\(challengeManager.abandonedChallengesCount(for: topic)) - "
+           + "\(challengeManager.correctChallengesCount(for: topic)) - "
+           + "\(challengeManager.incorrectChallengesCount(for: topic))"
+      
+      )
     }
     .font(.caption)
     .padding(.vertical, 4)

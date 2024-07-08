@@ -36,7 +36,8 @@ class ChallengeManager : ObservableObject {
         saveChallengeStatuses(challengeStatuses)
     }
     for (index,cs ) in challengeStatuses.enumerated() {
-      if cs.id == challenge.id || cs.val == .inReserve {
+      if cs.id == challenge.id || cs.val == .inReserve
+      {
         challengeStatuses[index] = ChallengeStatus(id:challenge.id,val:status)
         return
       }
@@ -205,9 +206,15 @@ class ChallengeManager : ObservableObject {
     func abandonedChallengesCount(for topic: Topic) -> Int {
       return countChallenges(for: topic, with: .abandoned)
     }
+  func correctChallengesCount(for topic: Topic) -> Int {
+    return countChallenges(for: topic, with: .playedCorrectly)
+  }
+  func incorrectChallengesCount(for topic: Topic) -> Int {
+    return countChallenges(for: topic, with: .playedIncorrectly)
+  }
     
     func freeChallengesCount(for topic: Topic) -> Int {
-      return getAllChallenges().enumerated().filter { $0.element.topic == topic.name && challengeStatuses[$0.offset].val == .inReserve }.count
+      return countChallenges(for: topic, with: .inReserve)
     }
     
     func countChallenges(for topic: Topic, with status: ChallengeStatusVal) -> Int {

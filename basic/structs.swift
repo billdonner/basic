@@ -1,5 +1,12 @@
 import SwiftUI
-
+enum GameState : Int, Codable {
+  case initializingApp
+  case playingNow
+  case justLost
+  case justWon
+  case justAbandoned 
+  
+}
 @Observable
 class GameBoard : ObservableObject, Codable {
   var board: [[Challenge]]  // Array of arrays to represent the game board with challenges
@@ -7,6 +14,7 @@ class GameBoard : ObservableObject, Codable {
   var size: Int  // Size of the game board
   var topics: [String]  // List of topics for the game
   var gimmees: Int  // Number of "gimmee" actions available
+  var gamestate: GameState = .initializingApp
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -14,6 +22,7 @@ class GameBoard : ObservableObject, Codable {
     case _topics = "topics"
     case _size = "selected"
     case _gimmees = "gimmees"
+    case _gamestate = "gamestate"
   }
   
   init(size: Int, topics: [String], challenges: [Challenge]) {
@@ -108,7 +117,6 @@ extension Challenge {
 #Preview  {
   
   DetailChallengeView(row: 0,col:0,playCount: .constant(32), isPresentingDetailView: .constant(true), showSheet:  .constant(true))
-    .environment(AppColors())
     .environment(GameBoard(size:3,topics:["Animals"], challenges: [Challenge.complexMock]))
 }
 

@@ -25,6 +25,9 @@ struct DismissButtonView: View {
 }
 
 struct FreeportSettingsScreen: View {
+  @EnvironmentObject var gameBoard: GameBoard
+  @EnvironmentObject var challengeManager: ChallengeManager
+  
   @AppStorage("elementWidth") var elementWidth = 100.0
   @AppStorage("shuffleUp") private var shuffleUp = true
   @AppStorage("fontsize") private var fontsize = 24.0
@@ -32,6 +35,7 @@ struct FreeportSettingsScreen: View {
   @AppStorage("border") private var border = 3.0
   @State var selectedLevel:Int = 1
   @State var showOnBoarding = false
+  @State var showReset = false
   @State private var isSelectedArray = [Bool](repeating: false, count: 26)
   var body: some View {
     ZStack {
@@ -60,6 +64,16 @@ struct FreeportSettingsScreen: View {
             Button(action:{ showOnBoarding.toggle() }) {
               Text("Replay OnBoarding")
             }.padding(.vertical)
+            
+            Button(action:{ //showReset.toggle()
+                    let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
+                  challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
+                     challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
+              
+            }) {
+              Text("Factory Reset")
+            }.padding(.vertical)
+
           }
           
         }

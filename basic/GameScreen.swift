@@ -6,22 +6,39 @@
 //
 import SwiftUI
 
+struct ColorForTopic: Codable {
+    let topic: String
+    let foregroundColor: Color
+    let backgroundColor: Color
+    
+    init(topic: String, foregroundColor: Color, backgroundColor: Color) {
+        self.topic = topic
+        self.foregroundColor = foregroundColor
+        self.backgroundColor = backgroundColor
+    }
+  
+  static let zero =
+    ColorForTopic(topic:".default",foregroundColor: .black,backgroundColor: .white)
+}
+
 struct GameScreen: View {
   let size: Int
   let topics: [String]
   @Binding var playCount: Int
   let tapGesture: (_ row:Int, _ col:Int ) -> Void
-  @EnvironmentObject var appColors: AppColors
+
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var gameBoard: GameBoard
-  @State private var isPlayingGame = false
+
   @State private var startAfresh = true
-  @State private var hideCellContent = true
+  //@State private var hideCellContent = true
   @State private var showCantStartAlert = false
   @State private var showingSettings = false
   @State private var showingHelp = false
   @State private var showWinAlert = false
   @State private var showLoseAlert = false
+  @State private var showAllocatorView = false
+  
   private let spacing: CGFloat = 5
   // Adding a shrink factor to slightly reduce the cell size
   private let shrinkFactor: CGFloat = 0.9
@@ -46,25 +63,26 @@ struct GameScreen: View {
           .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
             Button("OK", role: .cancel) {
               challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
-              hideCellContent = true
+                // hideCellContent = true
               clearAllCells()
               showCantStartAlert = false } //stick the right here
           }
       }
       Spacer()
       Divider()
-      VStack {
-        AllocatorView(playCount:$playCount,hideCellContent: $hideCellContent)
-      }.frame(height: 150)
+      Button (action:{ showAllocatorView = true}) {
+        Text ("Index of Topics")
+      }
+
     }          
-    .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "a fine job", buttonTitle: "OK"){
+    .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "a fine job", buttonTitle: "gamescreen OK"){
       //hideCellContent = true
-      endGame()
+      endGame(status: .justWon)
       
     }
-    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "try again", buttonTitle: "OK"){
+    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "try again", buttonTitle: "gamescreen OK"){
      // hideCellContent = true
-       endGame()
+      endGame(status: .justLost)
     }
     .onChange(of:gameBoard.cellstate) {
               if isWinningPath(in:gameBoard.cellstate) {
@@ -79,6 +97,10 @@ struct GameScreen: View {
                 }
               }
             }
+    .sheet(isPresented: $showAllocatorView) {
+        AllocatorView(playCount:$playCount)
+        .presentationDetents([.fraction(0.25)])
+    }
     
   }
   
@@ -115,17 +137,18 @@ struct GameScreen: View {
   }
   var buttons : some View{
     HStack {
-      if !isPlayingGame {
+      if gameBoard.gamestate !=  GameState.playingNow {
         //Start Game
         Button(action: {
           withAnimation {
             let ok =   startFresh()
-            hideCellContent = false
+            //hideCellContent = false
             if !ok {
               // ALERT HERE and possible reset
               showCantStartAlert = true
+              gameBoard.gamestate =  GameState.justAbandoned
             } else {
-              isPlayingGame = true
+              gameBoard.gamestate =  GameState.playingNow
             }
           }
         }) {
@@ -140,8 +163,9 @@ struct GameScreen: View {
         .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showCantStartAlert){
           Button("OK", role: .cancel) {
             withAnimation {
-              hideCellContent = true
+              //hideCellContent = true
               clearAllCells()
+              gameBoard.gamestate =  GameState.justAbandoned
             }
           }
         }
@@ -149,9 +173,8 @@ struct GameScreen: View {
         // END GAME
         Button(action: {
           withAnimation {
-            endGame()
+            endGame(status:.justAbandoned)
            // hideCellContent = true
-            isPlayingGame = false
           }
           
         }) {
@@ -174,8 +197,8 @@ struct GameScreen: View {
           .foregroundColor(.white)
           .cornerRadius(8)
       }
-      .disabled(isPlayingGame)
-      .opacity(!isPlayingGame ? 1 : 0.5)
+      .disabled(gameBoard.gamestate == .playingNow)
+      .opacity(gameBoard.gamestate != .playingNow ? 1 : 0.5)
       
       
       //Help
@@ -215,10 +238,10 @@ struct FrontView_Previews: PreviewProvider {
 //"\(status.val) " + "\(playCount )" +
 private extension GameScreen {
    func makeOneCell(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
-      let colormix = appColors.colorFor(topic: challenge.topic)
+      let colormix = AppColors.colorFor(topic: challenge.topic)
         return VStack {
-          Text(
-            ((hideCellContent || !faceUpCards) ? " " : challenge.question ))
+          Text(//hideCellContent ||hideCellContent ||
+            ( !faceUpCards) ? " " : challenge.question )
                 .font(.caption)
                 .padding(10)
                 .frame(width: cellSize, height: cellSize)
@@ -226,8 +249,9 @@ private extension GameScreen {
                 .foregroundColor(colormix?.foregroundColor)
                 .border(status.borderColor , width: 8)
                 .cornerRadius(8)
+                .opacity(gameBoard.gamestate == .playingNow ? 1.0:0.3)
                 .onTapGesture {
-                  if !hideCellContent {
+                  if  gameBoard.gamestate == .playingNow {
                     tapGesture(row,col)
                   }
                 }
@@ -251,10 +275,10 @@ private extension GameScreen {
     return false
   }
   
-  func endGame() {
+  func endGame(status:GameState) {
           let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
           challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
-    isPlayingGame = false
+    gameBoard.gamestate = status
   }
   
   func clearAllCells() {

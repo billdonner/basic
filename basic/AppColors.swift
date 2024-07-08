@@ -9,7 +9,7 @@ import SwiftUI
 //Must be Observable , not a static struct else
 //Generic struct 'EnvironmentObject' requires that 'AppColors' conform to 'ObservableObject'
 @Observable class
- AppColors   : ObservableObject{
+ XAppColors   : ObservableObject{
   
   struct ColorForTopic: Codable {
       let topic: String
@@ -50,10 +50,5 @@ import SwiftUI
     ]
   ]
   
- func colorFor(topic: String) -> ColorForTopic? {
-    @AppStorage("currentPallette") var currentPallette = "Bold"
-   guard let tp = AppColors.pallettes[currentPallette] else { return nil }
-    //look for topic
-    return tp.first(where:{$0.topic == topic})
-  }
+
 }

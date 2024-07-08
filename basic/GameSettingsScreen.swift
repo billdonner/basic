@@ -183,7 +183,7 @@ fileprivate struct GameSettingsView: View {
           paintBoard()
        }
         Section(header: Text("Topics")) {
-          NavigationLink(destination: TopicsChooserScreen(allTopics: mockTopics, schemes: allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
+          NavigationLink(destination: TopicsChooserScreen(allTopics: mockTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
               Text("Choose Topics")
                   .padding()
 //                    .background(Color.blue)

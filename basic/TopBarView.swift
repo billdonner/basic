@@ -52,6 +52,7 @@ struct TopBarView: View {
                 .cornerRadius(10)
         }
         .disabled(hint.count <= 1 )
+        .opacity(hint.count <= 1 ? 0.5:1.0)
     }
 
     var elapsedTimeView: some View {
