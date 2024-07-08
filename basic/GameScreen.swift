@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct FrontView: View {
+struct GameScreen: View {
   let size: Int
   let topics: [String]
   @Binding var playCount: Int
@@ -197,7 +197,7 @@ struct FrontView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ForEach([3, 4, 5, 6], id: \.self) { size in
-                FrontView(
+                GameScreen(
                     size: size,
                     topics: ["Actors", "Animals", "Cars"], playCount: .constant(3),
                     tapGesture: { row,col in
@@ -213,7 +213,7 @@ struct FrontView_Previews: PreviewProvider {
 }
 //challenge.id + "&" + gameBoard.status[row][col].id)
 //"\(status.val) " + "\(playCount )" +
-private extension FrontView {
+private extension GameScreen {
    func makeOneCell(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
       let colormix = appColors.colorFor(topic: challenge.topic)
         return VStack {
@@ -235,7 +235,7 @@ private extension FrontView {
     }// make one cell
 }
 
-private extension FrontView {
+private extension GameScreen {
   func startFresh()->Bool {
     startNewGame(size:size, topics:topics)
 }

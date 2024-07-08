@@ -1,73 +1,5 @@
 import SwiftUI
 
-fileprivate struct TopicsView: View {
-  @State private var selectedTopics: [String] = []
-  @State private var currentTopics: [String]
-  @State private var remainingTopics: [String]
-  @State private var changedIndices: Set<Int> = []
-  @Binding var boardSize: Int
-
-  init(topics: [String], allTopics: [String], boardSize: Binding<Int>) {
-    _currentTopics = State(initialValue: topics.dropLast(5))
-    _remainingTopics = State(initialValue: allTopics.filter { !topics.contains($0) })
-    _boardSize = boardSize
-  }
-
-  var body: some View {
-    let ctopics = currentTopics.dropLast(1)
-    VStack(alignment: .leading) {
-      Text("current: \(ctopics.count)")
-      List(ctopics.indices, id: \.self) { index in
-        Text("\(index + 1). \(ctopics[index])")
-          .onTapGesture {
-            if !changedIndices.contains(index) {
-              changeTopic(at: index)
-            }
-          }
-          .foregroundColor(changedIndices.contains(index) ? .gray : .primary)
-          .disabled(changedIndices.contains(index)) // Indicate non-tappable state
-      }
-      
-      Text("Tap to change each topic once \(boardSize)")
-        .font(.footnote)
-        .padding(.horizontal)
-    }
-    .padding(.horizontal)
-  }
-
-  private func changeTopic(at index: Int) {
-    guard !remainingTopics.isEmpty else {
-      print("No more unused topics available.")
-      return
-    }
-
-    if let newTopic = remainingTopics.randomElement(),
-       let newTopicIndex = remainingTopics.firstIndex(of: newTopic) {
-      currentTopics[index] = newTopic
-      remainingTopics.remove(at: newTopicIndex)
-      changedIndices.insert(index)
-    }
-  }
-}
-
-func chooseTopics(from topics: [String], count N: Int) -> [String] {
-  guard N > 0 else {
-    return []
-  }
-
-  if N >= topics.count {
-    return topics
-  }
-
-  var chosenTopics: Set<String> = []
-  while chosenTopics.count < N {
-    if let topic = topics.randomElement() {
-      chosenTopics.insert(topic)
-    }
-  }
-
-  return Array(chosenTopics)
-}
 
 fileprivate struct GameSettingsView: View {
   internal init(boardSize: Binding<Int>, startInCorners: Binding<Bool>, faceUpCards: Binding<Bool>, doubleDiag: Binding<Bool>, colorPalette: Binding<Int>, difficultyLevel: Binding<Int>,
@@ -108,10 +40,7 @@ fileprivate struct GameSettingsView: View {
   @Binding var doubleDiag: Bool
   @Binding var colorPalette: Int
   @Binding var difficultyLevel: Int
-  
-  
-  
- 
+
   @Binding var returningTopics: [String]
   
   @State private var  l_boardSize: Int
@@ -174,7 +103,8 @@ fileprivate struct GameSettingsView: View {
 
         }
         .onChange(of: l_boardSize, initial: false)
-         { _,_ in
+         { _,newSize in
+           selectedTopics = TopicProvider.shared.getRandomTopics(newSize - 1, from: mockTopics)
            paintBoard()
         }
         Section(header: Text("Difficulty Level")) {
@@ -252,37 +182,19 @@ fileprivate struct GameSettingsView: View {
         { _,_ in
           paintBoard()
        }
-        
-        Section(header: Text("We Pre-Selected \($l_boardSize.wrappedValue - 2) Topics"), footer: Text("Click to change any of the pre-selected topics, but only once!")) {
-          ForEach(selectedTopics.indices, id: \.self) { index in
-            HStack {
-              Text(selectedTopics[index])
-              if let oldTopic = replacedTopics[index] {
-                Text(" (\(oldTopic))")
-                  .opacity(0.5)
-              }
-            }
-            .onTapGesture {
-              replaceTopic(at: index)
-            }
-          }
+        Section(header: Text("Topics")) {
+          NavigationLink(destination: TopicsChooserScreen(allTopics: mockTopics, schemes: allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
+              Text("Choose Topics")
+                  .padding()
+//                    .background(Color.blue)
+                 .foregroundColor(.blue)
+//                    .cornerRadius(10)
+          }     
         }
-        
-        Section(header: Text("Choose Up To \($l_boardSize.wrappedValue) Additional Topics"), footer: Text("Pick at least \($l_boardSize.wrappedValue - 2) ")) {
-          ForEach(availableTopics, id: \.self) { topic in
-            HStack {
-              Text(topic)
-              Spacer()
-              if selectedAdditionalTopics.contains(topic) {
-                Image(systemName: "checkmark")
-              }
-            }
-            .onTapGesture {
-              selectAdditionalTopic(topic)
-            }
-          }
+        .onAppear {  // fix
+            selectedTopics = TopicProvider.shared.getRandomTopics(boardSize - 1, from: mockTopics)
         }
-        
+
         Section(header:Text("About QANDA")) {
           VStack{
             HStack { Spacer()
@@ -343,13 +255,13 @@ fileprivate struct GameSettingsView: View {
     tappedIndices.insert(index)
   }
 
-  private func selectAdditionalTopic(_ topic: String) {
-    if selectedAdditionalTopics.contains(topic) {
-      selectedAdditionalTopics.remove(topic)
-    } else if selectedAdditionalTopics.count < boardSize {
-      selectedAdditionalTopics.insert(topic)
-    }
-  }
+//  private func selectAdditionalTopic(_ topic: String) {
+//    if selectedAdditionalTopics.contains(topic) {
+//      selectedAdditionalTopics.remove(topic)
+//    } else if selectedAdditionalTopics.count < boardSize {
+//      selectedAdditionalTopics.insert(topic)
+//    }
+//  }
   
   private func refreshTopics() {
     let randomTopics = ourTopics.shuffled()
@@ -413,3 +325,103 @@ struct GameSettingsScreen :
     print("GameSettingsExited with")
   }
 }
+/*
+ fileprivate struct TopicsView: View {
+   @State private var selectedTopics: [String] = []
+   @State private var currentTopics: [String]
+   @State private var remainingTopics: [String]
+   @State private var changedIndices: Set<Int> = []
+   @Binding var boardSize: Int
+
+   init(topics: [String], allTopics: [String], boardSize: Binding<Int>) {
+     _currentTopics = State(initialValue: topics.dropLast(5))
+     _remainingTopics = State(initialValue: allTopics.filter { !topics.contains($0) })
+     _boardSize = boardSize
+   }
+
+   var body: some View {
+     let ctopics = currentTopics.dropLast(1)
+     VStack(alignment: .leading) {
+       Text("current: \(ctopics.count)")
+       List(ctopics.indices, id: \.self) { index in
+         Text("\(index + 1). \(ctopics[index])")
+           .onTapGesture {
+             if !changedIndices.contains(index) {
+               changeTopic(at: index)
+             }
+           }
+           .foregroundColor(changedIndices.contains(index) ? .gray : .primary)
+           .disabled(changedIndices.contains(index)) // Indicate non-tappable state
+       }
+       
+       Text("Tap to change each topic once \(boardSize)")
+         .font(.footnote)
+         .padding(.horizontal)
+     }
+     .padding(.horizontal)
+   }
+
+   private func changeTopic(at index: Int) {
+     guard !remainingTopics.isEmpty else {
+       print("No more unused topics available.")
+       return
+     }
+
+     if let newTopic = remainingTopics.randomElement(),
+        let newTopicIndex = remainingTopics.firstIndex(of: newTopic) {
+       currentTopics[index] = newTopic
+       remainingTopics.remove(at: newTopicIndex)
+       changedIndices.insert(index)
+     }
+   }
+ }
+
+ func chooseTopics(from topics: [String], count N: Int) -> [String] {
+   guard N > 0 else {
+     return []
+   }
+
+   if N >= topics.count {
+     return topics
+   }
+
+   var chosenTopics: Set<String> = []
+   while chosenTopics.count < N {
+     if let topic = topics.randomElement() {
+       chosenTopics.insert(topic)
+     }
+   }
+
+   return Array(chosenTopics)
+ }
+ Section(header: Text("We Pre-Selected \($l_boardSize.wrappedValue - 2) Topics"), footer: Text("Click to change any of the pre-selected topics, but only once!")) {
+   ForEach(selectedTopics.indices, id: \.self) { index in
+     HStack {
+       Text(selectedTopics[index])
+       if let oldTopic = replacedTopics[index] {
+         Text(" (\(oldTopic))")
+           .opacity(0.5)
+       }
+     }
+     .onTapGesture {
+       replaceTopic(at: index)
+     }
+   }
+ }
+ 
+ Section(header: Text("Choose Up To \($l_boardSize.wrappedValue) Additional Topics"), footer: Text("Pick at least \($l_boardSize.wrappedValue - 2) ")) {
+   ForEach(availableTopics, id: \.self) { topic in
+     HStack {
+       Text(topic)
+       Spacer()
+       if selectedAdditionalTopics.contains(topic) {
+         Image(systemName: "checkmark")
+       }
+     }
+     .onTapGesture {
+       selectAdditionalTopic(topic)
+     }
+   }
+ }
+ 
+ */

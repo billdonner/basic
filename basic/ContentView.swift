@@ -176,7 +176,7 @@ struct TopBehaviorView:View {
   @State var showSheet = false
   @State var isPresentingDetailView =  false
   var body: some View {
-    FrontView(size: starting_size, topics: starting_topics,playCount: $playCount){ row,col    in
+    GameScreen(size: starting_size, topics: starting_topics,playCount: $playCount){ row,col    in
       //tap behavior
       isPresentingDetailView = true 
       chal = IdentifiablePoint(row:row,col:col)

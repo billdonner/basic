@@ -10,8 +10,11 @@
 		8809BB402C32D63F0088C14E /* NewDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8809BB3F2C32D63F0088C14E /* NewDetailView.swift */; };
 		8809BB422C33AB550088C14E /* dir.md in Resources */ = {isa = PBXBuildFile; fileRef = 8809BB412C33AB550088C14E /* dir.md */; };
 		884548982C3B9AF6009A725F /* CustomAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 884548972C3B9AF6009A725F /* CustomAlerts.swift */; };
+		884548A22C3C1C52009A725F /* MockTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 884548A02C3C1C52009A725F /* MockTopics.swift */; };
+		884548A32C3C1C52009A725F /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8845489F2C3C1C52009A725F /* TopicSettings.swift */; };
+		884548A42C3C1C52009A725F /* ColorSchemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 884548A12C3C1C52009A725F /* ColorSchemes.swift */; };
 		885CEB0C2C28879000234C17 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0B2C28879000234C17 /* AppColors.swift */; };
-		885CEB0E2C289BDD00234C17 /* FrontView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0D2C289BDD00234C17 /* FrontView.swift */; };
+		885CEB0E2C289BDD00234C17 /* GameScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0D2C289BDD00234C17 /* GameScreen.swift */; };
 		885CEB102C289C8500234C17 /* AllocatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0F2C289C8500234C17 /* AllocatorView.swift */; };
 		885CEB122C289D0200234C17 /* PlayChallengeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB112C289D0200234C17 /* PlayChallengeView.swift */; };
 		885CEB142C289D5300234C17 /* ChallengeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB132C289D5300234C17 /* ChallengeManager.swift */; };
@@ -59,8 +62,11 @@
 		8809BB3F2C32D63F0088C14E /* NewDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDetailView.swift; sourceTree = "<group>"; };
 		8809BB412C33AB550088C14E /* dir.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = dir.md; sourceTree = "<group>"; };
 		884548972C3B9AF6009A725F /* CustomAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlerts.swift; sourceTree = "<group>"; };
+		8845489F2C3C1C52009A725F /* TopicSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicSettings.swift; sourceTree = "<group>"; };
+		884548A02C3C1C52009A725F /* MockTopics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTopics.swift; sourceTree = "<group>"; };
+		884548A12C3C1C52009A725F /* ColorSchemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSchemes.swift; sourceTree = "<group>"; };
 		885CEB0B2C28879000234C17 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		885CEB0D2C289BDD00234C17 /* FrontView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontView.swift; sourceTree = "<group>"; };
+		885CEB0D2C289BDD00234C17 /* GameScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScreen.swift; sourceTree = "<group>"; };
 		885CEB0F2C289C8500234C17 /* AllocatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllocatorView.swift; sourceTree = "<group>"; };
 		885CEB112C289D0200234C17 /* PlayChallengeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayChallengeView.swift; sourceTree = "<group>"; };
 		885CEB132C289D5300234C17 /* ChallengeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeManager.swift; sourceTree = "<group>"; };
@@ -156,6 +162,9 @@
 				88F6F8FF2C1E660600A50C31 /* Info.plist */,
 				88A6D6BB2C2C913A0080A63E /* structs.swift */,
 				885CEB222C290C6000234C17 /* subs.swift */,
+				8845489F2C3C1C52009A725F /* TopicSettings.swift */,
+				884548A02C3C1C52009A725F /* MockTopics.swift */,
+				884548A12C3C1C52009A725F /* ColorSchemes.swift */,
 				884548972C3B9AF6009A725F /* CustomAlerts.swift */,
 				88F6F8D42C1A1E2400A50C31 /* ContentView.swift */,
 				885CEB112C289D0200234C17 /* PlayChallengeView.swift */,
@@ -167,7 +176,7 @@
 				885CEB132C289D5300234C17 /* ChallengeManager.swift */,
 				885CEB172C29082D00234C17 /* FreeportSettingsScreen.swift */,
 				885CEB182C29082D00234C17 /* GameSettingsScreen.swift */,
-				885CEB0D2C289BDD00234C17 /* FrontView.swift */,
+				885CEB0D2C289BDD00234C17 /* GameScreen.swift */,
 				885CEB262C2A26C900234C17 /* ScoreBarView.swift */,
 				885CEB242C2A266100234C17 /* WinLose.swift */,
 				88F6F8D62C1A1E2500A50C31 /* Assets.xcassets */,
@@ -336,7 +345,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				885CEB0E2C289BDD00234C17 /* FrontView.swift in Sources */,
+				885CEB0E2C289BDD00234C17 /* GameScreen.swift in Sources */,
 				88A6D6BE2C2DD34B0080A63E /* TopBarView.swift in Sources */,
 				88F6F8D52C1A1E2400A50C31 /* ContentView.swift in Sources */,
 				885CEB102C289C8500234C17 /* AllocatorView.swift in Sources */,
@@ -353,6 +362,9 @@
 				885CEB0C2C28879000234C17 /* AppColors.swift in Sources */,
 				885CEB122C289D0200234C17 /* PlayChallengeView.swift in Sources */,
 				885CEB272C2A26C900234C17 /* ScoreBarView.swift in Sources */,
+				884548A22C3C1C52009A725F /* MockTopics.swift in Sources */,
+				884548A32C3C1C52009A725F /* TopicSettings.swift in Sources */,
+				884548A42C3C1C52009A725F /* ColorSchemes.swift in Sources */,
 				8809BB402C32D63F0088C14E /* NewDetailView.swift in Sources */,
 				885CEB252C2A266100234C17 /* WinLose.swift in Sources */,
 			);
@@ -519,7 +531,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;
@@ -550,7 +562,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;
@@ -582,7 +594,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.billdonner.basicTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -601,7 +613,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.billdonner.basicTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
