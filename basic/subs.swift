@@ -6,7 +6,14 @@
 //
 
 import SwiftUI
-
+extension Array {
+  /// Chunks the array into arrays with a maximum size
+  func chunked(into size: Int) -> [[Element]] {
+    stride(from: 0, to: count, by: size).map {
+      Array(self[$0..<Swift.min($0 + size, count)])
+    }
+  }
+}
 enum AppIconProvider {
     static func appIcon(in bundle: Bundle = .main) -> String {
        // # 1

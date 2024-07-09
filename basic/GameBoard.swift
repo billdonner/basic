@@ -36,29 +36,29 @@ class GameBoard : ObservableObject, Codable {
     populateBoard(with: challenges)
   }
 }
-  extension GameBoard {
-    
-    func saveGameBoard( ) {
-        let filePath = getGameBoardFilePath()
-        do {
-            let data = try JSONEncoder().encode(self)
-            try data.write(to: filePath)
-        } catch {
-            print("Failed to save gameboard: \(error)")
-        }
+extension GameBoard {
+  
+  func saveGameBoard( ) {
+    let filePath = getGameBoardFilePath()
+    do {
+      let data = try JSONEncoder().encode(self)
+      try data.write(to: filePath)
+    } catch {
+      print("Failed to save gameboard: \(error)")
     }
-    // Load the GameBoard
-   func loadGameBoard() -> GameBoard? {
-        let filePath = getGameBoardFilePath()
-        do {
-            let data = try Data(contentsOf: filePath)
-            let gb = try JSONDecoder().decode(GameBoard.self, from: data)
-            return gb
-        } catch {
-            print("Failed to load gameboard: \(error)")
-            return nil
-        }
+  }
+  // Load the GameBoard
+  func loadGameBoard() -> GameBoard? {
+    let filePath = getGameBoardFilePath()
+    do {
+      let data = try Data(contentsOf: filePath)
+      let gb = try JSONDecoder().decode(GameBoard.self, from: data)
+      return gb
+    } catch {
+      print("Failed to load gameboard: \(error)")
+      return nil
     }
+  }
   // add Persistence to GameBoard
   
   func populateBoard(with challenges: [Challenge]) {
@@ -82,11 +82,8 @@ class GameBoard : ObservableObject, Codable {
     populateBoard(with: challenges)
   }
   
-  static var mock = {
-    GameBoard(size:1,topics:["Fun"],challenges:[Challenge.complexMock])
-  }
   
-
+  
   
   // this returns unplayed challenges
   func resetBoardReturningUnplayed() -> [Challenge] {
@@ -121,5 +118,15 @@ class GameBoard : ObservableObject, Codable {
     }
     return unplayedChallenges
   }
+  
+  
+  static  func maxTopicsForBoardSize(_ size:Int) -> Int {
+    switch size  {
+    case 3: return 7
+    case 4: return 8
+    case 5: return 9
+    case 6: return 10
+    default: return 7
+    }
+  }
 }
-

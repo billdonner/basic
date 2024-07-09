@@ -99,7 +99,7 @@ fileprivate struct GameSettingsView: View {
       }
       .onChange(of: l_boardSize, initial: false)
       { _,newSize in
-        selectedTopics = MockTopicProvider.shared.getRandomTopics(newSize - 1, from: mockTopics)
+        selectedTopics = MockTopics.shared.getRandomTopics(newSize - 1, from: MockTopics.mockTopics)
         onParameterChange()
       }
       Section(header: Text("Difficulty Level")) {
@@ -169,7 +169,7 @@ fileprivate struct GameSettingsView: View {
       }.onChange(of: l_colorPalette, initial: false)
       { _,_ in onParameterChange() }
       Section(header: Text("Topics")) {
-        NavigationLink(destination: TopicsChooserScreen(allTopics: mockTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
+        NavigationLink(destination: TopicsChooserScreen(allTopics: MockTopics.mockTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
           Text("Choose Topics")
             .padding()
           //                    .background(Color.blue)
@@ -178,7 +178,7 @@ fileprivate struct GameSettingsView: View {
         }
       }
       .onAppear {  // fix
-        selectedTopics = MockTopicProvider.shared.getRandomTopics(boardSize - 1, from: mockTopics)
+        selectedTopics = MockTopics.shared.getRandomTopics(boardSize - 1, from: MockTopics.mockTopics)
       }
       
       Section(header:Text("About QANDA")) {

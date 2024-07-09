@@ -7,7 +7,6 @@ let starting_topics = ["Actors", "Animals","Cars"] // Example topics
 
 struct ContentView:View {
   @EnvironmentObject var challengeManager: ChallengeManager
-
   @EnvironmentObject var gameBoard: GameBoard
   @State var chal :IdentifiablePoint? = nil
 
@@ -20,20 +19,17 @@ struct ContentView:View {
     }
     .onAppear {
       loadAllData(challengeManager: challengeManager,gameBoard:gameBoard)
-       
       }
       .onDisappear {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
       .sheet(item:$chal ) { cha in
         QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView)
-    
           .environmentObject(challengeManager)
         }
       }
   }
 func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
-  
   do {
     if  let gb =  gameBoard.loadGameBoard() {
       gameBoard.cellstate = gb.cellstate
@@ -61,4 +57,6 @@ func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
   }
 }
 
- 
+#Preview {
+  ContentView().environmentObject(ChallengeManager())  .environmentObject(GameBoard(size: 5, topics: ["A","B","C"], challenges:[Challenge.complexMock]))
+}

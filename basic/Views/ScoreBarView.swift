@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-struct zz:View {
+private struct zz:View {
   let showchar:String
   @EnvironmentObject var gb: GameBoard
   @EnvironmentObject var challengeManager: ChallengeManager
@@ -59,5 +59,5 @@ struct ScoreBarView: View {
   }
 
 #Preview {
-  ScoreBarView()
+  ScoreBarView().environmentObject(GameBoard(size: 3, topics: ["a","b","c"], challenges: []))
 }

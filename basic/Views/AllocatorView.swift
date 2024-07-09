@@ -57,6 +57,7 @@ struct AllocatorView_Previews: PreviewProvider {
   static var previews: some View {
     AllocatorView()
       .environmentObject(ChallengeManager())
+      .environmentObject(GameBoard(size: 3, topics:[ "A","B"], challenges: [Challenge.complexMock]))
 
   }
 }
