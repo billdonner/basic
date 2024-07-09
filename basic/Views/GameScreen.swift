@@ -28,6 +28,8 @@ struct GameScreen: View {
   private let shrinkFactor: CGFloat = 0.9
   @AppStorage("faceUpCards")   var faceUpCards = false
   @AppStorage("boardSize")  var boardSize = 6
+  
+  
   var body: some View {
     VStack {
       buttons // down below
@@ -38,18 +40,12 @@ struct GameScreen: View {
       } else {
         Text("Loading...")
           .onAppear {
-            let ok =   startNewGame(size: size, topics: topics)
-            if !ok  {
-              //TODO: Alert the User first game cant load, this is fatal
-              showCantStartAlert = true
-            }
+            onAppearAction()
           }
           .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
             Button("OK", role: .cancel) {
-              challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
-              // hideCellContent = true
-              clearAllCells()
-              showCantStartAlert = false } //stick the right here
+              cantStartNewGameAction()
+            }
           }
       }
       Spacer()
@@ -57,27 +53,21 @@ struct GameScreen: View {
       Button (action:{ showAllocatorView = true}) {
         Text ("Index of Topics")
       }
-      
     }
     .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "a fine job", buttonTitle: "gamescreen OK"){
-      //hideCellContent = true
-      endGame(status: .justWon)
-      
+      youWinAction()
     }
     .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "try again", buttonTitle: "gamescreen OK"){
-      // hideCellContent = true
-      endGame(status: .justLost)
+      youLoseAction()
     }
     .onChange(of:gameBoard.cellstate) {
       if isWinningPath(in:gameBoard.cellstate) {
         print("--->YOU WIN")
         showWinAlert = true
-        
       } else {
         if !isPossibleWinningPath(in:gameBoard.cellstate) {
           print("--->YOU LOSE")
           showLoseAlert = true
-          
         }
       }
     }
@@ -85,7 +75,6 @@ struct GameScreen: View {
       AllocatorView(playCount:$playCount)
         .presentationDetents([.fraction(0.25)])
     }
-    
   }
   
   var mainGrid: some View {
@@ -105,19 +94,14 @@ struct GameScreen: View {
       .padding()
     }.sheet(isPresented: $showingSettings){
       GameSettingsScreen(ourTopics: topics) {
-        // here on the way out
-        let ok =  startFresh()
-        if !ok { print ("Cant reset after gamesettings")}
-        
+    onGameSettingsExit()
+        }
       }
-    }
     .sheet(isPresented: $showingHelp ){
       HowToPlayScreen (isPresented: $showingHelp)
-    }        
+    }
     .onChange(of: boardSize) {
-      gameBoard.size = boardSize
-      let ok =  startFresh()
-      if !ok { print ("Cant reset after boarSizeChange")}
+onBoardSizeChange ()
     }
   }
   var buttons : some View{
@@ -126,16 +110,16 @@ struct GameScreen: View {
         //Start Game
         Button(action: {
           withAnimation {
-          let ok =   startFresh()
-          //hideCellContent = false
-          if !ok {
-            // ALERT HERE and possible reset
-            showCantStartAlert = true
-            gameBoard.gamestate =  GameState.justAbandoned
-          } else {
-            gameBoard.gamestate =  GameState.playingNow
+            let ok =   startFresh()
+            //hideCellContent = false
+            if !ok {
+              // ALERT HERE and possible reset
+              showCantStartAlert = true
+              gameBoard.gamestate =  GameState.justAbandoned
+            } else {
+              gameBoard.gamestate =  GameState.playingNow
+            }
           }
-         }
         }) {
           Text("Start Game")
             .padding()
@@ -143,15 +127,15 @@ struct GameScreen: View {
             .foregroundColor(.white)
             .cornerRadius(8)
         }
-//        .disabled(!hideCellContent)
-//        .opacity(gameBoard.gamestate == .playingNow ? 1 : 0.5)
+        //        .disabled(!hideCellContent)
+        //        .opacity(gameBoard.gamestate == .playingNow ? 1 : 0.5)
         .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showCantStartAlert){
           Button("OK", role: .cancel) {
-           withAnimation {
-            //hideCellContent = true
-            clearAllCells()
-            gameBoard.gamestate =  GameState.justAbandoned
-          }
+            withAnimation {
+              //hideCellContent = true
+              clearAllCells()
+              gameBoard.gamestate =  GameState.justAbandoned
+            }
           }
         }
       } else {
@@ -161,7 +145,6 @@ struct GameScreen: View {
             endGame(status:.justAbandoned)
             // hideCellContent = true
           }
-          
         }) {
           Text("End Game")
             .padding()
@@ -184,8 +167,6 @@ struct GameScreen: View {
       }
       .disabled(gameBoard.gamestate == .playingNow)
       .opacity(gameBoard.gamestate != .playingNow ? 1 : 0.5)
-      
-      
       //Help
       Button(action: {
         showingHelp = true
@@ -197,6 +178,38 @@ struct GameScreen: View {
           .cornerRadius(8)
       }
     }
+  }
+}
+extension GameScreen {
+  func onAppearAction () {
+    let ok =   startNewGame(size: size, topics: topics)
+    if !ok  {
+      //TODO: Alert the User first game cant load, this is fatal
+      showCantStartAlert = true
+    }
+  }
+  func cantStartNewGameAction() {
+    challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
+    // hideCellContent = true
+    clearAllCells()
+    showCantStartAlert = false
+  } //stick the right here
+  func youWinAction () {
+    endGame(status: .justWon)
+  }
+  func youLoseAction () {
+    endGame(status: .justLost)
+  }
+  func onGameSettingsExit() {
+    // here on the way out
+    let ok =  startFresh()
+    if !ok { print ("Cant reset after gamesettings")}
+  }
+  
+  func onBoardSizeChange() {
+    gameBoard.size = boardSize
+    let ok =  startFresh()
+    if !ok { print ("Cant reset after boarSizeChange")}
   }
 }
 

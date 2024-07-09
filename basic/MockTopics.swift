@@ -22,8 +22,8 @@ let mockTopics = [
     "Geology", "Meteorology", "Oceanography", "Ecology"
 ]
 /// Provider for generating and saving topics.
-class TopicProvider {
-  static let shared = TopicProvider()
+class MockTopicProvider {
+  static let shared = MockTopicProvider()
   private let topicsKey = "selectedTopics"
   private let schemeIndexKey = "selectedSchemeIndex"
   private init() {}

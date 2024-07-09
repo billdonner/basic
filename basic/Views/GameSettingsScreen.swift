@@ -104,7 +104,7 @@ fileprivate struct GameSettingsView: View {
         }
         .onChange(of: l_boardSize, initial: false)
          { _,newSize in
-           selectedTopics = TopicProvider.shared.getRandomTopics(newSize - 1, from: mockTopics)
+           selectedTopics = MockTopicProvider.shared.getRandomTopics(newSize - 1, from: mockTopics)
            paintBoard()
         }
         Section(header: Text("Difficulty Level")) {
@@ -192,7 +192,7 @@ fileprivate struct GameSettingsView: View {
           }     
         }
         .onAppear {  // fix
-            selectedTopics = TopicProvider.shared.getRandomTopics(boardSize - 1, from: mockTopics)
+            selectedTopics = MockTopicProvider.shared.getRandomTopics(boardSize - 1, from: mockTopics)
         }
 
         Section(header:Text("About QANDA")) {

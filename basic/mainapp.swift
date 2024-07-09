@@ -15,17 +15,12 @@ class OrientationLockedViewController: UIViewController {
 // The app's main entry point
 @main
 struct ChallengeGameApp: App {
-  
-  
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-  
   private var challengeManager = ChallengeManager()
-
   private var gameBoard = GameBoard(size: 1, topics: ["Nuts"], challenges:[ Challenge.complexMock])
   var body: some Scene {
     WindowGroup {
-      ContentView()
-   
+      ContentView() 
         .environmentObject(challengeManager)
         .environmentObject(gameBoard)
         .onAppear {

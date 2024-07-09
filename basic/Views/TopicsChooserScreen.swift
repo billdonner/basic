@@ -65,10 +65,10 @@ struct TopicsChooserScreen: View {
             loadPersistentData()
         }
         .onChange(of: selectedTopics) { oldValue, newValue in
-            TopicProvider.shared.saveTopics(newValue)
+            MockTopicProvider.shared.saveTopics(newValue)
         }
         .onChange(of: selectedSchemeIndex) { oldValue, newValue in
-            TopicProvider.shared.saveSchemeIndex(newValue)
+          MockTopicProvider.shared.saveSchemeIndex(newValue)
         }
     }
 
@@ -83,8 +83,8 @@ struct TopicsChooserScreen: View {
     }
 
     private func loadPersistentData() {
-        selectedTopics = TopicProvider.shared.loadTopics()
-        selectedSchemeIndex = TopicProvider.shared.loadSchemeIndex()
+        selectedTopics = MockTopicProvider.shared.loadTopics()
+        selectedSchemeIndex = MockTopicProvider.shared.loadSchemeIndex()
     }
 }
 #Preview ("TopicsChooserScreen") {
