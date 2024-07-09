@@ -14,6 +14,7 @@ class GameBoard : ObservableObject, Codable {
   var topics: [String]  // List of topics for the game
   var gimmees: Int  // Number of "gimmee" actions available
   var gamestate: GameState = .initializingApp
+  var playcount:  Int = 0
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -22,6 +23,7 @@ class GameBoard : ObservableObject, Codable {
     case _size = "selected"
     case _gimmees = "gimmees"
     case _gamestate = "gamestate"
+    case _playcount = "playcount"
   }
   
   init(size: Int, topics: [String], challenges: [Challenge]) {
@@ -30,6 +32,7 @@ class GameBoard : ObservableObject, Codable {
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
     self.gimmees = 0
+    self.playcount = 0
     populateBoard(with: challenges)
   }
 }

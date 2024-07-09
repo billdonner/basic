@@ -9,15 +9,14 @@ import SwiftUI
 struct GameScreen: View {
   let size: Int
   let topics: [String]
-  @Binding var playCount: Int
-  let tapGesture: (_ row:Int, _ col:Int ) -> Void
+  let onTapGesture: (_ row:Int, _ col:Int ) -> Void
   
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var gameBoard: GameBoard
   
   @State private var startAfresh = true
   @State private var showCantStartAlert = false
-  @State private var showingSettings = false
+  @State private var showSettings = false
   @State private var showingHelp = false
   @State private var showWinAlert = false
   @State private var showLoseAlert = false
@@ -32,21 +31,14 @@ struct GameScreen: View {
   
   var body: some View {
     VStack {
-      topButtons // down below
+      topButtonsVeew // down below
         .padding(.horizontal)
       ScoreBarView()
       if gameBoard.size > 1 {
-        mainGrid
-      } else {
-        Text("Loading...")
-          .onAppear {
-            onAppearAction()
-          }
-          .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
-            Button("OK", role: .cancel) {
-              onCantStartNewGameAction()
-            }
-          }
+          mainGridVeew
+      } 
+      else {
+          loadingVue
       }
       Spacer()
       Divider()
@@ -61,38 +53,9 @@ struct GameScreen: View {
       onYouLose()
     }
     .onChange(of:gameBoard.cellstate) {
-      if isWinningPath(in:gameBoard.cellstate) {
-        print("--->YOU WIN")
-        showWinAlert = true
-      } else {
-        if !isPossibleWinningPath(in:gameBoard.cellstate) {
-          print("--->YOU LOSE")
-          showLoseAlert = true
-        }
-      }
+      onChangeOfCellState()
     }
-    .sheet(isPresented: $showAllocatorView) {
-      AllocatorView(playCount:$playCount)
-        .presentationDetents([.fraction(0.25)])
-    }
-  }
-  
-  var mainGrid: some View {
-    GeometryReader { geometry in
-      let totalSpacing = spacing * CGFloat(gameBoard.size - 1)
-      let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
-      let cellSize = (axisSize / CGFloat(gameBoard.size)) * shrinkFactor  // Apply shrink factor
-      VStack(alignment:.center, spacing: spacing) {
-        ForEach(0..<gameBoard.size, id: \.self) { row in
-          HStack(spacing: spacing) {
-            ForEach(0..<gameBoard.size, id: \.self) { col in
-              makeOneCell(row:row,col:col,challenge: gameBoard.board[row][col],status:gameBoard.cellstate[row][col], cellSize: cellSize)
-            }
-          }
-        }
-      }
-      .padding()
-    }.sheet(isPresented: $showingSettings){
+    .sheet(isPresented: $showSettings){
       GameSettingsScreen(ourTopics: topics) {
         onGameSettingsExit()
       }
@@ -103,8 +66,30 @@ struct GameScreen: View {
     .onChange(of: boardSize) {
       onBoardSizeChange ()
     }
+    .sheet(isPresented: $showAllocatorView) {
+      AllocatorView()
+        .presentationDetents([.fraction(0.25)])
+    }
   }
-  var topButtons : some View{
+  
+  var mainGridVeew: some View {
+    GeometryReader { geometry in
+      let totalSpacing = spacing * CGFloat(gameBoard.size - 1)
+      let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
+      let cellSize = (axisSize / CGFloat(gameBoard.size)) * shrinkFactor  // Apply shrink factor
+      VStack(alignment:.center, spacing: spacing) {
+        ForEach(0..<gameBoard.size, id: \.self) { row in
+          HStack(spacing: spacing) {
+            ForEach(0..<gameBoard.size, id: \.self) { col in
+              makeOneCellVue(row:row,col:col,challenge: gameBoard.board[row][col],status:gameBoard.cellstate[row][col], cellSize: cellSize)
+            }
+          }
+        }
+      }
+      .padding()
+    }
+  }
+  var topButtonsVeew : some View{
     HStack {
       if gameBoard.gamestate !=  GameState.playingNow {
         //Start Game
@@ -141,11 +126,9 @@ struct GameScreen: View {
             .foregroundColor(.white)
             .cornerRadius(8)
         }
-        //.disabled(hideCellContent)
-        //.opacity(!hideCellContent ? 1 : 0.5)
       }
       //SETTINGS
-      Button(action: {  showingSettings = true }) {
+      Button(action: {  showSettings = true }) {
         Text("Settings")
           .padding()
           .background(Color.blue)
@@ -216,10 +199,22 @@ extension GameScreen /* actions */ {
     clearAllCells()
     gameBoard.gamestate =  GameState.justAbandoned
   }
+  
+  func onChangeOfCellState() {
+  if isWinningPath(in:gameBoard.cellstate) {
+    print("--->YOU WIN")
+    showWinAlert = true
+  } else {
+    if !isPossibleWinningPath(in:gameBoard.cellstate) {
+      print("--->YOU LOSE")
+      showLoseAlert = true
+    }
+  }
+  }
 }
 
 private extension GameScreen {
-  func makeOneCell(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
+  func makeOneCellVue(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
     let colormix = AppColors.colorFor(topic: challenge.topic)
     return VStack {
       Text(//hideCellContent ||hideCellContent ||
@@ -234,11 +229,25 @@ private extension GameScreen {
       .opacity(gameBoard.gamestate == .playingNow ? 1.0:0.3)
       .onTapGesture {
         if  gameBoard.gamestate == .playingNow {
-          tapGesture(row,col)
+          onTapGesture(row,col)
         }
       }
     }
   }// make one cell
+  
+ 
+    var loadingVue : some View {
+      Text("Loading...")
+        .onAppear {
+          onAppearAction()
+        }
+        .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
+          Button("OK", role: .cancel) {
+            onCantStartNewGameAction()
+          }
+        }
+   
+  }
 }
 
 private extension GameScreen {
@@ -301,8 +310,8 @@ struct GameScreen_Previews: PreviewProvider {
       ForEach([3, 4, 5, 6], id: \.self) { size in
         GameScreen(
           size: size,
-          topics: ["Actors", "Animals", "Cars"], playCount: .constant(3),
-          tapGesture: { row,col in
+          topics: ["Actors", "Animals", "Cars"],
+          onTapGesture: { row,col in
             print("Tapped cell with challenge \(row) \(col)")
           }
         )
@@ -316,3 +325,4 @@ struct GameScreen_Previews: PreviewProvider {
 }
 //challenge.id + "&" + gameBoard.status[row][col].id)
 //"\(status.val) " + "\(playCount )" +
+

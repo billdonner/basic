@@ -6,9 +6,8 @@ struct QandAScreen: View {
   let row: Int
   let col: Int
   
-  @Binding var playCount: Int  // Binding to track play count
   @Binding var isPresentingDetailView: Bool
-  @Binding var showSheet: Bool
+
   
   @EnvironmentObject var gb: GameBoard  // Environment object for game board
   @EnvironmentObject var challengeManager:ChallengeManager // Environment object for game board
@@ -20,29 +19,17 @@ struct QandAScreen: View {
   @State private var timer: Timer? = nil  // Timer to track elapsed time
   @State private var elapsedTime: TimeInterval = 0  // Elapsed time in seconds
   @State private var showCorrectAnswer: Bool = false  // State to show correct answer temporarily
-  @State private var animateBackToBlue: Bool = false  // State to animate answers back to blue
+
   @State private var showBorders: Bool = false  // State to show borders after animation
   
-  //@State private var showYellow: Bool = false // holds hint and explanation
-  
-  @State private var dismissToRoot = false
   @State private var showHint: Bool = false  // State to show/hide hint
+
+  @State private var animateBackToBlue: Bool = false  // State to animate answers back to blue
+  @State private var dismissToRootFlag = false
   @State private var answerGiven: Bool = false  // State to prevent further interactions after an answer is given
-  // @State private var showAnsweredAlert = false
-  // @State private var showHintAlert = false
+
   
-  private func handleDismissal(toRoot:Bool) {
-    if toRoot {
-      withAnimation(.easeInOut(duration: 0.75)) { // Slower dismissal
-        showSheet = false
-        isPresentingDetailView = false
-        dismiss()
-      }
-    } else {
-      answerGiven = false //showAnsweredAlert = false
-      showHint=false //  showHintAlert = false
-    }
-  }
+
   
   var body: some View {
     GeometryReader { geometry in
@@ -55,7 +42,7 @@ struct QandAScreen: View {
             handlePass: handlePass,
             toggleHint: toggleHint
           )
-          questionAndAnswersSection(geometry: geometry)
+          questionAndAnswersSectionVue(geometry: geometry)
           Spacer()
           bottomButtons
         }
@@ -80,16 +67,92 @@ struct QandAScreen: View {
     }
   }
   
-  func questionAndAnswersSection(geometry: GeometryProxy) -> some View {
+  var bottomButtons: some View {
+    HStack(spacing: 10) {
+      passButton
+      markAnswerCorrectButton
+      markAnswerIncorrectButton
+      gimmeeButton
+      gimmeeAllButton  // New button for "Gimmee All"
+    }
+    .padding(.bottom)
+    .frame(height: 60)
+  }
+  
+  var passButton: some View {
+    Button(action: {
+      handlePass()
+    }) {
+      Image(systemName: "nosign")
+        .font(.title)
+        .foregroundColor(.white)
+        .frame(width: 50, height: 50)
+        .background(Color.gray)
+        .cornerRadius(10)
+    }
+  }
+  
+  var markAnswerCorrectButton: some View {
+    Button(action: {
+      markAnswerCorrect()
+    }) {
+      Image(systemName: "checkmark.circle")
+        .font(.title)
+        .foregroundColor(.white)
+        .frame(width: 50, height: 50)
+        .background(Color.green)
+        .cornerRadius(10)
+    }
+  }
+  
+  var markAnswerIncorrectButton: some View {
+    Button(action: {
+      markAnswerIncorrect()
+    }) {
+      Image(systemName: "xmark.circle")
+        .font(.title)
+        .foregroundColor(.white)
+        .frame(width: 50, height: 50)
+        .background(Color.red)
+        .cornerRadius(10)
+    }
+  }
+  
+  var gimmeeButton: some View {
+    Button(action: {
+      handleGimmee()
+    }) {
+      Image(systemName: "hands.clap")
+        .font(.title)
+        .foregroundColor(.white)
+        .frame(width: 50, height: 50)
+        .background(Color.purple)
+        .cornerRadius(10)
+    }
+  }
+  
+  var gimmeeAllButton: some View {
+    Button(action: {
+      handleGimmeeAll()
+    }) {
+      Image(systemName: "rectangle.stack.person.crop.fill")
+        .font(.title)
+        .foregroundColor(.white)
+        .frame(width: 50, height: 50)
+        .background(Color.blue)
+        .cornerRadius(10)
+    }
+  }
+  func questionAndAnswersSectionVue(geometry: GeometryProxy) -> some View {
     VStack(spacing: 15) {
-      questionSection(geometry: geometry)
-      answerButtonsView(geometry: geometry)
+      questionSectionVue(geometry: geometry)
+      answerButtonsVue(geometry: geometry)
     }
     .padding(.horizontal)
     .padding(.vertical)
   }
   
-  func questionSection(geometry: GeometryProxy) -> some View {
+  func questionSectionVue(geometry: GeometryProxy) -> some View {
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
     let topicColor = //AppColors.colorFor(topic: gb.board[row][col].topic)?.backgroundColor ??
@@ -104,7 +167,7 @@ struct QandAScreen: View {
       .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
   }
   
-  func answerButtonsView(geometry: GeometryProxy) -> some View {
+  func answerButtonsVue(geometry: GeometryProxy) -> some View {
     let answers = gb.board[row][col].answers
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
@@ -117,7 +180,7 @@ struct QandAScreen: View {
           ScrollView(.horizontal) {
             HStack(spacing: 15) {
               ForEach(answers, id: \.self) { answer in
-                answerButton(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight, taller: true)
+                anserButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight, taller: true)
               }
             }
             .padding(.horizontal)
@@ -132,10 +195,10 @@ struct QandAScreen: View {
     } else if answers.count == 3 {
       return AnyView(
         VStack(spacing: 15) {
-          answerButton(answer: answers[0], buttonWidth: contentWidth / 2)
+          anserButtonVue(answer: answers[0], buttonWidth: contentWidth / 2)
           HStack {
-            answerButton(answer: answers[1], buttonWidth: contentWidth / 2.5)
-            answerButton(answer: answers[2], buttonWidth: contentWidth / 2.5)
+            anserButtonVue(answer: answers[1], buttonWidth: contentWidth / 2.5)
+            anserButtonVue(answer: answers[2], buttonWidth: contentWidth / 2.5)
           }
         }
           .padding(.horizontal)
@@ -149,7 +212,7 @@ struct QandAScreen: View {
           ForEach(answers.chunked(into: 2), id: \.self) { row in
             HStack {
               ForEach(row, id: \.self) { answer in
-                answerButton(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight)
+                anserButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight)
               }
             }
           }
@@ -160,7 +223,7 @@ struct QandAScreen: View {
     }
   }
   
-  func answerButton(answer: String, buttonWidth: CGFloat, buttonHeight: CGFloat? = nil, taller: Bool = false) -> some View {
+  func anserButtonVue(answer: String, buttonWidth: CGFloat, buttonHeight: CGFloat? = nil, taller: Bool = false) -> some View {
     Button(action: {
       handleAnswerSelection(answer: answer)
     }) {
@@ -202,82 +265,6 @@ struct QandAScreen: View {
     }
   }
 
-  var bottomButtons: some View {
-    HStack(spacing: 10) {
-      passButton
-      markCorrectButton
-      markIncorrectButton
-      gimmeeButton
-      gimmeeAllButton  // New button for "Gimmee All"
-    }
-    .padding(.bottom)
-    .frame(height: 60)
-  }
-  
-  var passButton: some View {
-    Button(action: {
-      handlePass()
-    }) {
-      Image(systemName: "nosign")
-        .font(.title)
-        .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        .background(Color.gray)
-        .cornerRadius(10)
-    }
-  }
-  
-  var markCorrectButton: some View {
-    Button(action: {
-      markAnswerCorrect()
-    }) {
-      Image(systemName: "checkmark.circle")
-        .font(.title)
-        .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        .background(Color.green)
-        .cornerRadius(10)
-    }
-  }
-  
-  var markIncorrectButton: some View {
-    Button(action: {
-      markAnswerIncorrect()
-    }) {
-      Image(systemName: "xmark.circle")
-        .font(.title)
-        .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        .background(Color.red)
-        .cornerRadius(10)
-    }
-  }
-  
-  var gimmeeButton: some View {
-    Button(action: {
-      handleGimmee()
-    }) {
-      Image(systemName: "hands.clap")
-        .font(.title)
-        .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        .background(Color.purple)
-        .cornerRadius(10)
-    }
-  }
-  
-  var gimmeeAllButton: some View {
-    Button(action: {
-      handleGimmeeAll()
-    }) {
-      Image(systemName: "rectangle.stack.person.crop.fill")
-        .font(.title)
-        .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        .background(Color.blue)
-        .cornerRadius(10)
-    }
-  }
 }
 extension QandAScreen {
   var formattedElapsedTime: String {
@@ -285,7 +272,17 @@ extension QandAScreen {
     let seconds = Int(elapsedTime) % 60
     return String(format: "%02d:%02d", minutes, seconds)
   }
-  
+  private func handleDismissal(toRoot:Bool) {
+    if toRoot {
+      withAnimation(.easeInOut(duration: 0.75)) { // Slower dismissal
+        isPresentingDetailView = false
+        dismiss()
+      }
+    } else {
+      answerGiven = false //showAnsweredAlert = false
+      showHint=false //  showHintAlert = false
+    }
+  }
   func startTimer() {
     elapsedTime = 0
     timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
@@ -305,6 +302,8 @@ extension QandAScreen {
   }
 }
   extension QandAScreen { /* actions */
+    
+    
   func markAnswerCorrect() {
     // selectedAnswer = gb.board[row][col].correct
     answerCorrect = true
@@ -336,13 +335,13 @@ extension QandAScreen {
   }
  
   func handleGimmee() {
-    playCount += 1
+    gb.playcount += 1
     dismiss()
     stopTimer()
   }
   
   func handleGimmeeAll() {
-    playCount += 1
+    gb.playcount += 1
     dismiss()
     stopTimer()
   }
@@ -385,11 +384,11 @@ extension QandAScreen {
   }
 }
 #Preview {
-  QandAScreen(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
+  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true))
     .environmentObject(GameBoard(size: 1, topics: ["Programming Languages"], challenges: [Challenge.complexMockWithFiveAnswers]))
 }
 #Preview {
-  QandAScreen(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
+  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true))
     .environmentObject(GameBoard(size: 1, topics: ["Quantum Mechanics"], challenges: [Challenge.complexMockWithThreeAnswers]))
 }
 

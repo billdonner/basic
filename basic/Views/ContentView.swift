@@ -10,11 +10,10 @@ struct ContentView:View {
 
   @EnvironmentObject var gameBoard: GameBoard
   @State var chal :IdentifiablePoint? = nil
-  @State var playCount = 0
-  @State var showSheet = false
+
   @State var isPresentingDetailView =  false
   var body: some View {
-    GameScreen(size: starting_size, topics: starting_topics,playCount: $playCount){ row,col    in
+    GameScreen(size: starting_size, topics: starting_topics){ row,col    in
       //tap behavior
       isPresentingDetailView = true 
       chal = IdentifiablePoint(row:row,col:col)
@@ -27,7 +26,7 @@ struct ContentView:View {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
       .sheet(item:$chal ) { cha in
-        QandAScreen (row:cha.row,col:cha.col, playCount: $playCount, isPresentingDetailView: $isPresentingDetailView, showSheet: $showSheet)
+        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView)
     
           .environmentObject(challengeManager)
         }
@@ -42,6 +41,7 @@ func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
       gameBoard.topics = gb.topics
       gameBoard.board = gb.board
       gameBoard.gimmees = gb.gimmees
+      gameBoard.playcount = gb.playcount
     }
     try challengeManager.playData = loadPlayData(from: jsonFileName)
     if let playData = challengeManager.playData {

@@ -61,8 +61,6 @@ fileprivate struct GameSettingsView: View {
   
   @Environment(\.presentationMode) var presentationMode
   
-  
-  
   var colorPaletteBackground: LinearGradient {
     switch l_colorPalette {
     case 1:
@@ -135,7 +133,7 @@ fileprivate struct GameSettingsView: View {
           Toggle("", isOn: $l_faceUpCards)
             .labelsHidden()
           Spacer()
-          Text("Face UP")
+          Text("Face Up")
         }
         .frame(maxWidth: .infinity)
       }
@@ -156,11 +154,15 @@ fileprivate struct GameSettingsView: View {
       { _,_ in onParameterChange() }
       Section(header: Text("Color Palette")) {
         Picker("Color Palette", selection: $l_colorPalette) {
-          Text("Spring").tag(1)
-          Text("Summer").tag(2)
-          Text("Autumn").tag(3)
-          Text("Winter").tag(4)
-          Text("Bleak").tag(5)
+//          Text("Spring").tag(1)
+//          Text("Summer").tag(2)
+//          Text("Autumn").tag(3)
+//          Text("Winter").tag(4)
+//          Text("Bleak").tag(5)
+          ForEach(AppColors.allSchemes.indices,id:\.self) { idx in
+            Text(AppColors.allSchemes[idx].name)
+              .tag(idx + 1)
+          }
         }
         .pickerStyle(SegmentedPickerStyle())
         .background(colorPaletteBackground.clipShape(RoundedRectangle(cornerRadius: 10)))
