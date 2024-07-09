@@ -3,7 +3,7 @@ import SwiftUI
 
 fileprivate struct GameSettingsView: View {
   internal init(boardSize: Binding<Int>, startInCorners: Binding<Bool>, faceUpCards: Binding<Bool>, doubleDiag: Binding<Bool>, colorPalette: Binding<Int>, difficultyLevel: Binding<Int>,
-             //   topTopics: String,bottomTopics:String,
+                //   topTopics: String,bottomTopics:String,
                 ourTopics: [String], returningTopics:Binding<[String]>,
                 onExit:@escaping ()->()) {
     self.onExit = onExit
@@ -32,7 +32,7 @@ fileprivate struct GameSettingsView: View {
     
   }
   var onExit: ()->()
-
+  
   
   @Binding var boardSize: Int
   @Binding var startInCorners: Bool
@@ -40,7 +40,7 @@ fileprivate struct GameSettingsView: View {
   @Binding var doubleDiag: Bool
   @Binding var colorPalette: Int
   @Binding var difficultyLevel: Int
-
+  
   @Binding var returningTopics: [String]
   
   @State private var  l_boardSize: Int
@@ -55,14 +55,14 @@ fileprivate struct GameSettingsView: View {
   @State var tappedIndices: Set<Int> = []
   @State var replacedTopics: [Int: String] = [:]
   @State var selectedAdditionalTopics: Set<String> = []
- 
+  
   var ourTopics: [String]
   @State private var showSettings = false
-
+  
   @Environment(\.presentationMode) var presentationMode
   
   
-
+  
   var colorPaletteBackground: LinearGradient {
     switch l_colorPalette {
     case 1:
@@ -77,176 +77,161 @@ fileprivate struct GameSettingsView: View {
       return LinearGradient(gradient: Gradient(colors: [Color.gray, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
     }
   }
-
-  fileprivate func paintBoard() {
+  
+  fileprivate func onParameterChange() {
     refreshTopics()
-//    startNewGame
-//    let x=try?  prepareNewGame(aiPlayData!, reloadTopics:false)
-//    if x != nil
-//    {
-//      print(" painting new Board")
-//    }
+    //    startNewGame
+    //    let x=try?  prepareNewGame(aiPlayData!, reloadTopics:false)
+    //    if x != nil
+    //    {
+    //      print(" painting new Board")
+    //    }
   }
   
   var body: some View {
+    Form {
+      Section(header: Text("Board Size")) {
+        Picker("Board Size", selection: $l_boardSize) {
+          Text("3x3").tag(3)
+          Text("4x4").tag(4)
+          Text("5x5").tag(5)
+          Text("6x6").tag(6)
+        }
+        .pickerStyle(SegmentedPickerStyle())
+      }
+      .onChange(of: l_boardSize, initial: false)
+      { _,newSize in
+        selectedTopics = MockTopicProvider.shared.getRandomTopics(newSize - 1, from: mockTopics)
+        onParameterChange()
+      }
+      Section(header: Text("Difficulty Level")) {
+        Picker("Difficulty Level", selection: $l_difficultyLevel) {
+          Text("Easy").tag(1)
+          Text("Normal").tag(2)
+          Text("Hard").tag(3)
+        }
+        .pickerStyle(SegmentedPickerStyle())
+        .background(Color(.systemBackground).clipShape(RoundedRectangle(cornerRadius: 10)))
+      }
+      .onChange(of: l_difficultyLevel, initial: false)
+      { _,_ in onParameterChange() }
+      Section(header: Text("Starting Position")) {
+        HStack {
+          Text("Anywhere")
+          Spacer()
+          Toggle("", isOn: $l_startInCorners)
+            .labelsHidden()
+          Spacer()
+          Text("Corners")
+        }
+        .frame(maxWidth: .infinity)
+      }
+      .onChange(of: l_startInCorners, initial: false)
+      { _,_ in onParameterChange() }
+      Section(header: Text("Cards Face")) {
+        HStack {
+          Text("Face Down")
+          Spacer()
+          Toggle("", isOn: $l_faceUpCards)
+            .labelsHidden()
+          Spacer()
+          Text("Face UP")
+        }
+        .frame(maxWidth: .infinity)
+      }
+      .onChange(of: l_faceUpCards, initial: false)
+      { _,_ in onParameterChange() }
+      Section(header: Text("Double Diag")) {
+        HStack {
+          Text("One Diag")
+          Spacer()
+          Toggle("", isOn: $l_doubleDiag)
+            .labelsHidden()
+          Spacer()
+          Text("Both Diags")
+        }
+        .frame(maxWidth: .infinity)
+      }
+      .onChange(of: l_doubleDiag, initial: false)
+      { _,_ in onParameterChange() }
+      Section(header: Text("Color Palette")) {
+        Picker("Color Palette", selection: $l_colorPalette) {
+          Text("Spring").tag(1)
+          Text("Summer").tag(2)
+          Text("Autumn").tag(3)
+          Text("Winter").tag(4)
+          Text("Bleak").tag(5)
+        }
+        .pickerStyle(SegmentedPickerStyle())
+        .background(colorPaletteBackground.clipShape(RoundedRectangle(cornerRadius: 10)))
+      }.onChange(of: l_colorPalette, initial: false)
+      { _,_ in onParameterChange() }
+      Section(header: Text("Topics")) {
+        NavigationLink(destination: TopicsChooserScreen(allTopics: mockTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
+          Text("Choose Topics")
+            .padding()
+          //                    .background(Color.blue)
+            .foregroundColor(.blue)
+          //                    .cornerRadius(10)
+        }
+      }
+      .onAppear {  // fix
+        selectedTopics = MockTopicProvider.shared.getRandomTopics(boardSize - 1, from: mockTopics)
+      }
       
-      Form {
-        Section(header: Text("Board Size")) {
-          Picker("Board Size", selection: $l_boardSize) {
-            Text("3x3").tag(3)
-            Text("4x4").tag(4)
-            Text("5x5").tag(5)
-            Text("6x6").tag(6)
-          }
-          .pickerStyle(SegmentedPickerStyle())
-      
-
-        }
-        .onChange(of: l_boardSize, initial: false)
-         { _,newSize in
-           selectedTopics = MockTopicProvider.shared.getRandomTopics(newSize - 1, from: mockTopics)
-           paintBoard()
-        }
-        Section(header: Text("Difficulty Level")) {
-          Picker("Difficulty Level", selection: $l_difficultyLevel) {
-            Text("Easy").tag(1)
-            Text("Normal").tag(2)
-            Text("Hard").tag(3)
-          }
-          .pickerStyle(SegmentedPickerStyle())
-          .background(Color(.systemBackground).clipShape(RoundedRectangle(cornerRadius: 10)))
-        }
-        .onChange(of: l_difficultyLevel, initial: false)
-         { _,_ in
-           paintBoard()
-        }
-        Section(header: Text("Starting Position")) {
-          HStack {
-            Text("Anywhere")
+      Section(header:Text("About QANDA")) {
+        VStack{
+          HStack { Spacer()
+            AppVersionInformationView(
+              name:AppNameProvider.appName(),
+              versionString: AppVersionProvider.appVersion(),
+              appIcon: AppIconProvider.appIcon()
+            )
             Spacer()
-            Toggle("", isOn: $l_startInCorners)
-              .labelsHidden()
-            Spacer()
-            Text("Corners")
           }
-          .frame(maxWidth: .infinity)
-        }
-        .onChange(of: l_startInCorners, initial: false)
-        { _,_ in
-          paintBoard()
-       }
-        
-        Section(header: Text("Cards Face")) {
-          HStack {
-            Text("Face Down")
-            Spacer()
-            Toggle("", isOn: $l_faceUpCards)
-              .labelsHidden()
-            Spacer()
-            Text("Face UP")
+          .onChange(of:returningTopics,initial:true ) { old,newer in
+            print("Game With Topics:",returningTopics.joined())
           }
-          .frame(maxWidth: .infinity)
-        }
-        .onChange(of: l_faceUpCards, initial: false)
-        { _,_ in
-          paintBoard()
-       }
-        
-        
-        Section(header: Text("Double Diag")) {
-          HStack {
-            Text("One Diag")
-            Spacer()
-            Toggle("", isOn: $l_doubleDiag)
-              .labelsHidden()
-            Spacer()
-            Text("Both Diags")
-          }
-          .frame(maxWidth: .infinity)
-        }
-        .onChange(of: l_doubleDiag, initial: false)
-        { _,_ in
-          paintBoard()
-       }
-        Section(header: Text("Color Palette")) {
-          Picker("Color Palette", selection: $l_colorPalette) {
-            Text("Spring").tag(1)
-            Text("Summer").tag(2)
-            Text("Autumn").tag(3)
-            Text("Winter").tag(4)
-          }
-          .pickerStyle(SegmentedPickerStyle())
-          .background(colorPaletteBackground.clipShape(RoundedRectangle(cornerRadius: 10)))
-        }         .
-        onChange(of: l_colorPalette, initial: false)
-        { _,_ in
-          paintBoard()
-       }
-        Section(header: Text("Topics")) {
-          NavigationLink(destination: TopicsChooserScreen(allTopics: mockTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
-              Text("Choose Topics")
-                  .padding()
-//                    .background(Color.blue)
-                 .foregroundColor(.blue)
-//                    .cornerRadius(10)
-          }     
-        }
-        .onAppear {  // fix
-            selectedTopics = MockTopicProvider.shared.getRandomTopics(boardSize - 1, from: mockTopics)
-        }
-
-        Section(header:Text("About QANDA")) {
-          VStack{
-            HStack { Spacer()
-              AppVersionInformationView(
-                name:AppNameProvider.appName(),
-                versionString: AppVersionProvider.appVersion(),
-                appIcon: AppIconProvider.appIcon()
-              )
-              Spacer()
-            }
-            //Text(PRIMARY_REMOTE).font(.caption)
-              .onChange(of:returningTopics,initial:true ) { old,newer in
-              print("Game With Topics:",returningTopics.joined())
-              }
-            
-            Button(action: { showSettings.toggle() }) {
-              Text("Freeport Settings")
-            }
+          
+          Button(action: { showSettings.toggle() }) {
+            Text("Freeport Settings")
           }
         }
       }
-      .sheet(isPresented:$showSettings){
-        FreeportSettingsScreen()
+    }
+    .sheet(isPresented:$showSettings){
+      FreeportSettingsScreen()
+    }
+    .onDisappear {
+      onExit() // do whatever
+    }
+    .navigationBarTitle("Game Settings", displayMode: .inline)
+    .navigationBarItems(
+      leading: Button("Cancel") {
+        // dont touch anything
+        self.presentationMode.wrappedValue.dismiss()
+      },
+      trailing: Button("New Game") {
+        onNewGamePressed()
       }
-      .onDisappear {
-        onExit() // do whatever
-      }
-      .navigationBarTitle("Game Settings", displayMode: .inline)
-      .navigationBarItems(
-        leading: Button("Cancel") {
-          // dont touch anything
-          self.presentationMode.wrappedValue.dismiss()
-        },
-        trailing: Button("New Game") {
-          // copy every change into appsettings , except topics
-          doubleDiag = l_doubleDiag
-          faceUpCards = l_faceUpCards
-          boardSize = l_boardSize
-          colorPalette = l_colorPalette
-          difficultyLevel = l_difficultyLevel
-          startInCorners = l_startInCorners
-          returningTopics = selectedTopics + selectedAdditionalTopics
-          //exx(0)
-         // startNewGame(size: l_boardSize
-                     //, topics: returningTopics)
-          self.presentationMode.wrappedValue.dismiss()
-          print("-----> NEW GAME \(boardSize)x\(boardSize) topics:\(returningTopics.joined(separator: ",")) ")
-        }
-      )
+    )
     //}
   }
-  
+  private func onNewGamePressed() {
+    // copy every change into appsettings , except topics
+    doubleDiag = l_doubleDiag
+    faceUpCards = l_faceUpCards
+    boardSize = l_boardSize
+    colorPalette = l_colorPalette
+    difficultyLevel = l_difficultyLevel
+    startInCorners = l_startInCorners
+    returningTopics = selectedTopics + selectedAdditionalTopics
+    //exx(0)
+    // startNewGame(size: l_boardSize
+    //, topics: returningTopics)
+    self.presentationMode.wrappedValue.dismiss()
+    print("-----> NEW GAME \(boardSize)x\(boardSize) topics:\(returningTopics.joined(separator: ",")) ")
+  }
   private func replaceTopic(at index: Int) {
     guard !tappedIndices.contains(index), !availableTopics.isEmpty else { return }
     let newTopic = availableTopics.removeFirst()
@@ -254,14 +239,14 @@ fileprivate struct GameSettingsView: View {
     selectedTopics[index] = newTopic
     tappedIndices.insert(index)
   }
-
-//  private func selectAdditionalTopic(_ topic: String) {
-//    if selectedAdditionalTopics.contains(topic) {
-//      selectedAdditionalTopics.remove(topic)
-//    } else if selectedAdditionalTopics.count < boardSize {
-//      selectedAdditionalTopics.insert(topic)
-//    }
-//  }
+  
+  //  private func selectAdditionalTopic(_ topic: String) {
+  //    if selectedAdditionalTopics.contains(topic) {
+  //      selectedAdditionalTopics.remove(topic)
+  //    } else if selectedAdditionalTopics.count < boardSize {
+  //      selectedAdditionalTopics.insert(topic)
+  //    }
+  //  }
   
   private func refreshTopics() {
     let randomTopics = ourTopics.shuffled()
@@ -284,9 +269,8 @@ struct GameSettingsScreen :
   @AppStorage("doubleDiag") private var doubleDiag = false
   @AppStorage("colorPalette") private var colorPalette = 1
   @AppStorage("difficultyLevel") private var difficultyLevel = 1
-
-  @State var returningTopics: [String] = []
   
+  @State var returningTopics: [String] = []
   @EnvironmentObject var gameBoard: GameBoard
   
   var body: some View {
@@ -302,21 +286,27 @@ struct GameSettingsScreen :
         returningTopics: $returningTopics){
           onExit()
         }
-
-      .onChange(of: returningTopics,initial:true ) {_,_ in
-        //set only the returning topics to isLive
-        func qq(_ x:[String],contains y:String)->Bool {
-          for z in x {
-            if y==z {return true}
-          }
-          return false
+      
+        .onChange(of: returningTopics,initial:true ) {_,_ in
+          onChangeOfReturningTopics()
         }
-//        for t in 0..<gameState.topics.count {
-//          gameState.topics[t].isLive = qq(returningTopics,contains:gameState.topics[t].topic)
-//        }
-      }
     }
   }
+  
+  private func onChangeOfReturningTopics() {
+    //set only the returning topics to isLive
+    func qq(_ x:[String],contains y:String)->Bool {
+      for z in x {
+        if y==z {return true}
+      }
+      return false
+    }
+    // this is questionable
+    //               for t in 0..<gameState.topics.count {
+    //                    gameState.topics[t].isLive = qq(returningTopics,contains:gameState.topics[t].topic)
+    //                  }
+  }
+  
 }
 #Preview("Tester") {
   let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
@@ -324,103 +314,3 @@ struct GameSettingsScreen :
     print("GameSettingsExited with")
   }
 }
-/*
- fileprivate struct TopicsView: View {
-   @State private var selectedTopics: [String] = []
-   @State private var currentTopics: [String]
-   @State private var remainingTopics: [String]
-   @State private var changedIndices: Set<Int> = []
-   @Binding var boardSize: Int
-
-   init(topics: [String], allTopics: [String], boardSize: Binding<Int>) {
-     _currentTopics = State(initialValue: topics.dropLast(5))
-     _remainingTopics = State(initialValue: allTopics.filter { !topics.contains($0) })
-     _boardSize = boardSize
-   }
-
-   var body: some View {
-     let ctopics = currentTopics.dropLast(1)
-     VStack(alignment: .leading) {
-       Text("current: \(ctopics.count)")
-       List(ctopics.indices, id: \.self) { index in
-         Text("\(index + 1). \(ctopics[index])")
-           .onTapGesture {
-             if !changedIndices.contains(index) {
-               changeTopic(at: index)
-             }
-           }
-           .foregroundColor(changedIndices.contains(index) ? .gray : .primary)
-           .disabled(changedIndices.contains(index)) // Indicate non-tappable state
-       }
-       
-       Text("Tap to change each topic once \(boardSize)")
-         .font(.footnote)
-         .padding(.horizontal)
-     }
-     .padding(.horizontal)
-   }
-
-   private func changeTopic(at index: Int) {
-     guard !remainingTopics.isEmpty else {
-       print("No more unused topics available.")
-       return
-     }
-
-     if let newTopic = remainingTopics.randomElement(),
-        let newTopicIndex = remainingTopics.firstIndex(of: newTopic) {
-       currentTopics[index] = newTopic
-       remainingTopics.remove(at: newTopicIndex)
-       changedIndices.insert(index)
-     }
-   }
- }
-
- func chooseTopics(from topics: [String], count N: Int) -> [String] {
-   guard N > 0 else {
-     return []
-   }
-
-   if N >= topics.count {
-     return topics
-   }
-
-   var chosenTopics: Set<String> = []
-   while chosenTopics.count < N {
-     if let topic = topics.randomElement() {
-       chosenTopics.insert(topic)
-     }
-   }
-
-   return Array(chosenTopics)
- }
- Section(header: Text("We Pre-Selected \($l_boardSize.wrappedValue - 2) Topics"), footer: Text("Click to change any of the pre-selected topics, but only once!")) {
-   ForEach(selectedTopics.indices, id: \.self) { index in
-     HStack {
-       Text(selectedTopics[index])
-       if let oldTopic = replacedTopics[index] {
-         Text(" (\(oldTopic))")
-           .opacity(0.5)
-       }
-     }
-     .onTapGesture {
-       replaceTopic(at: index)
-     }
-   }
- }
- 
- Section(header: Text("Choose Up To \($l_boardSize.wrappedValue) Additional Topics"), footer: Text("Pick at least \($l_boardSize.wrappedValue - 2) ")) {
-   ForEach(availableTopics, id: \.self) { topic in
-     HStack {
-       Text(topic)
-       Spacer()
-       if selectedAdditionalTopics.contains(topic) {
-         Image(systemName: "checkmark")
-       }
-     }
-     .onTapGesture {
-       selectAdditionalTopic(topic)
-     }
-   }
- }
- 
- */

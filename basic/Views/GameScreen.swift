@@ -32,7 +32,7 @@ struct GameScreen: View {
   
   var body: some View {
     VStack {
-      buttons // down below
+      topButtons // down below
         .padding(.horizontal)
       ScoreBarView()
       if gameBoard.size > 1 {
@@ -44,7 +44,7 @@ struct GameScreen: View {
           }
           .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
             Button("OK", role: .cancel) {
-              cantStartNewGameAction()
+              onCantStartNewGameAction()
             }
           }
       }
@@ -55,10 +55,10 @@ struct GameScreen: View {
       }
     }
     .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "a fine job", buttonTitle: "gamescreen OK"){
-      youWinAction()
+      onYouWin()
     }
     .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "try again", buttonTitle: "gamescreen OK"){
-      youLoseAction()
+      onYouLose()
     }
     .onChange(of:gameBoard.cellstate) {
       if isWinningPath(in:gameBoard.cellstate) {
@@ -94,31 +94,23 @@ struct GameScreen: View {
       .padding()
     }.sheet(isPresented: $showingSettings){
       GameSettingsScreen(ourTopics: topics) {
-    onGameSettingsExit()
-        }
+        onGameSettingsExit()
       }
+    }
     .sheet(isPresented: $showingHelp ){
       HowToPlayScreen (isPresented: $showingHelp)
     }
     .onChange(of: boardSize) {
-onBoardSizeChange ()
+      onBoardSizeChange ()
     }
   }
-  var buttons : some View{
+  var topButtons : some View{
     HStack {
       if gameBoard.gamestate !=  GameState.playingNow {
         //Start Game
         Button(action: {
           withAnimation {
-            let ok =   startFresh()
-            //hideCellContent = false
-            if !ok {
-              // ALERT HERE and possible reset
-              showCantStartAlert = true
-              gameBoard.gamestate =  GameState.justAbandoned
-            } else {
-              gameBoard.gamestate =  GameState.playingNow
-            }
+            onStartGame()
           }
         }) {
           Text("Start Game")
@@ -132,9 +124,7 @@ onBoardSizeChange ()
         .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showCantStartAlert){
           Button("OK", role: .cancel) {
             withAnimation {
-              //hideCellContent = true
-              clearAllCells()
-              gameBoard.gamestate =  GameState.justAbandoned
+              onCantStartNewGame()
             }
           }
         }
@@ -142,8 +132,7 @@ onBoardSizeChange ()
         // END GAME
         Button(action: {
           withAnimation {
-            endGame(status:.justAbandoned)
-            // hideCellContent = true
+            onEndGamePressed()
           }
         }) {
           Text("End Game")
@@ -156,9 +145,7 @@ onBoardSizeChange ()
         //.opacity(!hideCellContent ? 1 : 0.5)
       }
       //SETTINGS
-      Button(action: {
-        showingSettings = true
-      }) {
+      Button(action: {  showingSettings = true }) {
         Text("Settings")
           .padding()
           .background(Color.blue)
@@ -168,9 +155,7 @@ onBoardSizeChange ()
       .disabled(gameBoard.gamestate == .playingNow)
       .opacity(gameBoard.gamestate != .playingNow ? 1 : 0.5)
       //Help
-      Button(action: {
-        showingHelp = true
-      }) {
+      Button(action: { showingHelp = true }) {
         Text("Help")
           .padding()
           .background(Color.blue)
@@ -180,7 +165,11 @@ onBoardSizeChange ()
     }
   }
 }
-extension GameScreen {
+extension GameScreen /* actions */ {
+  func onEndGamePressed () {
+    endGame(status:.justAbandoned)
+    // hideCellContent = true
+  }
   func onAppearAction () {
     let ok =   startNewGame(size: size, topics: topics)
     if !ok  {
@@ -188,16 +177,16 @@ extension GameScreen {
       showCantStartAlert = true
     }
   }
-  func cantStartNewGameAction() {
+  func onCantStartNewGameAction() {
     challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
     // hideCellContent = true
     clearAllCells()
     showCantStartAlert = false
   } //stick the right here
-  func youWinAction () {
+  func onYouWin () {
     endGame(status: .justWon)
   }
-  func youLoseAction () {
+  func onYouLose () {
     endGame(status: .justLost)
   }
   func onGameSettingsExit() {
@@ -211,29 +200,24 @@ extension GameScreen {
     let ok =  startFresh()
     if !ok { print ("Cant reset after boarSizeChange")}
   }
-}
-
-// Preview Provider for SwiftUI preview
-struct FrontView_Previews: PreviewProvider {
-  static var previews: some View {
-    Group {
-      ForEach([3, 4, 5, 6], id: \.self) { size in
-        GameScreen(
-          size: size,
-          topics: ["Actors", "Animals", "Cars"], playCount: .constant(3),
-          tapGesture: { row,col in
-            print("Tapped cell with challenge \(row) \(col)")
-          }
-        )  .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]))
-          .environmentObject(ChallengeManager())  // Ensure to add your ChallengeManager
-          .previewLayout(.fixed(width: 300, height: 300))
-          .previewDisplayName("Size \(size)x\(size)")
-      }
+  
+  func onStartGame(){
+    let ok =   startFresh()
+    //hideCellContent = false
+    if !ok {
+      // ALERT HERE and possible reset
+      showCantStartAlert = true
+      gameBoard.gamestate =  GameState.justAbandoned
+    } else {
+      gameBoard.gamestate =  GameState.playingNow
     }
   }
+  func onCantStartNewGame() {
+    clearAllCells()
+    gameBoard.gamestate =  GameState.justAbandoned
+  }
 }
-//challenge.id + "&" + gameBoard.status[row][col].id)
-//"\(status.val) " + "\(playCount )" +
+
 private extension GameScreen {
   func makeOneCell(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
     let colormix = AppColors.colorFor(topic: challenge.topic)
@@ -243,8 +227,8 @@ private extension GameScreen {
       .font(.caption)
       .padding(10)
       .frame(width: cellSize, height: cellSize)
-//      .background(colormix?.backgroundColor)
-//      .foregroundColor(colormix?.foregroundColor)
+      //      .background(colormix?.backgroundColor)
+      //      .foregroundColor(colormix?.foregroundColor)
       .border(status.borderColor , width: 8)
       .cornerRadius(8)
       .opacity(gameBoard.gamestate == .playingNow ? 1.0:0.3)
@@ -310,3 +294,25 @@ private extension GameScreen {
     }
   }
 }
+// Preview Provider for SwiftUI preview
+struct GameScreen_Previews: PreviewProvider {
+  static var previews: some View {
+    Group {
+      ForEach([3, 4, 5, 6], id: \.self) { size in
+        GameScreen(
+          size: size,
+          topics: ["Actors", "Animals", "Cars"], playCount: .constant(3),
+          tapGesture: { row,col in
+            print("Tapped cell with challenge \(row) \(col)")
+          }
+        )
+        .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]))
+        .environmentObject(ChallengeManager())  // Ensure to add your ChallengeManager
+        .previewLayout(.fixed(width: 300, height: 300))
+        .previewDisplayName("Size \(size)x\(size)")
+      }
+    }
+  }
+}
+//challenge.id + "&" + gameBoard.status[row][col].id)
+//"\(status.val) " + "\(playCount )" +

@@ -9,7 +9,7 @@ struct QandAScreen: View {
   @Binding var playCount: Int  // Binding to track play count
   @Binding var isPresentingDetailView: Bool
   @Binding var showSheet: Bool
-
+  
   @EnvironmentObject var gb: GameBoard  // Environment object for game board
   @EnvironmentObject var challengeManager:ChallengeManager // Environment object for game board
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
@@ -64,7 +64,7 @@ struct QandAScreen: View {
         .shadow(radius: 10)
         .padding(.horizontal, 10)
         .padding(.bottom, 30)
-       // .frame(width: geometry.size.width) // Center the content with padding
+        // .frame(width: geometry.size.width) // Center the content with padding
         .onAppear(perform: startTimer)
         .onDisappear(perform: stopTimer)
         
@@ -75,7 +75,7 @@ struct QandAScreen: View {
           handleDismissal(toRoot:true)
         })
         
-
+        
       }
     }
   }
@@ -99,7 +99,7 @@ struct QandAScreen: View {
       .font(.headline)
       .padding()
       .background(RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.2))) // Use topic color for background
-//      .frame(width: contentWidth, height: geometry.size.height * 0.2)
+      .frame(width: contentWidth, height: geometry.size.height * 0.2)
       .lineLimit(8)
       .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
   }
@@ -127,7 +127,7 @@ struct QandAScreen: View {
             .foregroundColor(.gray)
             .padding(.top, 10)
         }
-       //   .frame(width: contentWidth) // Set width of the scrolling area
+        //   .frame(width: contentWidth) // Set width of the scrolling area
       )
     } else if answers.count == 3 {
       return AnyView(
@@ -201,14 +201,7 @@ struct QandAScreen: View {
         .animation(.easeInOut(duration: 0.5), value: showBorders)
     }
   }
-  
-  
-  func dismissOverlay() {
-    showHint = false
-    answerGiven = false
-    isPresentingDetailView = false
-  }
-  
+
   var bottomButtons: some View {
     HStack(spacing: 10) {
       passButton
@@ -285,7 +278,8 @@ struct QandAScreen: View {
         .cornerRadius(10)
     }
   }
-  
+}
+extension QandAScreen {
   var formattedElapsedTime: String {
     let minutes = Int(elapsedTime) / 60
     let seconds = Int(elapsedTime) % 60
@@ -304,50 +298,15 @@ struct QandAScreen: View {
     timer = nil
   }
   
-  func handleAnswerSelection(answer: String) {
-    selectedAnswer = answer
-    answerCorrect = (answer == gb.board[row][col].correct)
-    answerGiven = true
-    
-    if answerCorrect == false {
-      showCorrectAnswer = true
-      
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
-        showCorrectAnswer = false
-        showBorders = true
-        gb.cellstate[row][col] = .playedIncorrectly
-
-      }
-    }
-      else {
-        
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-      animateBackToBlue = true
-        try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
-        animateBackToBlue = false
-        showBorders = true
-        gb.cellstate[row][col] = .playedCorrectly
-   
-      }
-    }
-    stopTimer()
-  }
-  
-  func handlePass() {
-    
-    stopTimer()
-    dismiss()
-  }
-  
   func toggleHint() {
     if gb.board[row][col].hint.count > 1  { // guard against short hints
       showHint.toggle()
     }
   }
-  
+}
+  extension QandAScreen { /* actions */
   func markAnswerCorrect() {
-   // selectedAnswer = gb.board[row][col].correct
+    // selectedAnswer = gb.board[row][col].correct
     answerCorrect = true
     answerGiven = true
     animateBackToBlue = true
@@ -362,21 +321,20 @@ struct QandAScreen: View {
   }
   
   func markAnswerIncorrect() {
-   // if let sel = selectedAnswer, sel != //gb.board[row][col].correct {
-      answerCorrect = false
-      answerGiven = true
-      showCorrectAnswer = true
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-        showCorrectAnswer = false
-        showBorders = true
-        gb.cellstate[row][col] = .playedIncorrectly
-        gb.saveGameBoard()
-        try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
-      }
-      stopTimer()
+    // if let sel = selectedAnswer, sel != //gb.board[row][col].correct {
+    answerCorrect = false
+    answerGiven = true
+    showCorrectAnswer = true
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      showCorrectAnswer = false
+      showBorders = true
+      gb.cellstate[row][col] = .playedIncorrectly
+      gb.saveGameBoard()
+      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
     }
-  //}
-  
+    stopTimer()
+  }
+ 
   func handleGimmee() {
     playCount += 1
     dismiss()
@@ -388,14 +346,50 @@ struct QandAScreen: View {
     dismiss()
     stopTimer()
   }
+  
+  func handleAnswerSelection(answer: String) {
+    selectedAnswer = answer
+    answerCorrect = (answer == gb.board[row][col].correct)
+    answerGiven = true
+    if answerCorrect == false {
+      showCorrectAnswer = true
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
+        showCorrectAnswer = false
+        showBorders = true
+        gb.cellstate[row][col] = .playedIncorrectly
+
+      }
+    }
+      else {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      animateBackToBlue = true
+        try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
+        animateBackToBlue = false
+        showBorders = true
+        gb.cellstate[row][col] = .playedCorrectly
+   
+      }
+    }
+    stopTimer()
+  }
+  
+  func handlePass() {
+    stopTimer()
+    dismiss()
+  }
+  func dismissOverlay() {
+    showHint = false
+    answerGiven = false
+    isPresentingDetailView = false
+  }
 }
 #Preview {
   QandAScreen(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
-
     .environmentObject(GameBoard(size: 1, topics: ["Programming Languages"], challenges: [Challenge.complexMockWithFiveAnswers]))
 }
 #Preview {
   QandAScreen(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
-
     .environmentObject(GameBoard(size: 1, topics: ["Quantum Mechanics"], challenges: [Challenge.complexMockWithThreeAnswers]))
 }
+
