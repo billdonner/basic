@@ -301,7 +301,6 @@ struct GameSettingsScreen :
         ourTopics:  ourTopics,
         returningTopics: $returningTopics){
           onExit()
-          
         }
 
       .onChange(of: returningTopics,initial:true ) {_,_ in

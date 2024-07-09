@@ -315,7 +315,7 @@ fileprivate struct YouWinAlertModifier: ViewModifier {
   func body(content: Content) -> some View {
       ZStack {
           content
-              .blur(radius: isPresented ? 2 : 0)
+              .blur(radius: isPresented ? 1 : 0)
           
           if isPresented {
               YouWinAlert(
@@ -323,7 +323,7 @@ fileprivate struct YouWinAlertModifier: ViewModifier {
                   bodyMessage: bodyMessage,
                   buttonTitle: buttonTitle,
                   onButtonTapped: {
-                      withAnimation(.easeInOut(duration: 1.25)) { // Slower dismissal
+                    withAnimation(.easeInOut(duration: 0.75)) { // Slower dismissal
                           isPresented = false
                       }
                       onButtonTapped()
@@ -345,7 +345,7 @@ fileprivate struct YouLoseAlertModifier: ViewModifier {
   func body(content: Content) -> some View {
       ZStack {
           content
-              .blur(radius: isPresented ? 2 : 0)
+              .blur(radius: isPresented ? 1 : 0)
           
           if isPresented {
               YouLoseAlert(
@@ -353,7 +353,7 @@ fileprivate struct YouLoseAlertModifier: ViewModifier {
                   bodyMessage: bodyMessage,
                   buttonTitle: buttonTitle,
                   onButtonTapped: {
-                      withAnimation(.easeInOut(duration: 1.25)) { // Slower dismissal
+                    withAnimation(.easeInOut(duration: 0.75)) { // Slower dismissal
                           isPresented = false
                       }
                       onButtonTapped()
@@ -375,7 +375,7 @@ fileprivate struct AnsweredAlertModifier: ViewModifier {
   func body(content: Content) -> some View {
       ZStack {
           content
-              .blur(radius: isPresented ? 2 : 0)
+              .blur(radius: isPresented ? 1 : 0)
           
           if isPresented {
               AnsweredAlert(
@@ -406,7 +406,7 @@ fileprivate struct HintAlertModifier: ViewModifier {
   func body(content: Content) -> some View {
       ZStack {
           content
-              .blur(radius: isPresented ? 2 : 0)
+              .blur(radius: isPresented ? 1 : 0)
           
           if isPresented {
               HintAlert(
@@ -414,7 +414,7 @@ fileprivate struct HintAlertModifier: ViewModifier {
                   message: message,
                   buttonTitle: buttonTitle,
                   onButtonTapped: {
-                      withAnimation(animation.speed(0.5)) { // Slower dismissal
+                      withAnimation(animation.speed(0.75)) { // Slower dismissal
                           isPresented = false
                       }
                       onButtonTapped()

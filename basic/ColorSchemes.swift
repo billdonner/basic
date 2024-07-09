@@ -6,11 +6,11 @@
 //
 
 import SwiftUI
-
+typealias ColorSpec  = (String, String, (Double, Double, Double), (Double, Double, Double))
 class
 AppColors  {
   
-  static func colorFor(topic: String) -> ColorForTopic? {
+  static func colorFor(topic: String) -> ColorSpec? {
     @AppStorage("currentPallette") var currentPallette = "Winter"
     
     
@@ -87,7 +87,7 @@ AppColors  {
   
 }
   /// Model for representing a color scheme.
-  typealias ColorSpec  = (String, String, (Double, Double, Double), (Double, Double, Double))
+
   
   
   

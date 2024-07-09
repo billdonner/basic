@@ -62,16 +62,14 @@ struct AllocatorView_Previews: PreviewProvider {
   }
 }
 
-struct TopicCountsView: View {
+fileprivate struct TopicCountsView: View {
   let topic: Topic
-  
   @EnvironmentObject var challengeManager: ChallengeManager
-  
   var body: some View {
     HStack {
       RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
         .frame(width: 24, height: 24)
-        .foregroundColor(AppColors.colorFor(topic: topic.name)?.backgroundColor)
+       // .foregroundColor(AppColors.colorFor(topic: topic.name)?.backgroundColor)
       Text(topic.name)
       Spacer()
       Text("\(challengeManager.allocatedChallengesCount(for: topic)) - "
@@ -79,7 +77,6 @@ struct TopicCountsView: View {
            + "\(challengeManager.abandonedChallengesCount(for: topic)) - "
            + "\(challengeManager.correctChallengesCount(for: topic)) - "
            + "\(challengeManager.incorrectChallengesCount(for: topic))"
-      
       )
     }
     .font(.caption)

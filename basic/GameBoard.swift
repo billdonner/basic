@@ -6,7 +6,33 @@
 //
 
 import SwiftUI
-
+@Observable
+class GameBoard : ObservableObject, Codable {
+  var board: [[Challenge]]  // Array of arrays to represent the game board with challenges
+  var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell
+  var size: Int  // Size of the game board
+  var topics: [String]  // List of topics for the game
+  var gimmees: Int  // Number of "gimmee" actions available
+  var gamestate: GameState = .initializingApp
+  
+  enum CodingKeys: String, CodingKey {
+    case _board = "board"
+    case _cellstate = "cellstate"
+    case _topics = "topics"
+    case _size = "selected"
+    case _gimmees = "gimmees"
+    case _gamestate = "gamestate"
+  }
+  
+  init(size: Int, topics: [String], challenges: [Challenge]) {
+    self.size = size
+    self.topics = topics
+    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
+    self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
+    self.gimmees = 0
+    populateBoard(with: challenges)
+  }
+}
   extension GameBoard {
     
     func saveGameBoard( ) {

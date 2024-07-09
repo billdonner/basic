@@ -75,7 +75,6 @@ struct FreeportSettingsScreen: View {
             }.padding(.vertical)
 
           }
-          
         }
         .fullScreenCover(isPresented: $showOnBoarding) {
           OnboardingScreen(isPresented: $showOnBoarding)

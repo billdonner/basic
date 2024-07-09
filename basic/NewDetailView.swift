@@ -64,7 +64,7 @@ struct DetailChallengeView: View {
         .shadow(radius: 10)
         .padding(.horizontal, 10)
         .padding(.bottom, 30)
-        .frame(width: geometry.size.width) // Center the content with padding
+       // .frame(width: geometry.size.width) // Center the content with padding
         .onAppear(perform: startTimer)
         .onDisappear(perform: stopTimer)
         
@@ -92,13 +92,14 @@ struct DetailChallengeView: View {
   func questionSection(geometry: GeometryProxy) -> some View {
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
-    let topicColor = AppColors.colorFor(topic: gb.board[row][col].topic)?.backgroundColor ?? Color.gray
+    let topicColor = //AppColors.colorFor(topic: gb.board[row][col].topic)?.backgroundColor ??
+    Color.gray
     
     return Text(gb.board[row][col].question)
       .font(.headline)
       .padding()
       .background(RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.2))) // Use topic color for background
-      .frame(width: contentWidth, height: geometry.size.height * 0.2)
+//      .frame(width: contentWidth, height: geometry.size.height * 0.2)
       .lineLimit(8)
       .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
   }
@@ -126,7 +127,7 @@ struct DetailChallengeView: View {
             .foregroundColor(.gray)
             .padding(.top, 10)
         }
-          .frame(width: contentWidth) // Set width of the scrolling area
+       //   .frame(width: contentWidth) // Set width of the scrolling area
       )
     } else if answers.count == 3 {
       return AnyView(
