@@ -12,9 +12,7 @@
 		885CEB0C2C28879000234C17 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0B2C28879000234C17 /* AppColors.swift */; };
 		885CEB142C289D5300234C17 /* ChallengeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB132C289D5300234C17 /* ChallengeManager.swift */; };
 		885CEB162C289DDC00234C17 /* GameBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB152C289DDC00234C17 /* GameBoard.swift */; };
-		885CEB1F2C29085700234C17 /* HowToPlayScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB1C2C29085700234C17 /* HowToPlayScreen.swift */; };
 		885CEB202C29085700234C17 /* Guts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB1B2C29085700234C17 /* Guts.swift */; };
-		885CEB212C29085700234C17 /* OnboardingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB1D2C29085700234C17 /* OnboardingScreen.swift */; };
 		885CEB232C290C6000234C17 /* subs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB222C290C6000234C17 /* subs.swift */; };
 		885CEB252C2A266100234C17 /* WinLose.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB242C2A266100234C17 /* WinLose.swift */; };
 		885CEB292C2A546A00234C17 /* qdemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB282C2A546A00234C17 /* qdemoTests.swift */; };
@@ -54,8 +52,6 @@
 		885CEB132C289D5300234C17 /* ChallengeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeManager.swift; sourceTree = "<group>"; };
 		885CEB152C289DDC00234C17 /* GameBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoard.swift; sourceTree = "<group>"; };
 		885CEB1B2C29085700234C17 /* Guts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guts.swift; sourceTree = "<group>"; };
-		885CEB1C2C29085700234C17 /* HowToPlayScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowToPlayScreen.swift; sourceTree = "<group>"; };
-		885CEB1D2C29085700234C17 /* OnboardingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingScreen.swift; sourceTree = "<group>"; };
 		885CEB222C290C6000234C17 /* subs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = subs.swift; sourceTree = "<group>"; };
 		885CEB242C2A266100234C17 /* WinLose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinLose.swift; sourceTree = "<group>"; };
 		885CEB282C2A546A00234C17 /* qdemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = qdemoTests.swift; sourceTree = "<group>"; };
@@ -84,6 +80,8 @@
 				FreeportSettingsScreen.swift,
 				GameScreen.swift,
 				GameSettingsScreen.swift,
+				HowToPlayScreen.swift,
+				OnboardingScreen.swift,
 				QandAScreen.swift,
 				QandATopBarView.swift,
 				ScoreBarView.swift,
@@ -124,16 +122,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		885CEB1E2C29085700234C17 /* aux */ = {
-			isa = PBXGroup;
-			children = (
-				885CEB1B2C29085700234C17 /* Guts.swift */,
-				885CEB1C2C29085700234C17 /* HowToPlayScreen.swift */,
-				885CEB1D2C29085700234C17 /* OnboardingScreen.swift */,
-			);
-			path = aux;
-			sourceTree = "<group>";
-		};
 		88F6F8C62C1A1E2400A50C31 = {
 			isa = PBXGroup;
 			children = (
@@ -159,7 +147,6 @@
 		88F6F8D12C1A1E2400A50C31 /* basic */ = {
 			isa = PBXGroup;
 			children = (
-				885CEB1E2C29085700234C17 /* aux */,
 				88F6F8FF2C1E660600A50C31 /* Info.plist */,
 				88A6D6BB2C2C913A0080A63E /* structs.swift */,
 				88CB25F12C3DB77C0083FA73 /* mocks.swift */,
@@ -167,6 +154,7 @@
 				884548AF2C3C4B95009A725F /* mainapp.swift */,
 				884548B32C3D76E4009A725F /* Views */,
 				884548972C3B9AF6009A725F /* CustomAlerts.swift */,
+				885CEB1B2C29085700234C17 /* Guts.swift */,
 				885CEB0B2C28879000234C17 /* AppColors.swift */,
 				885CEB152C289DDC00234C17 /* GameBoard.swift */,
 				885CEB132C289D5300234C17 /* ChallengeManager.swift */,
@@ -341,9 +329,7 @@
 				88A6D6BC2C2C913A0080A63E /* structs.swift in Sources */,
 				88CB25F22C3DB77C0083FA73 /* mocks.swift in Sources */,
 				884548982C3B9AF6009A725F /* CustomAlerts.swift in Sources */,
-				885CEB1F2C29085700234C17 /* HowToPlayScreen.swift in Sources */,
 				885CEB202C29085700234C17 /* Guts.swift in Sources */,
-				885CEB212C29085700234C17 /* OnboardingScreen.swift in Sources */,
 				885CEB232C290C6000234C17 /* subs.swift in Sources */,
 				885CEB0C2C28879000234C17 /* AppColors.swift in Sources */,
 				884548B02C3C4B95009A725F /* mainapp.swift in Sources */,
