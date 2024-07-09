@@ -1,5 +1,5 @@
 import SwiftUI
-struct TopBarView: View {
+struct QandATopBarView: View {
     let topic: String
   let hint:String
     let elapsedTime: String
@@ -69,7 +69,7 @@ struct TopBarView: View {
 }
 
 #Preview {
-    TopBarView(
+    QandATopBarView(
       topic: "American History", hint: "What can we say about history?",
         elapsedTime: "05:32",
         additionalInfo: "Some extra information",

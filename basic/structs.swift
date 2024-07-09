@@ -89,7 +89,7 @@ extension Challenge {
 
 #Preview  {
   
-  DetailChallengeView(row: 0,col:0,playCount: .constant(32), isPresentingDetailView: .constant(true), showSheet:  .constant(true))
+  QandAScreen(row: 0,col:0,playCount: .constant(32), isPresentingDetailView: .constant(true), showSheet:  .constant(true))
     .environment(GameBoard(size:3,topics:["Animals"], challenges: [Challenge.complexMock]))
 }
 

@@ -24,7 +24,7 @@ struct ChallengeGameApp: App {
   private var gameBoard = GameBoard(size: 1, topics: ["Nuts"], challenges:[ Challenge.complexMock])
   var body: some Scene {
     WindowGroup {
-      TopBehaviorView()
+      ContentView()
    
         .environmentObject(challengeManager)
         .environmentObject(gameBoard)

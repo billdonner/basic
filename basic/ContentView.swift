@@ -167,7 +167,7 @@ func loadChallengeStatuses() -> [ChallengeStatus]? {
 /////////////
  
  */
-struct TopBehaviorView:View {
+struct ContentView:View {
   @EnvironmentObject var challengeManager: ChallengeManager
 
   @EnvironmentObject var gameBoard: GameBoard
@@ -189,7 +189,7 @@ struct TopBehaviorView:View {
         saveChallengeStatuses(challengeManager.challengeStatuses)
       }
       .sheet(item:$chal ) { cha in
-        DetailChallengeView (row:cha.row,col:cha.col, playCount: $playCount, isPresentingDetailView: $isPresentingDetailView, showSheet: $showSheet)
+        QandAScreen (row:cha.row,col:cha.col, playCount: $playCount, isPresentingDetailView: $isPresentingDetailView, showSheet: $showSheet)
     
           .environmentObject(challengeManager)
         }

@@ -2,7 +2,7 @@ import SwiftUI
 
 import SwiftUI
 
-struct DetailChallengeView: View {
+struct QandAScreen: View {
   let row: Int
   let col: Int
   
@@ -48,7 +48,7 @@ struct DetailChallengeView: View {
     GeometryReader { geometry in
       ZStack {
         VStack {
-          TopBarView(
+          QandATopBarView(
             topic: gb.board[row][col].topic, hint: gb.board[row][col].hint,
             elapsedTime: formattedElapsedTime,
             additionalInfo: "Scores will go here",
@@ -390,12 +390,12 @@ struct DetailChallengeView: View {
   }
 }
 #Preview {
-  DetailChallengeView(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
+  QandAScreen(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
 
     .environmentObject(GameBoard(size: 1, topics: ["Programming Languages"], challenges: [Challenge.complexMockWithFiveAnswers]))
 }
 #Preview {
-  DetailChallengeView(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
+  QandAScreen(row: 0, col: 0, playCount: .constant(31), isPresentingDetailView: .constant(true), showSheet: .constant(true))
 
     .environmentObject(GameBoard(size: 1, topics: ["Quantum Mechanics"], challenges: [Challenge.complexMockWithThreeAnswers]))
 }
