@@ -64,7 +64,7 @@ extension GameBoard {
     }
   }
   // Load the GameBoard
-  func loadGameBoard() -> GameBoard? {
+  static func loadGameBoard() -> GameBoard? {
     let filePath = getGameBoardFilePath()
     do {
       let data = try Data(contentsOf: filePath)

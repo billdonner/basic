@@ -31,13 +31,19 @@ struct ContentView:View {
   }
 func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
   do {
-    if  let gb =  gameBoard.loadGameBoard() {
+    if  let gb =  GameBoard.loadGameBoard() {
       gameBoard.cellstate = gb.cellstate
       gameBoard.size = gb.size
       gameBoard.topics = gb.topics
       gameBoard.board = gb.board
       gameBoard.gimmees = gb.gimmees
       gameBoard.playcount = gb.playcount
+      gameBoard.rightcount = gb.rightcount
+      gameBoard.wrongcount = gb.wrongcount
+      gameBoard.lostcount = gb.lostcount
+      gameBoard.woncount = gb.woncount
+      gameBoard.replacedcount = gb.replacedcount
+      gameBoard.gamestate = gb.gamestate
     }
     let playData = try loadPlayData(from: jsonFileName)
     challengeManager.playData = playData

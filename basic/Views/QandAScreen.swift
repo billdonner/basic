@@ -146,6 +146,8 @@ struct QandAScreen: View {
     }
     .padding(.horizontal)
     .padding(.vertical)
+    
+    .frame(maxWidth: max(0, geometry.size.width), maxHeight: max(0, geometry.size.height * 0.8))
   }
   
   func questionSectionVue(geometry: GeometryProxy) -> some View {
@@ -186,7 +188,7 @@ struct QandAScreen: View {
             .foregroundColor(.gray)
             .padding(.top, 10)
         }
-        //   .frame(width: contentWidth) // Set width of the scrolling area
+         .frame(width: contentWidth) // Set width of the scrolling area
       )
     } else if answers.count == 3 {
       return AnyView(
@@ -305,13 +307,14 @@ extension QandAScreen {
     answerCorrect = true
     answerGiven = true
     animateBackToBlue = true
+    showBorders = true
+    gb.cellstate[row][col] = .playedCorrectly
+    gb.rightcount += 1
+    gb.saveGameBoard()
+    try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       animateBackToBlue = false
-      showBorders = true
-      gb.cellstate[row][col] = .playedCorrectly
-      gb.rightcount += 1
-      gb.saveGameBoard()
-      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
+
     }
     stopTimer()
   }
@@ -321,13 +324,14 @@ extension QandAScreen {
     answerCorrect = false
     answerGiven = true
     showCorrectAnswer = true
+    showCorrectAnswer = false
+    showBorders = true
+    gb.cellstate[row][col] = .playedIncorrectly
+    gb.wrongcount += 1
+    gb.saveGameBoard()
+    try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-      showCorrectAnswer = false
-      showBorders = true
-      gb.cellstate[row][col] = .playedIncorrectly
-      gb.wrongcount += 1 
-      gb.saveGameBoard()
-      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
+
     }
     stopTimer()
   }
