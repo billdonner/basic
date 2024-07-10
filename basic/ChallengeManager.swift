@@ -15,12 +15,12 @@ enum ChallengeError: Error {
 // The manager class to handle Challenge-related operations and state
 @Observable
 class ChallengeManager : ObservableObject {
-    internal init(playData: PlayData? = nil) {
+    internal init(playData: PlayData) {
         self.playData = playData
       self.challengeStatuses = []
     }
     
-    var playData: PlayData?
+    var playData: PlayData
     var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
   
   func getStatus(for challenge:Challenge) throws -> ChallengeStatusVal {
@@ -68,15 +68,15 @@ class ChallengeManager : ObservableObject {
       defer {
           saveChallengeStatuses(challengeStatuses)
       }
-        if let playData = playData {
+      //if let playData = playData {
           self.challengeStatuses = [ChallengeStatus](repeating: ChallengeStatus(id:"??",val:.inReserve), count: playData.gameDatum.flatMap { $0.challenges }.count)
-        } else {
-            self.challengeStatuses = []
-        }
+//        } else {
+//            self.challengeStatuses = []
+//        }
     }
     // Extracts all challenges from PlayData
     func getAllChallenges() -> [Challenge] {
-        guard let playData = playData else { return [] }
+        //guard let playData = playData else { return [] }
         return playData.gameDatum.flatMap { $0.challenges }
     }
     

@@ -75,6 +75,9 @@ fileprivate struct FireworksView: View {
 }
 
 // Custom alert view for YouWin with fireworks
+#Preview ("YouWin") {
+  YouWinAlert(title: "You Win", bodyMessage: "This is a custom alert view with spring animation.", buttonTitle: "OK", onButtonTapped: {} )
+}
 fileprivate struct YouWinAlert: View {
     let title: String
     let bodyMessage: String
@@ -84,14 +87,14 @@ fileprivate struct YouWinAlert: View {
     var body: some View {
         VStack(spacing: 16) {
             FireworksView()
-                .frame(height: 100) // Adjusted size
+                .frame(height: 80) // Adjusted size
 
             Text(title)
                 .font(.largeTitle) // Larger title
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 40)
+                .padding()
 
             Text(bodyMessage)
                 .font(.body)
@@ -118,12 +121,16 @@ fileprivate struct YouWinAlert: View {
                     .padding(.bottom, 20) // Added padding below the button
             }
         }
+        .frame(height:340)
         .background(FrostedBackgroundView())
         .cornerRadius(16)
         .padding()
     }
 }
-
+// Custom alert view for YouWin with fireworks
+#Preview ("YouLose") {
+  YouLoseAlert(title: "You Lose", bodyMessage: "This is a custom alert view with sad music.", buttonTitle: "OK", onButtonTapped: {} )
+}
 // Custom alert view for YouLose with sad music
 fileprivate struct YouLoseAlert: View {
     let title: String
@@ -136,7 +143,7 @@ fileprivate struct YouLoseAlert: View {
     var body: some View {
         VStack(spacing: 16) {
             Text(title)
-                .font(.headline)
+                .font(.title)
                 .foregroundColor(.primary)
                 .padding(.top)
                 .multilineTextAlignment(.center)
@@ -188,7 +195,7 @@ fileprivate struct YouLoseAlert: View {
         }
     }
 }
-#Preview {
+#Preview("Hint") {
   HintAlert(title: "Welcome!", message: "This is a custom alert view with spring animation.", buttonTitle: "OK", onButtonTapped: {}, animation: .spring(response: 0.5, dampingFraction: 0.5, blendDuration: 0.5) )
 }
 // Custom alert view with spring animation
@@ -251,7 +258,9 @@ fileprivate struct HintAlert: View {
         .padding()
     }
 }
-
+#Preview("Answered") {
+ AnsweredAlert(title: "Thanks for Answering this question", message: "This is a custom alert view with spring animation.", buttonTitle: "OK", onButtonTapped: {} )
+}
 // Custom alert view with easeInOut animation
 fileprivate struct AnsweredAlert: View {
     let title: String

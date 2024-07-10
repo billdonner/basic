@@ -14,7 +14,7 @@ struct AllocatorView: View {
   @State var succ = false
   
   var body: some View {
-    VStack() {
+    VStack {
       HStack {
         Text("Allocated: \(challengeManager.allocatedChallengesCount())")
         Text("Free: \(challengeManager.freeChallengesCount())")
@@ -23,7 +23,8 @@ struct AllocatorView: View {
       .font(.footnote)
       .padding(.bottom, 8)
       
-      if let playData = challengeManager.playData {
+       let playData =
+          challengeManager.playData
         ScrollView {
           VStack(spacing: 4) {
             ForEach(playData.topicData.topics, id: \.name) { topic in
@@ -33,10 +34,11 @@ struct AllocatorView: View {
             }
           }
         }
-      } else {
-        Text("Loading...")
-          .foregroundColor(textColor)
-      }
+     
+//      else {
+//        Text("Loading...")
+//          .foregroundColor(textColor)
+//      }
     }
     .background(backgroundColor)
     .padding()
@@ -56,8 +58,9 @@ struct AllocatorView: View {
 struct AllocatorView_Previews: PreviewProvider {
   static var previews: some View {
     AllocatorView()
-      .environmentObject(ChallengeManager())
-      .environmentObject(GameBoard(size: 3, topics:[ "A","B"], challenges: [Challenge.complexMock]))
+      .environmentObject(ChallengeManager(playData:PlayData.mock))
+  
+      .environmentObject(GameBoard(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges))
 
   }
 }

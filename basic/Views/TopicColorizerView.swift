@@ -67,11 +67,10 @@ struct TopicColorizerView: View {
   }
 }
 
+ #Preview("ArrangerView") {
+    @Previewable @State  var selectedSchemeIndex = 0
+    TopicColorizerView(topics: .constant(["Topic 1", "Topic 2", "Topic 3"]), selectedSchemeIndex: $selectedSchemeIndex, schemes: AppColors.allSchemes )
 
-#Preview("ArrangerView") {
-  
-  @Previewable @State  var selectedSchemeIndex = 0
-  TopicColorizerView(topics: .constant(["Topic 1", "Topic 2", "Topic 3"]), selectedSchemeIndex: $selectedSchemeIndex, schemes: AppColors.allSchemes )
   
 }
 

@@ -12,12 +12,17 @@ class OrientationLockedViewController: UIViewController {
         return .portrait
     }
 }
+func getPlayData()-> PlayData {
+  return PlayData.mock 
+}
 // The app's main entry point
 @main
 struct ChallengeGameApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-  private var challengeManager = ChallengeManager()
-  private var gameBoard = GameBoard(size: 1, topics: ["Nuts"], challenges:[ Challenge.complexMock])
+  private var challengeManager = ChallengeManager(playData: getPlayData())
+  private var gameBoard = GameBoard(size: 1,
+                                    topics: Array(MockTopics.mockTopics.prefix(1)),
+                                    challenges:[ Challenge.complexMock])
   var body: some Scene {
     WindowGroup {
       ContentView() 

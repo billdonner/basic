@@ -17,8 +17,9 @@ import SwiftUI
 
     var body: some View {
       let maxTopics =  GameBoard.maxTopicsForBoardSize(boardSize)
+      let minTopics =  GameBoard.minTopicsForBoardSize(boardSize)
         VStack {
-          Text("board size:\(boardSize) you can select \(maxTopics) topics.")
+          Text("board size:\(boardSize)x\(boardSize) requires \(minTopics)-\(maxTopics) topics.")
             Text("You can select \(maxTopics - selectedTopics.count) more topics.")
                 .font(.subheadline)
                 .padding(.bottom)
@@ -96,9 +97,12 @@ import SwiftUI
         }
     }
 }
+
 #Preview ("TopicSelectorView"){
-  @Previewable @State var selectedTopics:[String] = ["Science","History"]
+ 
+  @Previewable @State var selectedTopics:[String] = Array(MockTopics.mockTopics.prefix(6-2))
   @Previewable @State var selectedSchemeIndex: Int = 0
-  TopicSelectorView(allTopics: MockTopics.mockTopics, selectedTopics: $selectedTopics , selectedSchemeIndex: $selectedSchemeIndex,boardSize: 3)
+  
+  TopicSelectorView(allTopics: MockTopics.mockTopics, selectedTopics: $selectedTopics , selectedSchemeIndex: $selectedSchemeIndex,boardSize: 6)
 }
 

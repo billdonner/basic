@@ -14,7 +14,7 @@ class GameBoard : ObservableObject, Codable {
   var topics: [String]  // List of topics for the game
   var gimmees: Int  // Number of "gimmee" actions available
   var gamestate: GameState = .initializingApp
-  var playcount:  Int = 0
+  var playcount:  Int  
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -75,6 +75,7 @@ extension GameBoard {
   }
   
   func   reinit(size: Int, topics: [String], challenges: [Challenge]){
+    self.playcount += 1
     self.size = size
     self.topics = topics
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
@@ -93,7 +94,7 @@ extension GameBoard {
         if cellstate[row][col]  == .unplayed {
           unplayedChallenges.append(board[row][col])
         }
-        cellstate[row][col] = .unplayed
+       // cellstate[row][col] = .unplayed
       }
     }
     return unplayedChallenges
@@ -118,7 +119,15 @@ extension GameBoard {
     }
     return unplayedChallenges
   }
-  
+  static  func minTopicsForBoardSize(_ size:Int) -> Int {
+    switch size  {
+    case 3: return 2
+    case 4: return 3
+    case 5: return 4
+    case 6: return 4
+    default: return 2
+    }
+  }
   
   static  func maxTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {

@@ -39,8 +39,8 @@ func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
       gameBoard.gimmees = gb.gimmees
       gameBoard.playcount = gb.playcount
     }
-    try challengeManager.playData = loadPlayData(from: jsonFileName)
-    if let playData = challengeManager.playData {
+    let playData = try loadPlayData(from: jsonFileName)
+    challengeManager.playData = playData
       if let loadedStatuses = loadChallengeStatuses() {
         challengeManager.challengeStatuses = loadedStatuses
       } else {
@@ -51,12 +51,12 @@ func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
         }
         challengeManager.challengeStatuses = cs
       }
-    }
   } catch {
     print("Failed to load PlayData: \(error)")
   }
 }
 
 #Preview {
-  ContentView().environmentObject(ChallengeManager())  .environmentObject(GameBoard(size: 5, topics: ["A","B","C"], challenges:[Challenge.complexMock]))
+  ContentView().environmentObject(ChallengeManager(playData: PlayData.mock))
+    .environmentObject(GameBoard(size: 5, topics: ["A","B","C"], challenges:[Challenge.complexMock]))
 }

@@ -79,6 +79,7 @@ struct TopicsChooserScreen: View {
     }
 }
 #Preview ("TopicsChooserScreen") {
-  TopicsChooserScreen(allTopics: MockTopics.mockTopics, schemes: AppColors.allSchemes, boardSize: 3, selectedTopics: .constant([]))
+  @Previewable @State var selectedTopics: [String] = []
+  TopicsChooserScreen(allTopics: MockTopics.mockTopics, schemes: AppColors.allSchemes, boardSize: 3, selectedTopics: $selectedTopics)
 }
 

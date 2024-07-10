@@ -70,8 +70,8 @@ struct QandAScreen: View {
   var bottomButtons: some View {
     HStack(spacing: 10) {
       passButton
-      markAnswerCorrectButton
-      markAnswerIncorrectButton
+      markCorrectButton
+      markIncorrectButton
       gimmeeButton
       gimmeeAllButton  // New button for "Gimmee All"
     }
@@ -92,7 +92,7 @@ struct QandAScreen: View {
     }
   }
   
-  var markAnswerCorrectButton: some View {
+  var markCorrectButton: some View {
     Button(action: {
       markAnswerCorrect()
     }) {
@@ -105,7 +105,7 @@ struct QandAScreen: View {
     }
   }
   
-  var markAnswerIncorrectButton: some View {
+  var markIncorrectButton: some View {
     Button(action: {
       markAnswerIncorrect()
     }) {

@@ -13,6 +13,7 @@ private struct zz:View {
   @AppStorage("boardSize") var boardSize = 6
   var body: some View{
     Text(showchar).font(.largeTitle)
+    Text("played:");Text("\(gb.playcount)")
     Text("score:");Text("33")
     Text("gimmees:");Text("\(gb.gimmees)")
     Text("togo:");Text("27")

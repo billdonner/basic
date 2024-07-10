@@ -46,10 +46,10 @@ struct GameScreen: View {
         Text ("Index of Topics")
       }
     }
-    .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "a fine job", buttonTitle: "gamescreen OK"){
+    .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "that was game \(gameBoard.playcount)", buttonTitle: "OK"){
       onYouWin()
     }
-    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "try again", buttonTitle: "gamescreen OK"){
+    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "that was game \(gameBoard.playcount)", buttonTitle: "OK"){
       onYouLose()
     }
     .onChange(of:gameBoard.cellstate) {
@@ -256,6 +256,8 @@ private extension GameScreen {
   }
   func startNewGame(size: Int, topics: [String]) -> Bool {
     if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
+      
+      
       gameBoard.reinit(size: size, topics: topics, challenges: challenges)
       //randomlyMarkCells()
       return true
@@ -316,7 +318,7 @@ struct GameScreen_Previews: PreviewProvider {
           }
         )
         .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]))
-        .environmentObject(ChallengeManager())  // Ensure to add your ChallengeManager
+        .environmentObject(ChallengeManager(playData: PlayData.mock))  // Ensure to add your ChallengeManager
         .previewLayout(.fixed(width: 300, height: 300))
         .previewDisplayName("Size \(size)x\(size)")
       }
