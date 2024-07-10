@@ -38,7 +38,7 @@ struct GameScreen: View {
           mainGridVeew
       } 
       else {
-          loadingVue
+          loadingVeew
       }
       Spacer()
       Divider()
@@ -60,7 +60,7 @@ struct GameScreen: View {
         onGameSettingsExit()
       }
     }
-    .sheet(isPresented: $showingHelp ){
+    .fullScreenCover(isPresented: $showingHelp ){
       HowToPlayScreen (isPresented: $showingHelp)
     }
     .onChange(of: boardSize) {
@@ -154,11 +154,13 @@ extension GameScreen /* actions */ {
     // hideCellContent = true
   }
   func onAppearAction () {
-    let ok =   startNewGame(size: size, topics: topics)
-    if !ok  {
-      //TODO: Alert the User first game cant load, this is fatal
-      showCantStartAlert = true
-    }
+    gameBoard.reinit(size: size, topics: topics, challenges: [])
+    
+//    let ok =   startNewGame(size: size, topics: topics)
+//    if !ok  {
+//      //TODO: Alert the User first game cant load, this is fatal
+//      showCantStartAlert = true
+//    }
   }
   func onCantStartNewGameAction() {
     challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
@@ -228,7 +230,8 @@ private extension GameScreen {
       .cornerRadius(8)
       .opacity(gameBoard.gamestate == .playingNow ? 1.0:0.3)
       .onTapGesture {
-        if  gameBoard.gamestate == .playingNow {
+        if  gameBoard.gamestate == .playingNow &&
+              gameBoard.cellstate[row][col] == .unplayed {
           onTapGesture(row,col)
         }
       }
@@ -236,7 +239,7 @@ private extension GameScreen {
   }// make one cell
   
  
-    var loadingVue : some View {
+    var loadingVeew: some View {
       Text("Loading...")
         .onAppear {
           onAppearAction()
@@ -259,7 +262,7 @@ private extension GameScreen {
       
       
       gameBoard.reinit(size: size, topics: topics, challenges: challenges)
-      //randomlyMarkCells()
+      gameBoard.saveGameBoard()
       return true
     } else {
       print("Failed to allocate \(size) challenges for topic \(topics.joined(separator: ","))")
@@ -272,14 +275,17 @@ private extension GameScreen {
     let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
     challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
     gameBoard.gamestate = status
+    gameBoard.saveGameBoard()
   }
   
   func clearAllCells() {
     for row in 0..<gameBoard.size {
       for col in 0..<gameBoard.size {
         gameBoard.cellstate[row][col] = .unplayed
+       
       }
     }
+    gameBoard.saveGameBoard()
   }
   
   func randomlyMarkCells() {
@@ -303,6 +309,7 @@ private extension GameScreen {
         }
       }
     }
+    gameBoard.saveGameBoard()
   }
 }
 // Preview Provider for SwiftUI preview

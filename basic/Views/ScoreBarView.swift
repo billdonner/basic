@@ -13,10 +13,13 @@ private struct zz:View {
   @AppStorage("boardSize") var boardSize = 6
   var body: some View{
     Text(showchar).font(.largeTitle)
-    Text("played:");Text("\(gb.playcount)")
-    Text("score:");Text("33")
-    Text("gimmees:");Text("\(gb.gimmees)")
-    Text("togo:");Text("27")
+    HStack {
+      Text("games:");Text("\(gb.playcount)")
+      Text("won:");Text("\(gb.woncount)")
+      Text("lost:");Text("\(gb.lostcount)")
+      Text("right:");Text("\(gb.rightcount)")
+      Text("wrong:");Text("\(gb.wrongcount)")
+    }.font(.footnote)
   }
 }
 struct ScoreBarView: View {
@@ -39,7 +42,7 @@ struct ScoreBarView: View {
       }
       
         if gb.gamestate == .playingNow {
-          Text ("you are currently playing the game!")
+          Text ("game in progress...")
         } else {
           Text ("you can start a new game")
         }
@@ -49,10 +52,15 @@ struct ScoreBarView: View {
         if isWinningPath(in:gb.cellstate) {
           print("--->you have won this game as detected by ScoreBarView")
           showWinAlert = true
+          gb.woncount += 1
+          gb.saveGameBoard()
+          
         } else {
           if !isPossibleWinningPath(in:gb.cellstate) {
             print("--->you cant possibly win this game s detected by ScoreBarView")
             showLoseAlert = true
+            gb.lostcount += 1
+            gb.saveGameBoard()
           }
         }
       }

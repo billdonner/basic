@@ -14,7 +14,12 @@ class GameBoard : ObservableObject, Codable {
   var topics: [String]  // List of topics for the game
   var gimmees: Int  // Number of "gimmee" actions available
   var gamestate: GameState = .initializingApp
-  var playcount:  Int  
+  var playcount:  Int  // woncount + lostcount + abandoned
+  var woncount:  Int
+  var lostcount:  Int
+  var rightcount: Int
+  var wrongcount: Int
+  var replacedcount: Int
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -24,6 +29,12 @@ class GameBoard : ObservableObject, Codable {
     case _gimmees = "gimmees"
     case _gamestate = "gamestate"
     case _playcount = "playcount"
+    case _woncount = "woncount"
+    case _lostcount = "lostcount"
+    case _rightcount = "rightcount"
+    case _wrongcount = "wrongcount"
+    case _replacedcount = "replacedcount"
+    
   }
   
   init(size: Int, topics: [String], challenges: [Challenge]) {
@@ -33,6 +44,11 @@ class GameBoard : ObservableObject, Codable {
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
     self.gimmees = 0
     self.playcount = 0
+    self.woncount = 0
+    self.lostcount = 0
+    self.rightcount = 0
+    self.wrongcount = 0
+    self.replacedcount = 0
     populateBoard(with: challenges)
   }
 }
@@ -82,10 +98,7 @@ extension GameBoard {
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: size), count: size)
     populateBoard(with: challenges)
   }
-  
-  
-  
-  
+
   // this returns unplayed challenges
   func resetBoardReturningUnplayed() -> [Challenge] {
     var unplayedChallenges: [Challenge] = []

@@ -28,9 +28,6 @@ struct QandAScreen: View {
   @State private var dismissToRootFlag = false
   @State private var answerGiven: Bool = false  // State to prevent further interactions after an answer is given
 
-  
-
-  
   var body: some View {
     GeometryReader { geometry in
       ZStack {
@@ -58,11 +55,10 @@ struct QandAScreen: View {
         .hintAlert(isPresented: $showHint, title: "Here's Your Hint", message: gb.board[row][col].hint, buttonTitle: "Dismiss", onButtonTapped: {
           handleDismissal(toRoot:false)
         }, animation: .spring())
+        
         .answeredAlert(isPresented: $answerGiven, title: gb.board[row][col].correct, message: gb.board[row][col].explanation ?? "xxx", buttonTitle: "OK", onButtonTapped: {
           handleDismissal(toRoot:true)
         })
-        
-        
       }
     }
   }
@@ -180,7 +176,7 @@ struct QandAScreen: View {
           ScrollView(.horizontal) {
             HStack(spacing: 15) {
               ForEach(answers, id: \.self) { answer in
-                anserButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight, taller: true)
+                answerButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight, taller: true)
               }
             }
             .padding(.horizontal)
@@ -195,10 +191,10 @@ struct QandAScreen: View {
     } else if answers.count == 3 {
       return AnyView(
         VStack(spacing: 15) {
-          anserButtonVue(answer: answers[0], buttonWidth: contentWidth / 2)
+          answerButtonVue(answer: answers[0], buttonWidth: contentWidth / 2)
           HStack {
-            anserButtonVue(answer: answers[1], buttonWidth: contentWidth / 2.5)
-            anserButtonVue(answer: answers[2], buttonWidth: contentWidth / 2.5)
+            answerButtonVue(answer: answers[1], buttonWidth: contentWidth / 2.5)
+            answerButtonVue(answer: answers[2], buttonWidth: contentWidth / 2.5)
           }
         }
           .padding(.horizontal)
@@ -212,7 +208,7 @@ struct QandAScreen: View {
           ForEach(answers.chunked(into: 2), id: \.self) { row in
             HStack {
               ForEach(row, id: \.self) { answer in
-                anserButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight)
+                answerButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight)
               }
             }
           }
@@ -223,7 +219,7 @@ struct QandAScreen: View {
     }
   }
   
-  func anserButtonVue(answer: String, buttonWidth: CGFloat, buttonHeight: CGFloat? = nil, taller: Bool = false) -> some View {
+  func answerButtonVue(answer: String, buttonWidth: CGFloat, buttonHeight: CGFloat? = nil, taller: Bool = false) -> some View {
     Button(action: {
       handleAnswerSelection(answer: answer)
     }) {
@@ -313,6 +309,7 @@ extension QandAScreen {
       animateBackToBlue = false
       showBorders = true
       gb.cellstate[row][col] = .playedCorrectly
+      gb.rightcount += 1
       gb.saveGameBoard()
       try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
     }
@@ -328,6 +325,7 @@ extension QandAScreen {
       showCorrectAnswer = false
       showBorders = true
       gb.cellstate[row][col] = .playedIncorrectly
+      gb.wrongcount += 1 
       gb.saveGameBoard()
       try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
     }
@@ -352,22 +350,24 @@ extension QandAScreen {
     answerGiven = true
     if answerCorrect == false {
       showCorrectAnswer = true
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      gb.cellstate[row][col] = .playedIncorrectly
+      gb.wrongcount += 1
+      gb.saveGameBoard()
       try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         showCorrectAnswer = false
         showBorders = true
-        gb.cellstate[row][col] = .playedIncorrectly
-
       }
     }
       else {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-      animateBackToBlue = true
+        animateBackToBlue = true
         try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
+        gb.cellstate[row][col] = .playedCorrectly
+        gb.rightcount += 1
+        gb.saveGameBoard()
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         animateBackToBlue = false
         showBorders = true
-        gb.cellstate[row][col] = .playedCorrectly
-   
       }
     }
     stopTimer()
