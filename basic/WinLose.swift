@@ -6,12 +6,33 @@
 //
 
 import Foundation
-
-////enum ChallengeOutcomes : Codable, Equatable {
-//    case unplayed
-//    case playedCorrectly
-//    case playedIncorrectly
-//}
+func numberOfPossibleMoves(in matrix: [[ChallengeOutcomes]]) -> Int {
+    let n = matrix.count
+    guard n > 0 else { return 0 }
+    
+    var possibleMoves = 0
+    
+    let directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    
+    for row in 0..<n {
+        for col in 0..<n {
+            if matrix[row][col] == .unplayed {
+                for direction in directions {
+                    let newRow = row + direction.0
+                    let newCol = col + direction.1
+                    if newRow >= 0, newRow < n, newCol >= 0, newCol < n {
+                        if matrix[newRow][newCol] == .playedCorrectly {
+                            possibleMoves += 1
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return possibleMoves
+}
 
 func areCellsAdjacent(_ cell1: (Int, Int), _ cell2: (Int, Int)) -> Bool {
     let rowDifference = abs(cell1.0 - cell2.0)

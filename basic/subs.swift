@@ -6,6 +6,12 @@
 //
 
 import SwiftUI
+
+func formatTimeInterval(_ interval: TimeInterval) -> String {
+    let seconds = Int(interval) % 60
+    return "\(seconds)"
+}
+
 extension Array {
   /// Chunks the array into arrays with a maximum size
   func chunked(into size: Int) -> [[Element]] {

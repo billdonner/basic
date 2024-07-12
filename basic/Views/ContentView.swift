@@ -8,59 +8,32 @@ let starting_topics = ["Actors", "Animals","Cars"] // Example topics
 struct ContentView:View {
   @EnvironmentObject var challengeManager: ChallengeManager
   @EnvironmentObject var gameBoard: GameBoard
+  @State var current_size: Int = starting_size
+  @State var current_topics: [String] = starting_topics
   @State var chal :IdentifiablePoint? = nil
-
   @State var isPresentingDetailView =  false
   var body: some View {
-    GameScreen(size: starting_size, topics: starting_topics){ row,col    in
+    GameScreen(size: current_size, topics: current_topics)
+    { row,col    in
       //tap behavior
       isPresentingDetailView = true 
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
-      loadAllData(challengeManager: challengeManager,gameBoard:gameBoard)
+      print("//ContentView onAppear")
+      challengeManager.loadAllData(gameBoard:gameBoard)
       }
       .onDisappear {
-        saveChallengeStatuses(challengeManager.challengeStatuses)
+        print("//ContentView onDisappear")
+        challengeManager.saveChallengeStatus()
+        gameBoard.saveGameBoard()
       }
       .sheet(item:$chal ) { cha in
-        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView)
-          .environmentObject(challengeManager)
+        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,challengeManager: challengeManager) 
         }
       }
   }
-func loadAllData (challengeManager: ChallengeManager,gameBoard:GameBoard) {
-  do {
-    if  let gb =  GameBoard.loadGameBoard() {
-      gameBoard.cellstate = gb.cellstate
-      gameBoard.size = gb.size
-      gameBoard.topics = gb.topics
-      gameBoard.board = gb.board
-      gameBoard.gimmees = gb.gimmees
-      gameBoard.playcount = gb.playcount
-      gameBoard.rightcount = gb.rightcount
-      gameBoard.wrongcount = gb.wrongcount
-      gameBoard.lostcount = gb.lostcount
-      gameBoard.woncount = gb.woncount
-      gameBoard.replacedcount = gb.replacedcount
-      gameBoard.gamestate = gb.gamestate
-    }
-    let playData = try loadPlayData(from: jsonFileName)
-    challengeManager.playData = playData
-      if let loadedStatuses = loadChallengeStatuses() {
-        challengeManager.challengeStatuses = loadedStatuses
-      } else {
-        let challenges = playData.gameDatum.flatMap { $0.challenges}
-        var cs:[ChallengeStatus] = []
-        for j in 0..<challenges.count {
-          cs.append(ChallengeStatus(id:challenges[j].id,val:.inReserve))
-        }
-        challengeManager.challengeStatuses = cs
-      }
-  } catch {
-    print("Failed to load PlayData: \(error)")
-  }
-}
+
 
 #Preview {
   ContentView().environmentObject(ChallengeManager(playData: PlayData.mock))

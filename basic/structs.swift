@@ -110,16 +110,10 @@ struct ChallengeStatus: Codable,Equatable {
   var id: String
   var val: ChallengeStatusVal
 }
+ 
 
-// Loads the PlayData from a JSON file in the main bundle
-func loadPlayData(from filename: String) throws -> PlayData {
-    guard let url = Bundle.main.url(forResource: filename, withExtension: nil) else {
-        throw URLError(.fileDoesNotExist)
-    }
-    
-    let data = try Data(contentsOf: url)
-    return try JSONDecoder().decode(PlayData.self, from: data)
-}
+
+
 
 // Get the file path for storing challenge statuses
 func getChallengeStatusesFilePath() -> URL {

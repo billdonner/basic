@@ -7,21 +7,26 @@
 
 import SwiftUI
 private struct zz:View {
-  let showchar:String
+  let showchars:String
   @EnvironmentObject var gb: GameBoard
   @EnvironmentObject var challengeManager: ChallengeManager
   @AppStorage("boardSize") var boardSize = 6
   var body: some View{
-    Text(showchar).font(.largeTitle)
-    HStack {
-      Text("games:");Text("\(gb.playcount)")
-      Text("won:");Text("\(gb.woncount)")
-      Text("lost:");Text("\(gb.lostcount)")
-      Text("right:");Text("\(gb.rightcount)")
-      Text("wrong:");Text("\(gb.wrongcount)")
-    }.font(.footnote)
+    VStack {
+      HStack {
+        Text(showchars).font(showchars.count<=1 ? .title:.footnote)
+        Text("games:");Text("\(gb.playcount)")
+        Text("won:");Text("\(gb.woncount)")
+        Text("lost:");Text("\(gb.lostcount)")
+      }
+      HStack {
+        Text("right:");Text("\(gb.rightcount)")
+        Text("wrong:");Text("\(gb.wrongcount)")
+        Text("time:");Text(formatTimeInterval(gb.totaltime))
+      }
+      }.font(.footnote)
+    }
   }
-}
 struct ScoreBarView: View {
   @EnvironmentObject var gb: GameBoard
   @State var showWinAlert = false
@@ -30,21 +35,21 @@ struct ScoreBarView: View {
   var body:some View {
     return  VStack{
       HStack {
-        let showchar = if isWinningPath(in:gb.cellstate ) {"😎"}
+        let showchars = if isWinningPath(in:gb.cellstate ) {"😎"}
         else {
           if !isPossibleWinningPath(in:gb.cellstate) {
             "❌"
           } else {
-            " "
+            "moves: \(numberOfPossibleMoves(in: gb.cellstate))"
           }
         }
-        zz(showchar: showchar)
+        zz(showchars: showchars)
       }
       
         if gb.gamestate == .playingNow {
-          Text ("game in progress...")
+          Text ("game in progress...").foregroundStyle(.blue.opacity(0.5))
         } else {
-          Text ("you can start a new game")
+          Text ("you can start a new game now ").foregroundStyle(.green.opacity(0.5))
         }
       }
 

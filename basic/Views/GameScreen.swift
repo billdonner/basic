@@ -52,7 +52,8 @@ struct GameScreen: View {
     .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "that was game \(gameBoard.playcount)", buttonTitle: "OK"){
       onYouLose()
     }
-    .onChange(of:gameBoard.cellstate) {
+    .onChange(of:gameBoard.cellstate) { 
+        print("//GameScreen onChange(ofCellState)")
       onChangeOfCellState()
     }
     .sheet(isPresented: $showSettings){
@@ -64,6 +65,7 @@ struct GameScreen: View {
       HowToPlayScreen (isPresented: $showingHelp)
     }
     .onChange(of: boardSize) {
+      print("//GameScreen onChange(ofBoardSize:\(boardSize)")
       onBoardSizeChange ()
     }
     .sheet(isPresented: $showAllocatorView) {
@@ -150,11 +152,19 @@ struct GameScreen: View {
 }
 extension GameScreen /* actions */ {
   func onEndGamePressed () {
+    print("//GameScreen EndGamePressed")
     endGame(status:.justAbandoned)
     // hideCellContent = true
   }
   func onAppearAction () {
-    gameBoard.reinit(size: size, topics: topics, challenges: [])
+    print("//GameScreen OnAppear")
+    // on a completely cold start
+    if gameBoard.playcount == 0 {
+      print("//GameScreen OnAppear Coldstart")
+      // setup a blank board, dont allocate anything, wait for the start button
+      gameBoard.reinit(size: size, topics: topics, challenges: [],dontPopulate: true)
+      
+    }
     
 //    let ok =   startNewGame(size: size, topics: topics)
 //    if !ok  {
@@ -187,6 +197,7 @@ extension GameScreen /* actions */ {
   }
   
   func onStartGame(){
+    print("//GameScreen StartGame Pressed")
     let ok =   startFresh()
     //hideCellContent = false
     if !ok {
@@ -259,8 +270,6 @@ private extension GameScreen {
   }
   func startNewGame(size: Int, topics: [String]) -> Bool {
     if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
-      
-      
       gameBoard.reinit(size: size, topics: topics, challenges: challenges)
       gameBoard.saveGameBoard()
       return true
@@ -270,13 +279,12 @@ private extension GameScreen {
     }
     return false
   }
+
   
-  func endGame(status:GameState) {
-    let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
-    challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
-    gameBoard.gamestate = status
-    gameBoard.saveGameBoard()
+  func endGame(status:GameState){
+    gameBoard.windDown(status, challengeManager: challengeManager)
   }
+
   
   func clearAllCells() {
     for row in 0..<gameBoard.size {

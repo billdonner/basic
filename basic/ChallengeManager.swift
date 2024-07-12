@@ -16,12 +16,63 @@ enum ChallengeError: Error {
 @Observable
 class ChallengeManager : ObservableObject {
     internal init(playData: PlayData) {
-        self.playData = playData
+      self.playData = playData
       self.challengeStatuses = []
     }
+  
+    private(set)  var playData: PlayData
+    private  var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
+ 
+  func loadAllData  (gameBoard:GameBoard) {
+    do {
+      if  let gb =  GameBoard.loadGameBoard() {
+        gameBoard.cellstate = gb.cellstate
+        gameBoard.size = gb.size
+        gameBoard.topics = gb.topics
+        gameBoard.board = gb.board
+        gameBoard.gimmees = gb.gimmees
+        gameBoard.playcount = gb.playcount
+        gameBoard.rightcount = gb.rightcount
+        gameBoard.wrongcount = gb.wrongcount
+        gameBoard.lostcount = gb.lostcount
+        gameBoard.woncount = gb.woncount
+        gameBoard.replacedcount = gb.replacedcount
+        gameBoard.totaltime = gb.totaltime
+        gameBoard.gamestate = gb.gamestate
+      }
+    try self.loadPlayData(from: jsonFileName)
+
+    } catch {
+      print("Failed to load PlayData: \(error)")
+    }
+  }
+  func loadPlayData(from filename: String ) throws {
+    let starttime = Date.now
     
-    var playData: PlayData
-    var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
+      guard let url = Bundle.main.url(forResource: filename, withExtension: nil) else {
+          throw URLError(.fileDoesNotExist)
+      }
+      
+      let data = try Data(contentsOf: url)
+      let pd = try JSONDecoder().decode(PlayData.self, from: data)
+   
+    print("Loaded PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
+       self.playData = pd
+      if let loadedStatuses = loadChallengeStatuses() {
+        self.challengeStatuses = loadedStatuses
+      } else {
+        let challenges = pd.gameDatum.flatMap { $0.challenges}
+        var cs:[ChallengeStatus] = []
+        for j in 0..<challenges.count {
+          cs.append(ChallengeStatus(id:challenges[j].id,val:.inReserve))
+        }
+        self.challengeStatuses = cs
+      }
+  }
+
+  func saveChallengeStatus( ) {
+    saveChallengeStatuses(challengeStatuses)
+  }
   
   func getStatus(for challenge:Challenge) throws -> ChallengeStatusVal {
     for index in 0..<challengeStatuses.count {

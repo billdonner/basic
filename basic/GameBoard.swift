@@ -20,6 +20,7 @@ class GameBoard : ObservableObject, Codable {
   var rightcount: Int
   var wrongcount: Int
   var replacedcount: Int
+  var totaltime: TimeInterval // aka Double
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -34,6 +35,7 @@ class GameBoard : ObservableObject, Codable {
     case _rightcount = "rightcount"
     case _wrongcount = "wrongcount"
     case _replacedcount = "replacedcount"
+    case _totaltime = "totaltime"
     
   }
   
@@ -49,6 +51,7 @@ class GameBoard : ObservableObject, Codable {
     self.rightcount = 0
     self.wrongcount = 0
     self.replacedcount = 0
+    self.totaltime = 0.0
     populateBoard(with: challenges)
   }
 }
@@ -90,27 +93,29 @@ extension GameBoard {
     }
   }
   
-  func   reinit(size: Int, topics: [String], challenges: [Challenge]){
+  func   reinit(size: Int, topics: [String], challenges: [Challenge],dontPopulate:Bool = false){
     self.playcount += 1
     self.size = size
     self.topics = topics
-    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
-    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: size), count: size)
-    populateBoard(with: challenges)
+    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: self.size), count:  self.size)
+    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.size), count: self.size)
+    if !dontPopulate { populateBoard(with: challenges) }
   }
 
-  // this returns unplayed challenges
-  func resetBoardReturningUnplayed() -> [Challenge] {
+  // this returns unplayed challenges and their indices in the challengestatus array
+  func resetBoardReturningUnplayed() -> ([Challenge],[Int]) {
     var unplayedChallenges: [Challenge] = []
+    var unplayedInts: [Int] = []
     for row in 0..<size {
       for col in 0..<size {
         if cellstate[row][col]  == .unplayed {
           unplayedChallenges.append(board[row][col])
+          unplayedInts.append( (row * size + col))
         }
        // cellstate[row][col] = .unplayed
       }
     }
-    return unplayedChallenges
+    return (unplayedChallenges,unplayedInts)
   }
   
   func replaceChallenge(at position: (Int, Int), with newChallenge: Challenge) {
@@ -151,4 +156,13 @@ extension GameBoard {
     default: return 7
     }
   }
+  
+  func windDown(_ status: GameState, challengeManager:ChallengeManager) {
+    let (_,unplayedIndices) = self.resetBoardReturningUnplayed()
+    challengeManager.resetChallengeStatuses(at: unplayedIndices)
+    challengeManager.saveChallengeStatus()
+    self.gamestate = status
+    self.saveGameBoard()
+  }
+  
 }

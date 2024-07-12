@@ -1,16 +1,12 @@
 import SwiftUI
 
-import SwiftUI
-
 struct QandAScreen: View {
   let row: Int
   let col: Int
-  
   @Binding var isPresentingDetailView: Bool
-
+  let  challengeManager:ChallengeManager //
   
-  @EnvironmentObject var gb: GameBoard  // Environment object for game board
-  @EnvironmentObject var challengeManager:ChallengeManager // Environment object for game board
+  @EnvironmentObject var gb: GameBoard  // Environment object for game board game board
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   
   @State private var selectedAnswer: String? = nil  // State to track selected answer
@@ -30,11 +26,12 @@ struct QandAScreen: View {
 
   var body: some View {
     GeometryReader { geometry in
+      let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
       ZStack {
         VStack {
           QandATopBarView(
-            topic: gb.board[row][col].topic, hint: gb.board[row][col].hint,
-            elapsedTime: formattedElapsedTime,
+            topic: gb.board[row][col].topic, hint: gb.board[row][col].hint, 
+            elapsedTime:elapsedTime,
             additionalInfo: "Scores will go here",
             handlePass: handlePass,
             toggleHint: toggleHint
@@ -49,8 +46,9 @@ struct QandAScreen: View {
         .padding(.horizontal, 10)
         .padding(.bottom, 30)
         // .frame(width: geometry.size.width) // Center the content with padding
-        .onAppear(perform: startTimer)
-        .onDisappear(perform: stopTimer)
+        .onAppear(perform: {print("//QandAScreen onAppear"); startTimer()})
+        .onDisappear(perform: {print("//QandAScreen onDisappear");
+          stopTimer()})
         
         .hintAlert(isPresented: $showHint, title: "Here's Your Hint", message: gb.board[row][col].hint, buttonTitle: "Dismiss", onButtonTapped: {
           handleDismissal(toRoot:false)
@@ -265,11 +263,7 @@ struct QandAScreen: View {
 
 }
 extension QandAScreen {
-  var formattedElapsedTime: String {
-    let minutes = Int(elapsedTime) / 60
-    let seconds = Int(elapsedTime) % 60
-    return String(format: "%02d:%02d", minutes, seconds)
-  }
+
   private func handleDismissal(toRoot:Bool) {
     if toRoot {
       withAnimation(.easeInOut(duration: 0.75)) { // Slower dismissal
@@ -289,6 +283,7 @@ extension QandAScreen {
   }
   
   func stopTimer() {
+    gb.totaltime += elapsedTime
     timer?.invalidate()
     timer = nil
   }
@@ -388,11 +383,11 @@ extension QandAScreen {
   }
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true))
+  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock))
     .environmentObject(GameBoard(size: 1, topics: ["Programming Languages"], challenges: [Challenge.complexMockWithFiveAnswers]))
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true))
+  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock))
     .environmentObject(GameBoard(size: 1, topics: ["Quantum Mechanics"], challenges: [Challenge.complexMockWithThreeAnswers]))
 }
 

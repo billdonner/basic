@@ -1,13 +1,21 @@
 import SwiftUI
 struct QandATopBarView: View {
     let topic: String
-  let hint:String
-    let elapsedTime: String
+    let hint:String
+    let elapsedTime: TimeInterval
     let additionalInfo: String
     let handlePass: () -> Void
     let toggleHint: () -> Void
-    
+  
+  var formattedElapsedTime: String {
+    let minutes = Int(elapsedTime) / 60
+    let seconds = Int(elapsedTime) % 60
+    return String(format: "%02d:%02d", minutes, seconds)
+  }
+  
     var body: some View {
+      let _ = print("//QandATopBarView ")
+ 
         ZStack {
             HStack {
                 passButton
@@ -70,8 +78,9 @@ struct QandATopBarView: View {
 
 #Preview {
     QandATopBarView(
-      topic: "American History", hint: "What can we say about history?",
-        elapsedTime: "05:32",
+      topic: "American History", 
+      hint: "What can we say about history?",
+      elapsedTime: 23984923.0,
         additionalInfo: "Some extra information",
         handlePass: {},
         toggleHint: {}

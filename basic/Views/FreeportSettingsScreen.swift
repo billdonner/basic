@@ -66,8 +66,7 @@ struct FreeportSettingsScreen: View {
             }.padding(.vertical)
             
             Button(action:{ //showReset.toggle()
-                    let unplayedChallenges = gameBoard.resetBoardReturningUnplayed()
-                  challengeManager.resetChallengeStatuses(at: unplayedChallenges.map { challengeManager.getAllChallenges().firstIndex(of: $0)! })
+                    let _ = gameBoard.resetBoardReturningUnplayed()
                      challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
               
             }) {
