@@ -333,14 +333,14 @@ extension QandAScreen {
  
   func handleGimmee() {
     gb.playcount += 1
-    dismiss()
     stopTimer()
+    dismiss()
   }
   
   func handleGimmeeAll() {
     gb.playcount += 1
-    dismiss()
     stopTimer()
+    dismiss()
   }
   
   func handleAnswerSelection(answer: String) {

@@ -14,7 +14,7 @@ struct QandATopBarView: View {
   }
   
     var body: some View {
-      let _ = print("//QandATopBarView ")
+      let _ = print("//QandATopBarView \(formattedElapsedTime)")
  
         ZStack {
             HStack {
@@ -64,7 +64,7 @@ struct QandATopBarView: View {
     }
 
     var elapsedTimeView: some View {
-        Text("Elapsed Time: \(elapsedTime)")
+        Text("Elapsed Time: \(formattedElapsedTime)")
             .font(.footnote)
             .foregroundColor(.secondary)
     }
