@@ -77,7 +77,7 @@ struct QandAScreen: View {
     Button(action: {
       handlePass()
     }) {
-      Image(systemName: "nosign")
+      Image(systemName: "multiply.circle")
         .font(.title)
         .foregroundColor(.white)
         .frame(width: 50, height: 50)

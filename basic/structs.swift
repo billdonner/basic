@@ -82,6 +82,10 @@ struct PlayData: Codable {
     public let playDataId: String
     public let blendDate: Date
     public let pic: String?
+  
+  var allTopics : [String] {
+    self.topicData.topics.map {$0.name}
+  }
 }
 
 // MARK: - Enums

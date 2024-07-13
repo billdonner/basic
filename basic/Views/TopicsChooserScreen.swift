@@ -15,7 +15,7 @@ struct TopicsChooserScreen: View {
     let boardSize: Int
     @Binding var selectedTopics: [String]
     @State private var selectedSchemeIndex = 1 // Initial scheme index set to Summer
-  @EnvironmentObject var gameBoard: GameBoard
+    @EnvironmentObject var gameBoard: GameBoard
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -61,11 +61,15 @@ struct TopicsChooserScreen: View {
         .navigationTitle("Topics Chooser")
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
-            loadPersistentData()
+           // loadPersistentData()
+          print("//TopicsChooser onAppear Topics: \($selectedTopics) I can't open links on Facebook")
         }
-        .onChange(of: selectedTopics) { oldValue, newValue in
-            MockTopics.shared.saveTopics(newValue)
+        .onDisappear{
+          print("//TopicsChooser disappear with selected Topics: \($selectedTopics)")
         }
+//        .onChange(of: selectedTopics) { oldValue, newValue in
+//            MockTopics.shared.saveTopics(newValue)
+//        }
         .onChange(of: selectedSchemeIndex) { oldValue, newValue in
           MockTopics.shared.saveSchemeIndex(newValue)
         }
@@ -73,10 +77,10 @@ struct TopicsChooserScreen: View {
 
 
 
-    private func loadPersistentData() {
-        selectedTopics = MockTopics.shared.loadTopics()
-        selectedSchemeIndex = MockTopics.shared.loadSchemeIndex()
-    }
+//    private func loadPersistentData() {
+//        selectedTopics = MockTopics.shared.loadTopics()
+//        selectedSchemeIndex = MockTopics.shared.loadSchemeIndex()
+//    }
 }
 #Preview ("TopicsChooserScreen") {
   @Previewable @State var selectedTopics: [String] = []

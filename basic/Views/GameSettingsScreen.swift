@@ -5,7 +5,7 @@ fileprivate struct GameSettingsView: View {
   internal init(boardSize: Binding<Int>, startInCorners: Binding<Bool>, faceUpCards: Binding<Bool>, doubleDiag: Binding<Bool>, colorPalette: Binding<Int>, difficultyLevel: Binding<Int>,
                 //   topTopics: String,bottomTopics:String,
                 ourTopics: [String], returningTopics:Binding<[String]>,
-                onExit:@escaping ()->()) {
+                onExit:@escaping ([String])->()) {
     self.onExit = onExit
     _boardSize = boardSize
     _startInCorners = startInCorners
@@ -31,7 +31,7 @@ fileprivate struct GameSettingsView: View {
     
     
   }
-  var onExit: ()->()
+  let onExit: ([String])->()
   
   
   @Binding var boardSize: Int
@@ -58,7 +58,7 @@ fileprivate struct GameSettingsView: View {
   
   var ourTopics: [String]
   @State private var showSettings = false
-  
+  @EnvironmentObject var challengeManager:ChallengeManager
   @Environment(\.presentationMode) var presentationMode
   
   var colorPaletteBackground: LinearGradient {
@@ -137,7 +137,7 @@ fileprivate struct GameSettingsView: View {
         }
         .frame(maxWidth: .infinity)
       }
-      .onChange(of: l_faceUpCards, initial: false)
+      .onChange(of: l_faceUpCards, initial: false )
       { _,_ in onParameterChange() }
       Section(header: Text("Double Diag")) {
         HStack {
@@ -154,11 +154,6 @@ fileprivate struct GameSettingsView: View {
       { _,_ in onParameterChange() }
       Section(header: Text("Color Palette")) {
         Picker("Color Palette", selection: $l_colorPalette) {
-//          Text("Spring").tag(1)
-//          Text("Summer").tag(2)
-//          Text("Autumn").tag(3)
-//          Text("Winter").tag(4)
-//          Text("Bleak").tag(5)
           ForEach(AppColors.allSchemes.indices,id:\.self) { idx in
             Text(AppColors.allSchemes[idx].name)
               .tag(idx + 1)
@@ -169,7 +164,7 @@ fileprivate struct GameSettingsView: View {
       }.onChange(of: l_colorPalette, initial: false)
       { _,_ in onParameterChange() }
       Section(header: Text("Topics")) {
-        NavigationLink(destination: TopicsChooserScreen(allTopics: MockTopics.mockTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
+        NavigationLink(destination: TopicsChooserScreen(allTopics: challengeManager.allTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $selectedTopics)) {
           Text("Choose Topics")
             .padding()
           //                    .background(Color.blue)
@@ -192,7 +187,7 @@ fileprivate struct GameSettingsView: View {
             Spacer()
           }
           .onChange(of:returningTopics,initial:true ) { old,newer in
-            print("Game With Topics:",returningTopics.joined())
+            print("Game With Topics:",returningTopics.joined(separator: ","))
           }
           
           Button(action: { showSettings.toggle() }) {
@@ -205,7 +200,7 @@ fileprivate struct GameSettingsView: View {
       FreeportSettingsScreen()
     }
     .onDisappear {
-      onExit() // do whatever
+      onExit(selectedTopics) // do whatever
     }
     .navigationBarTitle("Game Settings", displayMode: .inline)
     .navigationBarItems(
@@ -263,11 +258,11 @@ fileprivate struct GameSettingsView: View {
 struct GameSettingsScreen :
   View {
   let ourTopics:[String]
-  let onExit: ()->()
+  let onExit: ([String])->()
   @AppStorage("moveNumber") var moveNumber = 0
   @AppStorage("boardSize") private var boardSize = 6
   @AppStorage("startInCorners") private var startInCorners = false
-  @AppStorage("faceUpCards") private var faceUpCards = false
+  @AppStorage("faceUpCards") private var faceUpCards = true
   @AppStorage("doubleDiag") private var doubleDiag = false
   @AppStorage("colorPalette") private var colorPalette = 1
   @AppStorage("difficultyLevel") private var difficultyLevel = 1
@@ -285,8 +280,8 @@ struct GameSettingsScreen :
         colorPalette: $colorPalette,
         difficultyLevel: $difficultyLevel,
         ourTopics:  ourTopics,
-        returningTopics: $returningTopics){
-          onExit()
+        returningTopics: $returningTopics){x in 
+          onExit(x)
         }
       
         .onChange(of: returningTopics,initial:true ) {_,_ in
@@ -312,7 +307,6 @@ struct GameSettingsScreen :
 }
 #Preview("Tester") {
   let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-  GameSettingsScreen(ourTopics: t) {
-    print("GameSettingsExited with")
-  }
+  GameSettingsScreen(ourTopics: t) {  strings in     print("GameSettingsExited with")
+  }.environmentObject(ChallengeManager(playData: PlayData.mock))
 }

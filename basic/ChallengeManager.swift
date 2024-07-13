@@ -69,7 +69,10 @@ class ChallengeManager : ObservableObject {
         self.challengeStatuses = cs
       }
   }
-
+  var allTopics:[String] {
+   self.playData.topicData.topics.map { $0.name }
+  }
+  
   func saveChallengeStatus( ) {
     saveChallengeStatuses(challengeStatuses)
   }

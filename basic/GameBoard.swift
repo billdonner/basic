@@ -21,6 +21,7 @@ class GameBoard : ObservableObject, Codable {
   var wrongcount: Int
   var replacedcount: Int
   var totaltime: TimeInterval // aka Double
+  var topicsinplay: [String] // a subset of allTopics which is constant and maintained in ChallengeManager
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -36,6 +37,7 @@ class GameBoard : ObservableObject, Codable {
     case _wrongcount = "wrongcount"
     case _replacedcount = "replacedcount"
     case _totaltime = "totaltime"
+    case _topicsinplay = "topicsinplay"
     
   }
   
@@ -52,6 +54,7 @@ class GameBoard : ObservableObject, Codable {
     self.wrongcount = 0
     self.replacedcount = 0
     self.totaltime = 0.0
+    self.topicsinplay = []
     populateBoard(with: challenges)
   }
 }

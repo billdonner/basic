@@ -25,7 +25,7 @@ struct GameScreen: View {
   private let spacing: CGFloat = 5
   // Adding a shrink factor to slightly reduce the cell size
   private let shrinkFactor: CGFloat = 0.9
-  @AppStorage("faceUpCards")   var faceUpCards = false
+  @AppStorage("faceUpCards")   var faceUpCards = true
   @AppStorage("boardSize")  var boardSize = 6
   
   
@@ -57,8 +57,7 @@ struct GameScreen: View {
       onChangeOfCellState()
     }
     .sheet(isPresented: $showSettings){
-      GameSettingsScreen(ourTopics: topics) {
-        onGameSettingsExit()
+      GameSettingsScreen(ourTopics: topics) {t in         onGameSettingsExit (t)
       }
     }
     .fullScreenCover(isPresented: $showingHelp ){
@@ -184,8 +183,9 @@ extension GameScreen /* actions */ {
   func onYouLose () {
     endGame(status: .justLost)
   }
-  func onGameSettingsExit() {
+  func onGameSettingsExit(_ topics:[String]) {
     // here on the way out
+    print("//GameScreen onGameSettingsExit topics:\(topics)")
     let ok =  startFresh()
     if !ok { print ("Cant reset after gamesettings")}
   }
@@ -197,7 +197,7 @@ extension GameScreen /* actions */ {
   }
   
   func onStartGame(){
-    print("//GameScreen StartGame Pressed")
+ 
     let ok =   startFresh()
     //hideCellContent = false
     if !ok {
@@ -207,6 +207,7 @@ extension GameScreen /* actions */ {
     } else {
       gameBoard.gamestate =  GameState.playingNow
     }
+    print("//GameScreen StartGame Pressed selected topics are \(gameBoard.topicsinplay)")
   }
   func onCantStartNewGame() {
     clearAllCells()
@@ -227,7 +228,9 @@ extension GameScreen /* actions */ {
 }
 
 private extension GameScreen {
-  func makeOneCellVue(row:Int,col:Int , challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
+  func makeOneCellVue(row:Int,
+                      col:Int ,
+                      challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
     let colormix = AppColors.colorFor(topic: challenge.topic)
     return VStack {
       Text(//hideCellContent ||hideCellContent ||
@@ -239,14 +242,17 @@ private extension GameScreen {
       //      .foregroundColor(colormix?.foregroundColor)
       .border(status.borderColor , width: 8)
       .cornerRadius(8)
+      
       .opacity(gameBoard.gamestate == .playingNow ? 1.0:0.3)
+    }
+    // for some unknown reason, the tap surface area is bigger if placed outside the VStack
       .onTapGesture {
         if  gameBoard.gamestate == .playingNow &&
               gameBoard.cellstate[row][col] == .unplayed {
           onTapGesture(row,col)
         }
       }
-    }
+   
   }// make one cell
   
  

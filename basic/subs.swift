@@ -115,7 +115,7 @@ func dumpAppStorage() {
   @AppStorage("moveNumber") var moveNumber = 0
   @AppStorage("boardSize")  var boardSize = 6
   @AppStorage("startInCorners")   var startInCorners = false
-  @AppStorage("faceUpCards")   var faceUpCards = false
+  @AppStorage("faceUpCards")   var faceUpCards = true
   @AppStorage("doubleDiag")   var doubleDiag = false
   @AppStorage("colorPalette")   var colorPalette = 1
   @AppStorage("difficultyLevel")  var difficultyLevel = 1

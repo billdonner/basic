@@ -174,6 +174,7 @@ extension Challenge {
   )
   
 }
+
 class MockTopics {
 static let mockTopics = [
     "Science", "Technology", "Engineering", "Mathematics",
