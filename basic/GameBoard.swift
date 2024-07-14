@@ -7,7 +7,7 @@
 
 import SwiftUI
 @Observable
-class GameBoard : ObservableObject, Codable {
+class GameBoard :  Codable {
   var board: [[Challenge]]  // Array of arrays to represent the game board with challenges
   var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell
   var size: Int  // Size of the game board
@@ -21,7 +21,7 @@ class GameBoard : ObservableObject, Codable {
   var wrongcount: Int
   var replacedcount: Int
   var totaltime: TimeInterval // aka Double
-  var topicsinplay: [String] // a subset of allTopics which is constant and maintained in ChallengeManager
+  var topicsinplay: [String] // a subset of allTopics (which is constant and maintained in ChallengeManager)
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"

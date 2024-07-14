@@ -25,8 +25,8 @@ struct DismissButtonView: View {
 }
 
 struct FreeportSettingsScreen: View {
-  @EnvironmentObject var gameBoard: GameBoard
-  @EnvironmentObject var challengeManager: ChallengeManager
+  var gameBoard: GameBoard
+  var challengeManager: ChallengeManager
   
   @AppStorage("elementWidth") var elementWidth = 100.0
   @AppStorage("shuffleUp") private var shuffleUp = true
@@ -87,6 +87,11 @@ struct FreeportSettingsScreen: View {
 }
 
 #Preview ("Settings"){
-  FreeportSettingsScreen()
+  FreeportSettingsScreen(gameBoard: 
+                          GameBoard(size: starting_size,topics: Array(MockTopics.mockTopics.prefix(starting_size)),
+                                            challenges:Challenge.mockChallenges)
+                          
+                          
+                          , challengeManager: ChallengeManager(playData: PlayData.mock))
 }
 

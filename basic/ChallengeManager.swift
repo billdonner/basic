@@ -14,14 +14,60 @@ enum ChallengeError: Error {
 
 // The manager class to handle Challenge-related operations and state
 @Observable
-class ChallengeManager : ObservableObject {
+class ChallengeManager{
     internal init(playData: PlayData) {
       self.playData = playData
       self.challengeStatuses = []
     }
   
-    private(set)  var playData: PlayData
-    private  var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
+
+  private  var challengeStatuses: [ChallengeStatus]  // Using array instead of dictionary
+  
+  private(set)  var playData: PlayData{
+      didSet {
+          // Invalidate the cache when playData changes
+          invalidateAllTopicsCache()
+          invalidateAllChallengesCache()
+      }
+  }
+  // Cache for allChallenges
+  private var _allChallenges: [Challenge]?
+  var everyChallenge: [Challenge] {
+      // If _allChallenges is nil, compute the value and cache it
+      if _allChallenges == nil {
+          _allChallenges = self.playData.gameDatum.flatMap { $0.challenges }
+      }
+      // Return the cached value
+      return _allChallenges!
+  }
+
+  // Cache for allTopics
+  private var _allTopics: [String]?
+  
+  var allTopics: [String] {
+      // If _allTopics is nil, compute the value and cache it
+      if _allTopics == nil {
+          _allTopics = self.playData.topicData.topics.map { $0.name }
+      }
+      // Return the cached value
+      return _allTopics!
+  }
+  
+  // Method to invalidate the allChallenges cache
+  func invalidateAllChallengesCache() {
+      _allChallenges = nil
+  }
+
+  
+  // Method to invalidate the cache
+  func invalidateAllTopicsCache() {
+      _allTopics = nil
+  }
+  
+  // Method to set new playData and force reload
+  func updatePlayData(_ newPlayData: PlayData) {
+      self.playData = newPlayData
+  }
  
   func loadAllData  (gameBoard:GameBoard) {
     do {
@@ -39,8 +85,9 @@ class ChallengeManager : ObservableObject {
         gameBoard.replacedcount = gb.replacedcount
         gameBoard.totaltime = gb.totaltime
         gameBoard.gamestate = gb.gamestate
+        gameBoard.topicsinplay = gb.topicsinplay
       }
-    try self.loadPlayData(from: jsonFileName)
+    try self.loadPlayData(from: playDataFileName)
 
     } catch {
       print("Failed to load PlayData: \(error)")
@@ -55,9 +102,7 @@ class ChallengeManager : ObservableObject {
       
       let data = try Data(contentsOf: url)
       let pd = try JSONDecoder().decode(PlayData.self, from: data)
-   
-    print("Loaded PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
-       self.playData = pd
+    updatePlayData( pd)
       if let loadedStatuses = loadChallengeStatuses() {
         self.challengeStatuses = loadedStatuses
       } else {
@@ -68,11 +113,10 @@ class ChallengeManager : ObservableObject {
         }
         self.challengeStatuses = cs
       }
+    
+     print("Loaded PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
   }
-  var allTopics:[String] {
-   self.playData.topicData.topics.map { $0.name }
-  }
-  
+
   func saveChallengeStatus( ) {
     saveChallengeStatuses(challengeStatuses)
   }
@@ -128,24 +172,19 @@ class ChallengeManager : ObservableObject {
 //            self.challengeStatuses = []
 //        }
     }
-    // Extracts all challenges from PlayData
-    func getAllChallenges() -> [Challenge] {
-        //guard let playData = playData else { return [] }
-        return playData.gameDatum.flatMap { $0.challenges }
-    }
+
     
     // Allocates N challenges from all challenges
     func allocateChallenges(_ n: Int) -> [Challenge]? {
       defer {
           saveChallengeStatuses(challengeStatuses)
       }
-        let allChallenges = getAllChallenges()
         var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
-        for index in 0..<allChallenges.count {
+        for index in 0..<everyChallenge.count {
           if challengeStatuses[index].val == .inReserve {
             challengeStatuses[index].val = .allocated
-                allocatedChallenges.append(allChallenges[index])
+                allocatedChallenges.append(everyChallenge[index])
                 allocatedCount += 1
                 if allocatedCount == n { break }
             }
@@ -158,13 +197,13 @@ class ChallengeManager : ObservableObject {
         defer {
             saveChallengeStatuses(challengeStatuses)
         }
-        let allChallenges = getAllChallenges()
+    
         var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
-        for index in 0..<allChallenges.count {
-          if allChallenges[index].topic == topic && challengeStatuses[index].val == .inReserve {
+        for index in 0..<everyChallenge.count {
+          if everyChallenge[index].topic == topic && challengeStatuses[index].val == .inReserve {
               challengeStatuses[index].val = .allocated
-                allocatedChallenges.append(allChallenges[index])
+                allocatedChallenges.append(everyChallenge[index])
                 allocatedCount += 1
                 if allocatedCount == n { break }
             }
@@ -174,7 +213,7 @@ class ChallengeManager : ObservableObject {
     
     // Allocates N challenges nearly evenly from specified topics, taking from any topic in the list if needed
     func allocateChallenges(forTopics topics: [String], count n: Int) -> [Challenge]? {
-        let allChallenges = getAllChallenges()
+    
         var topicChallengeMap: [String: [Int]] = [:]
         var allocatedChallenges: [Challenge] = []
         var allocatedCount = 0
@@ -182,7 +221,7 @@ class ChallengeManager : ObservableObject {
             saveChallengeStatuses(challengeStatuses)
         }
         // Initialize the topicChallengeMap
-        for (index, challenge) in allChallenges.enumerated() {
+        for (index, challenge) in everyChallenge.enumerated() {
           if topics.contains(challenge.topic) && challengeStatuses[index].val == .inReserve {
                 topicChallengeMap[challenge.topic, default: []].append(index)
             }
@@ -204,7 +243,7 @@ class ChallengeManager : ObservableObject {
             let challengesToAllocate = min(challengesPerTopicInitial, availableChallenges.count)
             for index in availableChallenges.prefix(challengesToAllocate) {
               challengeStatuses[index].val = .allocated
-                allocatedChallenges.append(allChallenges[index])
+                allocatedChallenges.append(everyChallenge[index])
                 allocatedCount += 1
             }
         }
@@ -215,7 +254,7 @@ class ChallengeManager : ObservableObject {
             let remainingAvailableChallenges = topics.flatMap { topicChallengeMap[$0] ?? [] }
             for index in remainingAvailableChallenges.prefix(additionalChallengesNeeded) {
               challengeStatuses[index].val = .allocated
-                allocatedChallenges.append(allChallenges[index])
+                allocatedChallenges.append(everyChallenge[index])
                 allocatedCount += 1
             }
         }
@@ -225,30 +264,29 @@ class ChallengeManager : ObservableObject {
     // get challenge at index
   func getChallenge(row: Int,col:Int) -> Challenge? {
     let index = row*starting_size+col
-    let chs = getAllChallenges()
+    let chs = everyChallenge
     guard index >= 0 && index < chs.count else { return nil }
     return chs[index]
   }
   
     // Replaces one challenge with another, marking the old one as abandoned
     func replaceChallenge(at index: Int) -> Challenge? {
-        guard index >= 0 && index < getAllChallenges().count else { return nil }
+        guard index >= 0 && index < everyChallenge.count else { return nil }
         defer {
             saveChallengeStatuses(challengeStatuses)
         }
         // Mark the old challenge as abandoned
       challengeStatuses[index].val = .abandoned
-        
-        // Allocate a new challenge from the same topic
-        let topic = getAllChallenges()[index].topic
-      let topicChallenges = getAllChallenges().enumerated().filter { $0.element.topic == topic && challengeStatuses[$0.offset].val == .inReserve }
+                // Allocate a new challenge from the same topic
+        let topic = everyChallenge[index].topic
+      let topicChallenges = everyChallenge.enumerated().filter { $0.element.topic == topic && challengeStatuses[$0.offset].val == .inReserve }
         
         guard let newChallengeIndex = topicChallenges.first?.offset else {
             return nil
         }
         
       challengeStatuses[newChallengeIndex].val = .allocated
-        return getAllChallenges()[newChallengeIndex]
+        return everyChallenge[newChallengeIndex]
     }
     
     
@@ -272,7 +310,7 @@ class ChallengeManager : ObservableObject {
     }
     
     func countChallenges(for topic: Topic, with status: ChallengeStatusVal) -> Int {
-        let allChallenges = getAllChallenges()
+        let allChallenges = everyChallenge
         return allChallenges.enumerated().filter { index, challenge in
           index < challengeStatuses.count && challenge.topic == topic.name && challengeStatuses[index].val == status
         }.count

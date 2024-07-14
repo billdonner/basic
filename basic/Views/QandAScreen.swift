@@ -4,9 +4,8 @@ struct QandAScreen: View {
   let row: Int
   let col: Int
   @Binding var isPresentingDetailView: Bool
-  let  challengeManager:ChallengeManager //
-  
-  @EnvironmentObject var gb: GameBoard  // Environment object for game board game board
+  var  challengeManager:ChallengeManager //
+  var gb: GameBoard  // Environment object for game board game board
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   
   @State private var selectedAnswer: String? = nil  // State to track selected answer
@@ -383,11 +382,11 @@ extension QandAScreen {
   }
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock))
-    .environmentObject(GameBoard(size: 1, topics: ["Programming Languages"], challenges: [Challenge.complexMockWithFiveAnswers]))
+  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock), gb: <#GameBoard#>)
+
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock))
-    .environmentObject(GameBoard(size: 1, topics: ["Quantum Mechanics"], challenges: [Challenge.complexMockWithThreeAnswers]))
+  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+
 }
 

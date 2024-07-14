@@ -14,7 +14,8 @@ struct TopicsChooserScreen: View {
     let schemes: [ColorScheme]
     let boardSize: Int
     @Binding var selectedTopics: [String]
-    @State private var selectedSchemeIndex = 1 // Initial scheme index set to Summer
+  
+  @AppStorage("colorPalette") private var colorPalette = 1// Initial scheme index set to Summer
     @EnvironmentObject var gameBoard: GameBoard
 
     var body: some View {
@@ -27,11 +28,11 @@ struct TopicsChooserScreen: View {
               .font(.subheadline)
             
             HStack {
-              NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $selectedSchemeIndex, boardSize: boardSize)) {
+              NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $colorPalette, boardSize: boardSize)) {
                 Text("Select Topics")
               }
               
-              NavigationLink(destination: TopicColorizerView(topics: $selectedTopics, selectedSchemeIndex: $selectedSchemeIndex, schemes: schemes)) {
+              NavigationLink(destination: TopicColorizerView(topics: $selectedTopics, selectedSchemeIndex: $colorPalette, schemes: schemes)) {
                 Text("Arrange Topics")
               }
               .disabled(selectedTopics.isEmpty)
@@ -44,7 +45,7 @@ struct TopicsChooserScreen: View {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(selectedTopics.indices, id: \.self) { index in
                         let topic = selectedTopics[index]
-                        let colorInfo = schemes[selectedSchemeIndex].mappedColors()[index % schemes[selectedSchemeIndex].colors.count]
+                        let colorInfo = schemes[colorPalette].mappedColors()[index % schemes[colorPalette].colors.count]
                         Text(topic)
                             .padding()
                             .background(colorInfo.0)
@@ -62,17 +63,17 @@ struct TopicsChooserScreen: View {
         .navigationBarTitleDisplayMode(.large)
         .onAppear {
            // loadPersistentData()
-          print("//TopicsChooser onAppear Topics: \($selectedTopics) I can't open links on Facebook")
+          print("//TopicsChooserScreen onAppear Topics: \(selectedTopics)")
         }
         .onDisappear{
-          print("//TopicsChooser disappear with selected Topics: \($selectedTopics)")
+          print("//TopicsChooserScreen onDisappear Topics: \(selectedTopics)")
         }
-//        .onChange(of: selectedTopics) { oldValue, newValue in
-//            MockTopics.shared.saveTopics(newValue)
+        .onChange(of: selectedTopics) { _, newValue in
+            print("//TopicsChooserScreen onChange Topics: \(newValue)")
+        }
+//        .onChange(of: colorPalette) { oldValue, newValue in
+//          MockTopics.shared.saveSchemeIndex(newValue)
 //        }
-        .onChange(of: selectedSchemeIndex) { oldValue, newValue in
-          MockTopics.shared.saveSchemeIndex(newValue)
-        }
     }
 
 

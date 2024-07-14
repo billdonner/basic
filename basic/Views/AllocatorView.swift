@@ -7,8 +7,8 @@
 
 import SwiftUI
 struct AllocatorView: View {
-  @EnvironmentObject var challengeManager: ChallengeManager
-  @EnvironmentObject var gameBoard:GameBoard
+  let challengeManager: ChallengeManager
+ let  gameBoard:GameBoard
   @Environment(\.colorScheme) var colorScheme //system light/dark
   
   @State var succ = false
@@ -29,7 +29,15 @@ struct AllocatorView: View {
           VStack(spacing: 4) {
             ForEach(playData.topicData.topics, id: \.name) { topic in
               if challengeManager.allocatedChallengesCount(for: topic) > 0 {
-                TopicCountsView(topic: topic)
+                TopicCountsView(topic: topic,challengeManager: challengeManager)
+              }
+            }
+          }
+          Divider()
+          VStack(spacing: 4) {
+            ForEach(playData.topicData.topics, id: \.name) { topic in
+              if challengeManager.allocatedChallengesCount(for: topic) <=  0 {
+                TopicCountsView(topic: topic,challengeManager: challengeManager)
               }
             }
           }
@@ -42,6 +50,13 @@ struct AllocatorView: View {
     }
     .background(backgroundColor)
     .padding()
+  .onAppear {
+    print("//AllocatorView onAppear size:\(gameBoard.size) topics:\(gameBoard.topicsinplay)")
+    }
+    .onDisappear {
+      print("//AllocatorView onDisappear size:\(gameBoard.size) topics:\(gameBoard.topicsinplay)")
+     
+    }
   }
   
   // Computed properties for background and text colors
@@ -57,17 +72,15 @@ struct AllocatorView: View {
 // Assuming you have the challengeManager and colorSchemes to preview the view
 struct AllocatorView_Previews: PreviewProvider {
   static var previews: some View {
-    AllocatorView()
-      .environmentObject(ChallengeManager(playData:PlayData.mock))
-  
-      .environmentObject(GameBoard(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges))
+    AllocatorView(challengeManager: ChallengeManager(playData:PlayData.mock),
+                  gameBoard: GameBoard(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges))
 
   }
 }
 
 fileprivate struct TopicCountsView: View {
   let topic: Topic
-  @EnvironmentObject var challengeManager: ChallengeManager
+let challengeManager: ChallengeManager
   var body: some View {
     HStack {
       RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))

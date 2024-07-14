@@ -7,12 +7,13 @@
 import SwiftUI
 
 struct GameScreen: View {
-  let size: Int
-  let topics: [String]
+  let gameBoard: GameBoard
+  let challengeManager: ChallengeManager
+  @Binding  var size: Int
+  @Binding  var topics: [String]
   let onTapGesture: (_ row:Int, _ col:Int ) -> Void
   
-  @EnvironmentObject var challengeManager: ChallengeManager
-  @EnvironmentObject var gameBoard: GameBoard
+ 
   
   @State private var startAfresh = true
   @State private var showCantStartAlert = false
@@ -33,7 +34,7 @@ struct GameScreen: View {
     VStack {
       topButtonsVeew // down below
         .padding(.horizontal)
-      ScoreBarView()
+      ScoreBarView(gb: gameBoard)
       if gameBoard.size > 1 {
           mainGridVeew
       } 
@@ -57,7 +58,11 @@ struct GameScreen: View {
       onChangeOfCellState()
     }
     .sheet(isPresented: $showSettings){
-      GameSettingsScreen(ourTopics: topics) {t in         onGameSettingsExit (t)
+    
+      GameSettingsScreen(challengeManager: challengeManager, gb: gameBoard, ourTopics: topics) {t in
+
+        print("//GameScreen isPresented closure topics:\(t) ")        
+        onGameSettingsExit (t)
       }
     }
     .fullScreenCover(isPresented: $showingHelp ){
@@ -68,7 +73,7 @@ struct GameScreen: View {
       onBoardSizeChange ()
     }
     .sheet(isPresented: $showAllocatorView) {
-      AllocatorView()
+      AllocatorView(challengeManager: challengeManager, gameBoard: gameBoard)
         .presentationDetents([.fraction(0.25)])
     }
   }
@@ -155,14 +160,15 @@ extension GameScreen /* actions */ {
     endGame(status:.justAbandoned)
     // hideCellContent = true
   }
-  func onAppearAction () {
-    print("//GameScreen OnAppear")
+  func onAppearAction () { 
     // on a completely cold start
     if gameBoard.playcount == 0 {
-      print("//GameScreen OnAppear Coldstart")
+      print("//GameScreen OnAppear Coldstart size:\(size) topics: \(topics)")
       // setup a blank board, dont allocate anything, wait for the start button
       gameBoard.reinit(size: size, topics: topics, challenges: [],dontPopulate: true)
       
+    } else {
+      print("//GameScreen OnAppear Warmstart size:\(size) topics: \(topics)")
     }
     
 //    let ok =   startNewGame(size: size, topics: topics)
@@ -186,14 +192,14 @@ extension GameScreen /* actions */ {
   func onGameSettingsExit(_ topics:[String]) {
     // here on the way out
     print("//GameScreen onGameSettingsExit topics:\(topics)")
-    let ok =  startFresh()
-    if !ok { print ("Cant reset after gamesettings")}
+//    let ok =  startFresh()
+//    if !ok { print ("Cant reset after gamesettings")}
   }
   
   func onBoardSizeChange() {
     gameBoard.size = boardSize
-    let ok =  startFresh()
-    if !ok { print ("Cant reset after boarSizeChange")}
+//    let ok =  startFresh()
+//    if !ok { print ("Cant reset after boarSizeChange")}
   }
   
   func onStartGame(){
@@ -207,7 +213,7 @@ extension GameScreen /* actions */ {
     } else {
       gameBoard.gamestate =  GameState.playingNow
     }
-    print("//GameScreen StartGame Pressed selected topics are \(gameBoard.topicsinplay)")
+    print("//GameScreen onStartGame   topics: \(gameBoard.topicsinplay)")
   }
   func onCantStartNewGame() {
     clearAllCells()
@@ -254,8 +260,6 @@ private extension GameScreen {
       }
    
   }// make one cell
-  
- 
     var loadingVeew: some View {
       Text("Loading...")
         .onAppear {
@@ -266,7 +270,6 @@ private extension GameScreen {
             onCantStartNewGameAction()
           }
         }
-   
   }
 }
 
@@ -332,14 +335,15 @@ struct GameScreen_Previews: PreviewProvider {
     Group {
       ForEach([3, 4, 5, 6], id: \.self) { size in
         GameScreen(
-          size: size,
-          topics: ["Actors", "Animals", "Cars"],
+          gameBoard:GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]),
+          challengeManager: ChallengeManager(playData: PlayData.mock),
+          
+          size: .constant(size),
+          topics: .constant(["Actors", "Animals", "Cars"]),
           onTapGesture: { row,col in
             print("Tapped cell with challenge \(row) \(col)")
           }
         )
-        .environmentObject(GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]))
-        .environmentObject(ChallengeManager(playData: PlayData.mock))  // Ensure to add your ChallengeManager
         .previewLayout(.fixed(width: 300, height: 300))
         .previewDisplayName("Size \(size)x\(size)")
       }

@@ -87,6 +87,13 @@ import SwiftUI
             .navigationTitle("Select Topics")
             .searchable(text: $searchText, prompt: "Search Topics")
         }
+        .onAppear {
+           // loadPersistentData()
+          print("//TopicSelectorView onAppear Topics: \(selectedTopics)")
+        }
+        .onDisappear{
+          print("//TopicSelectorView onDisappear Topics: \(selectedTopics)")
+        }
     }
 
     var filteredTopics: [String] {

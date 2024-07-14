@@ -1,41 +1,48 @@
 import SwiftUI
 
-// Assuming a mock PlayData JSON file in the main bundle
-let jsonFileName = "playdata.json"
+let playDataFileName = "playdata.json"
 let starting_size = 3 // Example size, can be 3 to 6
-let starting_topics = ["Actors", "Animals","Cars"] // Example topics
 
 struct ContentView:View {
-  @EnvironmentObject var challengeManager: ChallengeManager
-  @EnvironmentObject var gameBoard: GameBoard
+  @State var challengeManager = ChallengeManager(playData: PlayData.mock )
+  @State var gameBoard = GameBoard(size: starting_size,
+                                         topics: Array(MockTopics.mockTopics.prefix(starting_size)),
+                                         challenges:Challenge.mockChallenges)
+  
   @State var current_size: Int = starting_size
-  @State var current_topics: [String] = starting_topics
-  @State var chal :IdentifiablePoint? = nil
+  @State var current_topics: [String] = Array(MockTopics.mockTopics[0..<starting_size])
+  @State var chal : IdentifiablePoint? = nil
   @State var isPresentingDetailView =  false
   var body: some View {
-    GameScreen(size: current_size, topics: current_topics)
+    GameScreen(gameBoard:gameBoard,
+               challengeManager:challengeManager,
+               size: $current_size, topics: $current_topics)
     { row,col    in
       //tap behavior
       isPresentingDetailView = true 
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
-      print("//ContentView onAppear")
       challengeManager.loadAllData(gameBoard:gameBoard)
+      current_size = gameBoard.size
+      if gameBoard.topicsinplay.count == 0 {
+        gameBoard.topicsinplay = getRandomTopics(current_size - 1, from: challengeManager.allTopics)
+      }
+      current_topics = gameBoard.topicsinplay
+      print("//ContentView onAppear size:\(current_size) topics:\(current_topics)")
       }
       .onDisappear {
-        print("//ContentView onDisappear")
+        print("//ContentView onDisappear size:\(current_size) topics:\(current_topics)")
         challengeManager.saveChallengeStatus()
         gameBoard.saveGameBoard()
       }
       .sheet(item:$chal ) { cha in
-        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,challengeManager: challengeManager) 
+        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,challengeManager: challengeManager, gb: gameBoard)
         }
       }
   }
 
 
 #Preview {
-  ContentView().environmentObject(ChallengeManager(playData: PlayData.mock))
-    .environmentObject(GameBoard(size: 5, topics: ["A","B","C"], challenges:[Challenge.complexMock]))
+  ContentView()
 }

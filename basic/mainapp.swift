@@ -12,22 +12,20 @@ class OrientationLockedViewController: UIViewController {
         return .portrait
     }
 }
-func getPlayData()-> PlayData {
-  return PlayData.mock 
-}
+ 
+
+// Assuming a mock PlayData JSON file in the main bundle
+
+
 // The app's main entry point
 @main
 struct ChallengeGameApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-  private var challengeManager = ChallengeManager(playData: getPlayData())
-  private var gameBoard = GameBoard(size: 1,
-                                    topics: Array(MockTopics.mockTopics.prefix(1)),
-                                    challenges:[ Challenge.complexMock])
+
   var body: some Scene {
     WindowGroup {
       ContentView() 
-        .environmentObject(challengeManager)
-        .environmentObject(gameBoard)
+
         .onAppear {
                       // Ensure the orientation lock is applied
                       AppDelegate.lockOrientation(.portrait)

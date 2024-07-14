@@ -174,7 +174,10 @@ extension Challenge {
   )
   
 }
-
+/// Returns a specified number of random topics from a provided list.
+func getRandomTopics(_ count: Int, from topics: [String]) -> [String] {
+    return Array(topics.shuffled().prefix(count))
+}
 class MockTopics {
 static let mockTopics = [
     "Science", "Technology", "Engineering", "Mathematics",
@@ -195,10 +198,7 @@ static let mockTopics = [
   private let schemeIndexKey = "selectedSchemeIndex"
   private init() {}
 
-  /// Returns a specified number of random topics from a provided list.
-  func getRandomTopics(_ count: Int, from topics: [String]) -> [String] {
-      return Array(topics.shuffled().prefix(count))
-  }
+
 
   /// Loads topics from UserDefaults.
   func loadTopics() -> [String] {

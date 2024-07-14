@@ -8,8 +8,8 @@
 import SwiftUI
 private struct zz:View {
   let showchars:String
-  @EnvironmentObject var gb: GameBoard
-  @EnvironmentObject var challengeManager: ChallengeManager
+let gb: GameBoard
+  //@EnvironmentObject var challengeManager: ChallengeManager
   @AppStorage("boardSize") var boardSize = 6
   var body: some View{
     VStack {
@@ -28,7 +28,7 @@ private struct zz:View {
     }
   }
 struct ScoreBarView: View {
-  @EnvironmentObject var gb: GameBoard
+  let gb: GameBoard
   @State var showWinAlert = false
   @State var showLoseAlert = false
   
@@ -43,7 +43,7 @@ struct ScoreBarView: View {
             "moves: \(numberOfPossibleMoves(in: gb.cellstate))"
           }
         }
-        zz(showchars: showchars)
+        zz(showchars: showchars,gb:gb)
       }
       
         if gb.gamestate == .playingNow {
@@ -73,5 +73,5 @@ struct ScoreBarView: View {
   }
 
 #Preview {
-  ScoreBarView().environmentObject(GameBoard(size: 3, topics: ["a","b","c"], challenges: []))
+  ScoreBarView(gb: GameBoard(size: 3, topics: ["a","b","c"], challenges: []))
 }

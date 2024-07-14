@@ -2,11 +2,13 @@ import SwiftUI
 
 
 fileprivate struct GameSettingsView: View {
-  internal init(boardSize: Binding<Int>, startInCorners: Binding<Bool>, faceUpCards: Binding<Bool>, doubleDiag: Binding<Bool>, colorPalette: Binding<Int>, difficultyLevel: Binding<Int>,
-                //   topTopics: String,bottomTopics:String,
-                ourTopics: [String], returningTopics:Binding<[String]>,
+  
+  internal init(challengeManager:ChallengeManager,gameBoard:GameBoard, boardSize: Binding<Int>, startInCorners: Binding<Bool>, faceUpCards: Binding<Bool>, doubleDiag: Binding<Bool>, colorPalette: Binding<Int>, difficultyLevel: Binding<Int>,
+                ourTopics: [String],
+                returningTopics:Binding<String>,
                 onExit:@escaping ([String])->()) {
     self.onExit = onExit
+    self.gameBoard = gameBoard
     _boardSize = boardSize
     _startInCorners = startInCorners
     _faceUpCards = faceUpCards
@@ -14,7 +16,7 @@ fileprivate struct GameSettingsView: View {
     _colorPalette = colorPalette
     _difficultyLevel = difficultyLevel
     _returningTopics = returningTopics
-    
+    self.challengeManager = challengeManager
     self.ourTopics = ourTopics
     let randomTopics = ourTopics.shuffled()
     let chosenTopics = Array(randomTopics.prefix(boardSize.wrappedValue - 2))
@@ -28,11 +30,13 @@ fileprivate struct GameSettingsView: View {
     l_difficultyLevel = difficultyLevel.wrappedValue
     l_faceUpCards = faceUpCards.wrappedValue
     l_startInCorners = startInCorners.wrappedValue
-    
+    l_returningTopics = returningTopics.wrappedValue
     
   }
   let onExit: ([String])->()
-  
+  let challengeManager:ChallengeManager
+  let gameBoard:GameBoard
+  let ourTopics: [String]
   
   @Binding var boardSize: Int
   @Binding var startInCorners: Bool
@@ -40,8 +44,7 @@ fileprivate struct GameSettingsView: View {
   @Binding var doubleDiag: Bool
   @Binding var colorPalette: Int
   @Binding var difficultyLevel: Int
-  
-  @Binding var returningTopics: [String]
+  @Binding var returningTopics:  String
   
   @State private var  l_boardSize: Int
   @State private var  l_startInCorners: Bool
@@ -49,16 +52,16 @@ fileprivate struct GameSettingsView: View {
   @State private var  l_doubleDiag: Bool
   @State private var  l_colorPalette: Int
   @State private var  l_difficultyLevel: Int
+  @State private var  l_returningTopics: String
   
   @State var selectedTopics: [String]
   @State var availableTopics: [String]
   @State var tappedIndices: Set<Int> = []
   @State var replacedTopics: [Int: String] = [:]
   @State var selectedAdditionalTopics: Set<String> = []
+  @State var firstOnAppear = true
   
-  var ourTopics: [String]
   @State private var showSettings = false
-  @EnvironmentObject var challengeManager:ChallengeManager
   @Environment(\.presentationMode) var presentationMode
   
   var colorPaletteBackground: LinearGradient {
@@ -78,12 +81,6 @@ fileprivate struct GameSettingsView: View {
   
   fileprivate func onParameterChange() {
     refreshTopics()
-    //    startNewGame
-    //    let x=try?  prepareNewGame(aiPlayData!, reloadTopics:false)
-    //    if x != nil
-    //    {
-    //      print(" painting new Board")
-    //    }
   }
   
   var body: some View {
@@ -99,7 +96,7 @@ fileprivate struct GameSettingsView: View {
       }
       .onChange(of: l_boardSize, initial: false)
       { _,newSize in
-        selectedTopics = MockTopics.shared.getRandomTopics(newSize - 1, from: MockTopics.mockTopics)
+        selectedTopics = getRandomTopics(newSize - 1, from: challengeManager.allTopics)
         onParameterChange()
       }
       Section(header: Text("Difficulty Level")) {
@@ -172,8 +169,11 @@ fileprivate struct GameSettingsView: View {
           //                    .cornerRadius(10)
         }
       }
-      .onAppear {  // fix
-        selectedTopics = MockTopics.shared.getRandomTopics(boardSize - 1, from: MockTopics.mockTopics)
+      .onAppear {
+        if firstOnAppear {
+          selectedTopics = getRandomTopics(boardSize - 1, from: challengeManager.allTopics)
+          firstOnAppear = false
+        }
       }
       
       Section(header:Text("About QANDA")) {
@@ -186,8 +186,8 @@ fileprivate struct GameSettingsView: View {
             )
             Spacer()
           }
-          .onChange(of:returningTopics,initial:true ) { old,newer in
-            print("Game With Topics:",returningTopics.joined(separator: ","))
+          .onChange(of:selectedTopics,initial:true ) { old,newer in
+            print("Game With Topics:",selectedTopics.joined(separator: ","))
           }
           
           Button(action: { showSettings.toggle() }) {
@@ -197,7 +197,7 @@ fileprivate struct GameSettingsView: View {
       }
     }
     .sheet(isPresented:$showSettings){
-      FreeportSettingsScreen()
+      FreeportSettingsScreen(gameBoard: gameBoard, challengeManager: challengeManager)
     }
     .onDisappear {
       onExit(selectedTopics) // do whatever
@@ -208,7 +208,7 @@ fileprivate struct GameSettingsView: View {
         // dont touch anything
         self.presentationMode.wrappedValue.dismiss()
       },
-      trailing: Button("New Game") {
+      trailing: Button("Done") {
         onNewGamePressed()
       }
     )
@@ -222,12 +222,12 @@ fileprivate struct GameSettingsView: View {
     colorPalette = l_colorPalette
     difficultyLevel = l_difficultyLevel
     startInCorners = l_startInCorners
-    returningTopics = selectedTopics + selectedAdditionalTopics
+    selectedTopics = selectedTopics + selectedAdditionalTopics
     //exx(0)
     // startNewGame(size: l_boardSize
     //, topics: returningTopics)
     self.presentationMode.wrappedValue.dismiss()
-    print("-----> NEW GAME \(boardSize)x\(boardSize) topics:\(returningTopics.joined(separator: ",")) ")
+    print("-----> NEW GAME \(boardSize)x\(boardSize) topics:\(selectedTopics.joined(separator: ",")) ")
   }
   private func replaceTopic(at index: Int) {
     guard !tappedIndices.contains(index), !availableTopics.isEmpty else { return }
@@ -257,8 +257,11 @@ fileprivate struct GameSettingsView: View {
 
 struct GameSettingsScreen :
   View {
+  let challengeManager: ChallengeManager
+  let gameBoard: GameBoard
   let ourTopics:[String]
   let onExit: ([String])->()
+
   @AppStorage("moveNumber") var moveNumber = 0
   @AppStorage("boardSize") private var boardSize = 6
   @AppStorage("startInCorners") private var startInCorners = false
@@ -266,13 +269,13 @@ struct GameSettingsScreen :
   @AppStorage("doubleDiag") private var doubleDiag = false
   @AppStorage("colorPalette") private var colorPalette = 1
   @AppStorage("difficultyLevel") private var difficultyLevel = 1
-  
-  @State var returningTopics: [String] = []
-  @EnvironmentObject var gameBoard: GameBoard
+  @AppStorage("selectedTopicsPiped") var selectedTopicsPiped:String  = ""
   
   var body: some View {
     NavigationView  {
       GameSettingsView(
+        challengeManager: challengeManager, 
+        gameBoard:gameBoard,
         boardSize: $boardSize,
         startInCorners: $startInCorners,
         faceUpCards: $faceUpCards,
@@ -280,13 +283,21 @@ struct GameSettingsScreen :
         colorPalette: $colorPalette,
         difficultyLevel: $difficultyLevel,
         ourTopics:  ourTopics,
-        returningTopics: $returningTopics){x in 
+        returningTopics: $selectedTopicsPiped){x in
           onExit(x)
         }
       
-        .onChange(of: returningTopics,initial:true ) {_,_ in
+        .onChange(of: selectedTopicsPiped,initial:true ) {_,_ in
+          print("//GameSettingsScreen OnChange selectedTopicsPiped topics: \(selectedTopicsPiped)")
           onChangeOfReturningTopics()
         }
+        .onAppear {
+          print("//GameSettingsScreen onAppear topics: \(selectedTopicsPiped)")
+          }
+          .onDisappear {
+            print("//GameSettingsScreen onDisappear topics: \(selectedTopicsPiped)")
+
+          }
     }
   }
   
@@ -307,6 +318,6 @@ struct GameSettingsScreen :
 }
 #Preview("Tester") {
   let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-  GameSettingsScreen(ourTopics: t) {  strings in     print("GameSettingsExited with")
-  }.environmentObject(ChallengeManager(playData: PlayData.mock))
+  GameSettingsScreen(challengeManager: ChallengeManager(playData: PlayData.mock), gameBoard: GameBoard(size: starting_size, topics: Array(MockTopics.mockTopics.prefix(starting_size)),  challenges:Challenge.mockChallenges), ourTopics: t) {  strings in     print("GameSettingsExited with \(t)")
+  }
 }
