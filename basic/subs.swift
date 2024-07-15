@@ -6,6 +6,19 @@
 //
 
 import SwiftUI
+ func indexOfTopic(_ topic:String,gb:GameBoard) -> Int? {
+  for (index,t) in gb.topicsinplay.enumerated()  {
+  if t == topic { return index}
+  }
+  return nil
+}
+  func colorForTopic(_ topic:String,gb:GameBoard) ->   (Color, Color, UUID) {
+      if let index = indexOfTopic(topic,gb:gb) {
+        return AppColors.colorForTopicIndex(index:index)
+      } else {
+        return (Color.white, Color.black, UUID())
+      }
+    } 
 
 func formatTimeInterval(_ interval: TimeInterval) -> String {
     let seconds = Int(interval) % 60
@@ -117,8 +130,9 @@ func dumpAppStorage() {
   @AppStorage("startInCorners")   var startInCorners = false
   @AppStorage("faceUpCards")   var faceUpCards = true
   @AppStorage("doubleDiag")   var doubleDiag = false
-  @AppStorage("colorPalette")   var colorPalette = 1
+  @AppStorage("currentScheme") var currentScheme = 1
   @AppStorage("difficultyLevel")  var difficultyLevel = 1
+  @AppStorage("selectedTopicsPiped") var selectedTopicsPiped:String  = ""
   @AppStorage("elementWidth") var elementWidth = 100.0
   @AppStorage("shuffleUp")  var shuffleUp = true
   @AppStorage("fontsize")  var fontsize = 24.0
@@ -129,22 +143,21 @@ func dumpAppStorage() {
  // let t = gameState.topics.compactMap  {$0.isLive ? $0.topic : nil}
   
   print("Dump of Settings")
-  print("================")
-  
+  print("================") 
   print("gameNumber ",gameNumber)
   print("moveNumber ",moveNumber)
   print("boardSize ",boardSize)
   print("startInCorners ",startInCorners)
   print("faceUpCards ",faceUpCards)
   print("doubleDiag ",doubleDiag)
-  print("colorPalette ",colorPalette)
+  print("currentScheme ",currentScheme)
   print("difficultyLevel ",difficultyLevel)
+  print("selectedTopics ",selectedTopicsPiped)
   print("elementWidth ",elementWidth)
   print("shuffleUp ",shuffleUp)
   print("fontsize ",fontsize)
   print("padding ",padding)
   print("border ",border)
- // print("topics ",t)
   print("================")
 }
 

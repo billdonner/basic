@@ -8,10 +8,20 @@
 import SwiftUI
 @Observable
 class GameBoard :  Codable {
+  
+  func dumpGameBoard () {
+    print("Dump of GameBoard")
+    print("================")
+    print("size ",size)
+    print("gamestate",gamestate)
+    print("gimmees ",gimmees)
+    print("totaltime ",totaltime)
+    print("topicsinplay ",topicsinplay)
+    print("================")
+  }
   var board: [[Challenge]]  // Array of arrays to represent the game board with challenges
   var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell
   var size: Int  // Size of the game board
-  var topics: [String]  // List of topics for the game
   var gimmees: Int  // Number of "gimmee" actions available
   var gamestate: GameState = .initializingApp
   var playcount:  Int  // woncount + lostcount + abandoned
@@ -21,13 +31,12 @@ class GameBoard :  Codable {
   var wrongcount: Int
   var replacedcount: Int
   var totaltime: TimeInterval // aka Double
-  var topicsinplay: [String] // a subset of allTopics (which is constant and maintained in ChallengeManager)
+  var topicsinplay: [String] // a subset of allTopics (which is constant and maintained in ChaMan)
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
     case _cellstate = "cellstate"
-    case _topics = "topics"
-    case _size = "selected"
+    case _size = "size"
     case _gimmees = "gimmees"
     case _gamestate = "gamestate"
     case _playcount = "playcount"
@@ -38,12 +47,11 @@ class GameBoard :  Codable {
     case _replacedcount = "replacedcount"
     case _totaltime = "totaltime"
     case _topicsinplay = "topicsinplay"
-    
   }
   
   init(size: Int, topics: [String], challenges: [Challenge]) {
     self.size = size
-    self.topics = topics
+    self.topicsinplay = topics //*****4
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
     self.gimmees = 0
@@ -54,8 +62,8 @@ class GameBoard :  Codable {
     self.wrongcount = 0
     self.replacedcount = 0
     self.totaltime = 0.0
-    self.topicsinplay = []
     populateBoard(with: challenges)
+    print("//*****5")
   }
 }
 extension GameBoard {
@@ -99,7 +107,7 @@ extension GameBoard {
   func   reinit(size: Int, topics: [String], challenges: [Challenge],dontPopulate:Bool = false){
     self.playcount += 1
     self.size = size
-    self.topics = topics
+    self.topicsinplay = topics
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: self.size), count:  self.size)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.size), count: self.size)
     if !dontPopulate { populateBoard(with: challenges) }
@@ -140,6 +148,7 @@ extension GameBoard {
     }
     return unplayedChallenges
   }
+  
   static  func minTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
     case 3: return 2
@@ -160,10 +169,10 @@ extension GameBoard {
     }
   }
   
-  func windDown(_ status: GameState, challengeManager:ChallengeManager) {
+  func windDown(_ status: GameState, chmgr:ChaMan) {
     let (_,unplayedIndices) = self.resetBoardReturningUnplayed()
-    challengeManager.resetChallengeStatuses(at: unplayedIndices)
-    challengeManager.saveChallengeStatus()
+    chmgr.resetChallengeStatuses(at: unplayedIndices)
+    chmgr.saveChallengeStatus()
     self.gamestate = status
     self.saveGameBoard()
   }

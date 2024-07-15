@@ -4,8 +4,8 @@ struct QandAScreen: View {
   let row: Int
   let col: Int
   @Binding var isPresentingDetailView: Bool
-  var  challengeManager:ChallengeManager //
-  var gb: GameBoard  // Environment object for game board game board
+ @Bindable  var chmgr:ChaMan //
+  @Bindable var gb: GameBoard  // 
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   
   @State private var selectedAnswer: String? = nil  // State to track selected answer
@@ -25,7 +25,7 @@ struct QandAScreen: View {
 
   var body: some View {
     GeometryReader { geometry in
-      let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
+     // let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
       ZStack {
         VStack {
           QandATopBarView(
@@ -45,7 +45,10 @@ struct QandAScreen: View {
         .padding(.horizontal, 10)
         .padding(.bottom, 30)
         // .frame(width: geometry.size.width) // Center the content with padding
-        .onAppear(perform: {print("//QandAScreen onAppear"); startTimer()})
+        .onAppear {
+          print("//QandAScreen onAppear");
+          startTimer()
+        }
         .onDisappear(perform: {print("//QandAScreen onDisappear");
           stopTimer()})
         
@@ -150,14 +153,13 @@ struct QandAScreen: View {
   func questionSectionVue(geometry: GeometryProxy) -> some View {
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
-    let topicColor = //AppColors.colorFor(topic: gb.board[row][col].topic)?.backgroundColor ??
-    Color.gray
+    let topicColor =   colorForTopic(gb.board[row][col].topic,gb:gb).0
     
     return Text(gb.board[row][col].question)
       .font(.headline)
       .padding()
       .background(RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.2))) // Use topic color for background
-      .frame(width: contentWidth, height: geometry.size.height * 0.2)
+      .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.2))
       .lineLimit(8)
       .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
   }
@@ -305,7 +307,7 @@ extension QandAScreen {
     gb.cellstate[row][col] = .playedCorrectly
     gb.rightcount += 1
     gb.saveGameBoard()
-    try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
+    try! chmgr.setStatus(for: gb.board[row][col], status: .playedCorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       animateBackToBlue = false
 
@@ -323,7 +325,7 @@ extension QandAScreen {
     gb.cellstate[row][col] = .playedIncorrectly
     gb.wrongcount += 1
     gb.saveGameBoard()
-    try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
+    try! chmgr.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
 
     }
@@ -351,7 +353,7 @@ extension QandAScreen {
       gb.cellstate[row][col] = .playedIncorrectly
       gb.wrongcount += 1
       gb.saveGameBoard()
-      try! challengeManager.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
+      try! chmgr.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         showCorrectAnswer = false
         showBorders = true
@@ -359,7 +361,7 @@ extension QandAScreen {
     }
       else {
         animateBackToBlue = true
-        try! challengeManager.setStatus(for: gb.board[row][col], status: .playedCorrectly)
+        try! chmgr.setStatus(for: gb.board[row][col], status: .playedCorrectly)
         gb.cellstate[row][col] = .playedCorrectly
         gb.rightcount += 1
         gb.saveGameBoard()
@@ -382,11 +384,11 @@ extension QandAScreen {
   }
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock), gb: <#GameBoard#>)
+  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
 
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), challengeManager: ChallengeManager(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
 
 }
 

@@ -7,14 +7,12 @@
 import SwiftUI
 
 struct GameScreen: View {
-  let gameBoard: GameBoard
-  let challengeManager: ChallengeManager
+  @Bindable var gameBoard: GameBoard
+  @Bindable var chmgr: ChaMan
   @Binding  var size: Int
   @Binding  var topics: [String]
   let onTapGesture: (_ row:Int, _ col:Int ) -> Void
-  
- 
-  
+
   @State private var startAfresh = true
   @State private var showCantStartAlert = false
   @State private var showSettings = false
@@ -26,9 +24,16 @@ struct GameScreen: View {
   private let spacing: CGFloat = 5
   // Adding a shrink factor to slightly reduce the cell size
   private let shrinkFactor: CGFloat = 0.9
+  
   @AppStorage("faceUpCards")   var faceUpCards = true
   @AppStorage("boardSize")  var boardSize = 6
   
+  var bodyMsg: String {
+  let t =  """
+    That was game \(gameBoard.playcount) of which you've won \(gameBoard.woncount) and lost \(gameBoard.lostcount) games
+"""
+  return t
+  }
   
   var body: some View {
     VStack {
@@ -47,33 +52,36 @@ struct GameScreen: View {
         Text ("Index of Topics")
       }
     }
-    .youWinAlert(isPresented: $showWinAlert, title: "You Win", bodyMessage: "that was game \(gameBoard.playcount)", buttonTitle: "OK"){
+    .youWinAlert(isPresented: $showWinAlert, title: "You Win", 
+                 bodyMessage: bodyMsg, buttonTitle: "OK"){
       onYouWin()
     }
-    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", bodyMessage: "that was game \(gameBoard.playcount)", buttonTitle: "OK"){
+    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", 
+                  bodyMessage: bodyMsg, buttonTitle: "OK"){
       onYouLose()
     }
     .onChange(of:gameBoard.cellstate) { 
-        print("//GameScreen onChange(ofCellState)")
+        print("//GameScreen onChangeof(CellState)")
       onChangeOfCellState()
     }
+    .onChange(of:gameBoard.size) {
+        print("//GameScreen onChangeof(Size)")
+    }
     .sheet(isPresented: $showSettings){
-    
-      GameSettingsScreen(challengeManager: challengeManager, gb: gameBoard, ourTopics: topics) {t in
-
-        print("//GameScreen isPresented closure topics:\(t) ")        
+      GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard, ourTopics: topics,onExit: {t in
+        print("//GameScreen isPresented closure topics:\(t) ")
         onGameSettingsExit (t)
-      }
+      })
     }
     .fullScreenCover(isPresented: $showingHelp ){
       HowToPlayScreen (isPresented: $showingHelp)
     }
     .onChange(of: boardSize) {
-      print("//GameScreen onChange(ofBoardSize:\(boardSize)")
+      print("//GameScreen onChange(ofBoardSize:\(boardSize))")
       onBoardSizeChange ()
     }
     .sheet(isPresented: $showAllocatorView) {
-      AllocatorView(challengeManager: challengeManager, gameBoard: gameBoard)
+      AllocatorView(chmgr: chmgr, gameBoard: gameBoard)
         .presentationDetents([.fraction(0.25)])
     }
   }
@@ -124,6 +132,7 @@ struct GameScreen: View {
         Button(action: {
           withAnimation {
             onEndGamePressed()
+            print("//GameScreen return from onEndGamePressed")
           }
         }) {
           Text("End Game")
@@ -178,7 +187,7 @@ extension GameScreen /* actions */ {
 //    }
   }
   func onCantStartNewGameAction() {
-    challengeManager.resetAllChallengeStatuses(gameBoard: gameBoard)
+    chmgr.resetAllChallengeStatuses(gameBoard: gameBoard)
     // hideCellContent = true
     clearAllCells()
     showCantStartAlert = false
@@ -237,15 +246,16 @@ private extension GameScreen {
   func makeOneCellVue(row:Int,
                       col:Int ,
                       challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
-    let colormix = AppColors.colorFor(topic: challenge.topic)
+
+    let colormix = colorForTopic(challenge.topic, gb: gameBoard)
     return VStack {
       Text(//hideCellContent ||hideCellContent ||
         ( !faceUpCards) ? " " : challenge.question )
       .font(.caption)
       .padding(10)
       .frame(width: cellSize, height: cellSize)
-      //      .background(colormix?.backgroundColor)
-      //      .foregroundColor(colormix?.foregroundColor)
+          .background(colormix.0)
+          .foregroundColor(colormix.1)
       .border(status.borderColor , width: 8)
       .cornerRadius(8)
       
@@ -278,7 +288,7 @@ private extension GameScreen {
     startNewGame(size:size, topics:topics)
   }
   func startNewGame(size: Int, topics: [String]) -> Bool {
-    if let challenges = challengeManager.allocateChallenges(forTopics: topics, count: size * size) {
+    if let challenges = chmgr.allocateChallenges(forTopics: topics, count: size * size) {
       gameBoard.reinit(size: size, topics: topics, challenges: challenges)
       gameBoard.saveGameBoard()
       return true
@@ -291,7 +301,7 @@ private extension GameScreen {
 
   
   func endGame(status:GameState){
-    gameBoard.windDown(status, challengeManager: challengeManager)
+    gameBoard.windDown(status, chmgr: chmgr)
   }
 
   
@@ -336,7 +346,7 @@ struct GameScreen_Previews: PreviewProvider {
       ForEach([3, 4, 5, 6], id: \.self) { size in
         GameScreen(
           gameBoard:GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]),
-          challengeManager: ChallengeManager(playData: PlayData.mock),
+          chmgr: ChaMan(playData: PlayData.mock),
           
           size: .constant(size),
           topics: .constant(["Actors", "Animals", "Cars"]),

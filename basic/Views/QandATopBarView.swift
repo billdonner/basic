@@ -14,8 +14,7 @@ struct QandATopBarView: View {
   }
   
     var body: some View {
-      let _ = print("//QandATopBarView \(formattedElapsedTime)")
- 
+     // let _ = print("//QandATopBarView \(formattedElapsedTime)")
         ZStack {
             HStack {
                 passButton

@@ -9,7 +9,7 @@ import SwiftUI
 private struct zz:View {
   let showchars:String
 let gb: GameBoard
-  //@EnvironmentObject var challengeManager: ChallengeManager
+  //@EnvironmentObject var chmgr: ChaMan
   @AppStorage("boardSize") var boardSize = 6
   var body: some View{
     VStack {

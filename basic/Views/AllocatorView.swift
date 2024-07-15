@@ -7,55 +7,49 @@
 
 import SwiftUI
 struct AllocatorView: View {
-  let challengeManager: ChallengeManager
- let  gameBoard:GameBoard
+  let chmgr: ChaMan
+  let  gameBoard:GameBoard
   @Environment(\.colorScheme) var colorScheme //system light/dark
-  
   @State var succ = false
   
   var body: some View {
     VStack {
       HStack {
-        Text("Allocated: \(challengeManager.allocatedChallengesCount())")
-        Text("Free: \(challengeManager.freeChallengesCount())")
+        Text("Allocated: \(chmgr.allocatedChallengesCount())")
+        Text("Free: \(chmgr.freeChallengesCount())")
         Text("Played: \(gameBoard.playcount)")
       }
       .font(.footnote)
       .padding(.bottom, 8)
       
-       let playData =
-          challengeManager.playData
-        ScrollView {
-          VStack(spacing: 4) {
-            ForEach(playData.topicData.topics, id: \.name) { topic in
-              if challengeManager.allocatedChallengesCount(for: topic) > 0 {
-                TopicCountsView(topic: topic,challengeManager: challengeManager)
-              }
-            }
-          }
-          Divider()
-          VStack(spacing: 4) {
-            ForEach(playData.topicData.topics, id: \.name) { topic in
-              if challengeManager.allocatedChallengesCount(for: topic) <=  0 {
-                TopicCountsView(topic: topic,challengeManager: challengeManager)
-              }
+      let playData =
+      chmgr.playData
+      ScrollView {
+        VStack(spacing: 4) {
+          ForEach(playData.topicData.topics, id: \.name) { topic in
+            if chmgr.allocatedChallengesCount(for: topic) > 0 {
+              TopicCountsView(topic: topic,chmgr: chmgr, gameBoard: gameBoard )
             }
           }
         }
-     
-//      else {
-//        Text("Loading...")
-//          .foregroundColor(textColor)
-//      }
+        Divider()
+        VStack(spacing: 4) {
+          ForEach(playData.topicData.topics, id: \.name) { topic in
+            if chmgr.allocatedChallengesCount(for: topic) <=  0 {
+              TopicCountsView(topic: topic,chmgr: chmgr,gameBoard: gameBoard)
+            }
+          }
+        }
+      }
     }
     .background(backgroundColor)
     .padding()
-  .onAppear {
-    print("//AllocatorView onAppear size:\(gameBoard.size) topics:\(gameBoard.topicsinplay)")
+    .onAppear {
+      print("//AllocatorView onAppear size:\(gameBoard.size) topics:\(gameBoard.topicsinplay)")
     }
     .onDisappear {
       print("//AllocatorView onDisappear size:\(gameBoard.size) topics:\(gameBoard.topicsinplay)")
-     
+      
     }
   }
   
@@ -69,33 +63,38 @@ struct AllocatorView: View {
   }
 }
 
-// Assuming you have the challengeManager and colorSchemes to preview the view
+// Assuming you have the ChaMan and colorSchemes to preview the view
 struct AllocatorView_Previews: PreviewProvider {
   static var previews: some View {
-    AllocatorView(challengeManager: ChallengeManager(playData:PlayData.mock),
+    AllocatorView(chmgr: ChaMan(playData:PlayData.mock),
                   gameBoard: GameBoard(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges))
-
+    
   }
 }
 
 fileprivate struct TopicCountsView: View {
   let topic: Topic
-let challengeManager: ChallengeManager
+  let chmgr: ChaMan
+  let gameBoard: GameBoard
+  
+  var counts: some View {
+    Text("\(chmgr.allocatedChallengesCount(for: topic)) - "
+         + "\(chmgr.freeChallengesCount(for: topic)) - "
+         + "\(chmgr.abandonedChallengesCount(for: topic)) - "
+         + "\(chmgr.correctChallengesCount(for: topic)) - "
+         + "\(chmgr.incorrectChallengesCount(for: topic))"
+    )
+  }
   var body: some View {
     HStack {
       RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
         .frame(width: 24, height: 24)
-       // .foregroundColor(AppColors.colorFor(topic: topic.name)?.backgroundColor)
       Text(topic.name)
       Spacer()
-      Text("\(challengeManager.allocatedChallengesCount(for: topic)) - "
-           + "\(challengeManager.freeChallengesCount(for: topic)) - "
-           + "\(challengeManager.abandonedChallengesCount(for: topic)) - "
-           + "\(challengeManager.correctChallengesCount(for: topic)) - "
-           + "\(challengeManager.incorrectChallengesCount(for: topic))"
-      )
+      counts
     }
     .font(.caption)
+    .background(colorForTopic(topic.name,gb:gameBoard).0)
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
   }

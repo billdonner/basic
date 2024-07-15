@@ -14,9 +14,8 @@ struct TopicsChooserScreen: View {
     let schemes: [ColorScheme]
     let boardSize: Int
     @Binding var selectedTopics: [String]
-  
-  @AppStorage("colorPalette") private var colorPalette = 1// Initial scheme index set to Summer
-    @EnvironmentObject var gameBoard: GameBoard
+  @AppStorage("currentScheme") var currentScheme = 1
+  //  @EnvironmentObject var gameBoard: GameBoard
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -28,11 +27,11 @@ struct TopicsChooserScreen: View {
               .font(.subheadline)
             
             HStack {
-              NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $colorPalette, boardSize: boardSize)) {
+              NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $currentScheme, boardSize: boardSize)) {
                 Text("Select Topics")
               }
               
-              NavigationLink(destination: TopicColorizerView(topics: $selectedTopics, selectedSchemeIndex: $colorPalette, schemes: schemes)) {
+              NavigationLink(destination: TopicColorizerView(topics: $selectedTopics, selectedSchemeIndex: $currentScheme, schemes: schemes)) {
                 Text("Arrange Topics")
               }
               .disabled(selectedTopics.isEmpty)
@@ -45,7 +44,7 @@ struct TopicsChooserScreen: View {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(selectedTopics.indices, id: \.self) { index in
                         let topic = selectedTopics[index]
-                        let colorInfo = schemes[colorPalette].mappedColors()[index % schemes[colorPalette].colors.count]
+                        let colorInfo = schemes[currentScheme].mappedColors[index % schemes[currentScheme].colors.count]
                         Text(topic)
                             .padding()
                             .background(colorInfo.0)

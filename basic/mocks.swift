@@ -176,7 +176,9 @@ extension Challenge {
 }
 /// Returns a specified number of random topics from a provided list.
 func getRandomTopics(_ count: Int, from topics: [String]) -> [String] {
-    return Array(topics.shuffled().prefix(count))
+    let t =  Array(topics.shuffled().prefix(count))
+  print("Choosing \(count) random topics : \(t)")
+  return t
 }
 class MockTopics {
 static let mockTopics = [

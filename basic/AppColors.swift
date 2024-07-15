@@ -14,18 +14,12 @@ typealias ColorSpec  = (backname:String, forename:String, backrgb:(Double, Doubl
 
 class
 AppColors  {
-  
-  static func colorFor(topic: String) -> ColorSpec? {
-    @AppStorage("currentPallette") var currentPallette = "Winter"
-    
-    
-    //  guard let scheme = AppColors.allSchemes.first(where:{$0.name==currentPallette}) else { return nil }
-    //  //look for topic
-    //  return scheme.colors.first(where:{$0.0 == topic})
-    //
-    return nil
+
+  static func colorForTopicIndex(index:Int) ->   (Color, Color, UUID) {
+    @AppStorage("currentScheme") var currentScheme = 1
+    return   allSchemes[currentScheme].mappedColors[index]
   }
-  
+
   // Define the color schemes
   static let spring =
   ColorScheme(name: "Spring", colors: [
@@ -121,14 +115,17 @@ AppColors  {
     
     let name: String
     let colors: [ColorSpec]
-    
+    var _mappedColors : [(Color, Color, UUID)]? = nil
     /// Maps the colors to SwiftUI Color objects and calculates contrasting text colors.
-    func mappedColors() -> [(Color, Color, UUID)] {
-      return colors.map {
-        let bgColor = Color(red: $0.2.0 / 255, green: $0.2.1 / 255, blue: $0.2.2 / 255)
-        let textColor = self.contrastingTextColor(for: $0.2)
-        return (bgColor, textColor, UUID())
+    var mappedColors: [(Color, Color, UUID)] {
+      if _mappedColors == nil {
+        _mappedColors =  colors.map {
+          let bgColor = Color(red: $0.2.0 / 255, green: $0.2.1 / 255, blue: $0.2.2 / 255)
+          let textColor = self.contrastingTextColor(for: $0.2)
+          return (bgColor, textColor, UUID())
+        }
       }
+      return _mappedColors!
     }
     
     /// Determines the contrasting text color (black or white) for a given background color.

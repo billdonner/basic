@@ -4,7 +4,7 @@ let playDataFileName = "playdata.json"
 let starting_size = 3 // Example size, can be 3 to 6
 
 struct ContentView:View {
-  @State var challengeManager = ChallengeManager(playData: PlayData.mock )
+  @State var chaMan = ChaMan(playData: PlayData.mock )
   @State var gameBoard = GameBoard(size: starting_size,
                                          topics: Array(MockTopics.mockTopics.prefix(starting_size)),
                                          challenges:Challenge.mockChallenges)
@@ -15,7 +15,7 @@ struct ContentView:View {
   @State var isPresentingDetailView =  false
   var body: some View {
     GameScreen(gameBoard:gameBoard,
-               challengeManager:challengeManager,
+               chmgr:chaMan,
                size: $current_size, topics: $current_topics)
     { row,col    in
       //tap behavior
@@ -23,21 +23,22 @@ struct ContentView:View {
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
-      challengeManager.loadAllData(gameBoard:gameBoard)
+      chaMan.loadAllData(gameBoard:gameBoard)
       current_size = gameBoard.size
       if gameBoard.topicsinplay.count == 0 {
-        gameBoard.topicsinplay = getRandomTopics(current_size - 1, from: challengeManager.allTopics)
+        print("//*****1")
+        gameBoard.topicsinplay = getRandomTopics(current_size - 1, from: chaMan.allTopics) //*****1
       }
       current_topics = gameBoard.topicsinplay
       print("//ContentView onAppear size:\(current_size) topics:\(current_topics)")
       }
       .onDisappear {
         print("//ContentView onDisappear size:\(current_size) topics:\(current_topics)")
-        challengeManager.saveChallengeStatus()
+       chaMan.saveChallengeStatus()
         gameBoard.saveGameBoard()
       }
       .sheet(item:$chal ) { cha in
-        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,challengeManager: challengeManager, gb: gameBoard)
+        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,chmgr: chaMan, gb: gameBoard)
         }
       }
   }

@@ -40,7 +40,7 @@ struct TopicColorizerView: View {
       ScrollView {
         LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]) {
           ForEach(0..<12, id: \.self) { index in
-            let colorInfo = schemes[selectedSchemeIndex].mappedColors()[index]
+            let colorInfo = schemes[selectedSchemeIndex].mappedColors[index]
             if index < topics.count {
               let topic = topics[index]
               Text(topic)
