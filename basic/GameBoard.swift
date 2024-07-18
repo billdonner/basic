@@ -23,8 +23,9 @@ class GameBoard :  Codable {
     switch result {
     case .success(let x):
       print("Success:\(x.count)")
-      allocatedChallenges=x
-      
+      for j   in 0..<x.count {
+        allocatedChallenges.append(chmgr.everyChallenge[x[j]])
+      }
       //continue after the error path
       
     case .error(let err):

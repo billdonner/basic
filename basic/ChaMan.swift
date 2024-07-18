@@ -14,6 +14,7 @@ enum ChallengeError: Error {
 
 // The manager class to handle Challenge-related operations and state
 @Observable
+
 class ChaMan {
     internal init(playData: PlayData) {
         self.playData = playData
@@ -36,8 +37,8 @@ class ChaMan {
     // tinfo and stati must be maintained in sync
     // tinfo["topicname"].ch[123] and stati[123] are in sync with everychallenge[123]
     
-    private(set) var tinfo: [String: TopicInfo]  // Dictionary indexed by topic
-    private(set) var stati: [ChallengeStatus]  // Using array instead of dictionary
+    var tinfo: [String: TopicInfo]  // Dictionary indexed by topic
+    var stati: [ChallengeStatus]  // Using array instead of dictionary
     
     private(set) var playData: PlayData {
         didSet {
@@ -79,206 +80,279 @@ class ChaMan {
         _allTopics = nil
     }
     
-  // Allocate N challenges nearly evenly from specified topics, taking from any topic if needed
-     func allocateChallenges(forTopics topics: [String], count n: Int) -> AllocationResult {
-         var allocatedChallenges: [Challenge] = []
-         var topicIndexes: [String: [Int]] = [:]
-         
-         // Defensive check for empty topics array
-         guard !topics.isEmpty else {
-             return .error(.emptyTopics)
-         }
-         
-         // Populate the dictionary with indexes for each topic
-         for topic in topics {
-             if let topicInfo = tinfo[topic] {
-                 topicIndexes[topic] = topicInfo.ch
-             } else {
-                 return .error(.invalidTopics([topic]))
-             }
-         }
-         
-         // Calculate the number of challenges to allocate from each topic
-         let challengesPerTopic = n / topics.count
-         var remainingChallenges = n % topics.count
-         
-         // Allocate challenges nearly evenly from specified topics
-         for topic in topics {
-             if let indexes = topicIndexes[topic], !indexes.isEmpty {
-                 let countToAllocate = challengesPerTopic + (remainingChallenges > 0 ? 1 : 0)
-                 let allocatedIndexes = indexes.prefix(countToAllocate)
-                 allocatedChallenges.append(contentsOf: allocatedIndexes.map { everyChallenge[$0] })
-                 remainingChallenges -= 1
-                 
-                 // Update topicIndexes
-                 topicIndexes[topic] = Array(indexes.dropFirst(countToAllocate))
-                 
-                 // Update tinfo to keep it in sync
-                 if var topicInfo = tinfo[topic] {
-                     topicInfo.ch = topicIndexes[topic]!
-                     topicInfo.freecount -= allocatedIndexes.count
-                     tinfo[topic] = topicInfo
-                 }
-             }
-         }
-         
-         // If not enough challenges, take from any available topic
-         while allocatedChallenges.count < n {
-             var added = false
-             for (topic, indexes) in topicIndexes {
-                 if !indexes.isEmpty {
-                     allocatedChallenges.append(everyChallenge[indexes.first!])
-                     
-                     // Update topicIndexes
-                     topicIndexes[topic] = Array(indexes.dropFirst(1))
-                     
-                     // Update tinfo to keep it in sync
-                     if var topicInfo = tinfo[topic] {
-                         topicInfo.ch = topicIndexes[topic]!
-                         topicInfo.freecount -= 1
-                         tinfo[topic] = topicInfo
-                     }
-                     
-                     if allocatedChallenges.count == n {
-                         break
-                     }
-                     
-                     added = true
-                 }
-             }
-             
-             // If no more challenges can be allocated, break to avoid an infinite loop
-             if !added {
-                 return .error(.insufficientChallenges)
-             }
-         }
-         
-         return .success(allocatedChallenges)
-     }
-     
-     // Deallocate challenges at specified indexes and update internal structures
-     func deallocAt(_ indexes: [Int]) -> AllocationResult {
-         var topicIndexes: [String: [Int]] = [:]
-         var invalidIndexes: [Int] = []
+    // Allocate N challenges nearly evenly from specified topics, taking from any topic if needed
+    func allocateChallenges(forTopics topics: [String], count n: Int) -> AllocationResult {
+        var allocatedChallengeIndices: [Int] = []
+        var topicIndexes: [String: [Int]] = [:]
+        
+        // Defensive check for empty topics array
+        guard !topics.isEmpty else {
+            return .error(.emptyTopics)
+        }
+        
+        // Populate the dictionary with indexes for each specified topic
+        for topic in topics {
+            if let topicInfo = tinfo[topic] {
+                topicIndexes[topic] = topicInfo.ch
+            } else {
+                return .error(.invalidTopics([topic]))
+            }
+        }
+        
+        // Calculate the total number of available challenges in the specified topics
+        let totalFreeChallenges = topics.reduce(0) { $0 + (tinfo[$1]?.freecount ?? 0) }
+        
+        // Check if total available challenges are less than required
+        if totalFreeChallenges < n {
+            return .error(.insufficientChallenges)
+        }
+        
+        // First pass: Allocate challenges nearly evenly from the specified topics
+        let challengesPerTopic = n / topics.count
+        var remainingChallenges = n % topics.count
+        
+        for topic in topics {
+            if let indexes = topicIndexes[topic], !indexes.isEmpty {
+                let countToAllocate = min(indexes.count, challengesPerTopic + (remainingChallenges > 0 ? 1 : 0))
+                let allocatedIndexes = indexes.prefix(countToAllocate)
+                allocatedChallengeIndices.append(contentsOf: allocatedIndexes)
+                remainingChallenges -= 1
+                
+                // Update topicIndexes
+                topicIndexes[topic] = Array(indexes.dropFirst(countToAllocate))
+                
+                // Update tinfo to keep it in sync
+                if var topicInfo = tinfo[topic] {
+                    topicInfo.ch = topicIndexes[topic] ?? []
+                    topicInfo.freecount -= allocatedIndexes.count
+                    tinfo[topic] = topicInfo
+                }
+            }
+        }
+        
+        // Second pass: Allocate remaining challenges from the specified topics even if imbalanced
+        for topic in topics {
+            if allocatedChallengeIndices.count >= n {
+                break
+            }
+            
+            if let indexes = topicIndexes[topic], !indexes.isEmpty {
+                let remainingToAllocate = n - allocatedChallengeIndices.count
+                let countToAllocate = min(indexes.count, remainingToAllocate)
+                let allocatedIndexes = indexes.prefix(countToAllocate)
+                allocatedChallengeIndices.append(contentsOf: allocatedIndexes)
+                
+                // Update topicIndexes
+                topicIndexes[topic] = Array(indexes.dropFirst(countToAllocate))
+                
+                // Update tinfo to keep it in sync
+                if var topicInfo = tinfo[topic] {
+                    topicInfo.ch = topicIndexes[topic] ?? []
+                    topicInfo.freecount -= allocatedIndexes.count
+                    tinfo[topic] = topicInfo
+                }
+            }
+        }
+        
+        // Third pass: If still not enough challenges, take from any available topic
+        if allocatedChallengeIndices.count < n {
+            for (topic, info) in tinfo {
+                if !topics.contains(topic) { // Skip specified topics since they have already been considered
+                   let indexes = info.ch
+                    if !indexes.isEmpty {
+                        let remainingToAllocate = n - allocatedChallengeIndices.count
+                        let countToAllocate = min(indexes.count, remainingToAllocate)
+                        let allocatedIndexes = indexes.prefix(countToAllocate)
+                        allocatedChallengeIndices.append(contentsOf: allocatedIndexes)
+                        
+                        // Update topicIndexes
+                        var updatedIndexes = indexes
+                        updatedIndexes.removeFirst(countToAllocate)
+                        topicIndexes[topic] = updatedIndexes
+                        
+                        // Update tinfo to keep it in sync
+                        if var topicInfo = tinfo[topic] {
+                            topicInfo.ch = topicIndexes[topic] ?? []
+                            topicInfo.freecount -= allocatedIndexes.count
+                            tinfo[topic] = topicInfo
+                        }
+                        
+                        // Check if we have allocated enough challenges
+                        if allocatedChallengeIndices.count >= n {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Update stati to reflect allocation
+        for index in allocatedChallengeIndices {
+            stati[index] = .allocated
+        }
+        
+        return .success(allocatedChallengeIndices)
+    }
+    
+    // Deallocate challenges at specified indexes and update internal structures
+    func deallocAt(_ indexes: [Int]) -> AllocationResult {
+        var topicIndexes: [String: [Int]] = [:]
+        var invalidIndexes: [Int] = []
 
-         // Collect the indexes of the challenges to deallocate and group by topic
-         for index in indexes {
-             if index >= everyChallenge.count {
-                 invalidIndexes.append(index)
-                 continue
-             }
+        // Collect the indexes of the challenges to deallocate and group by topic
+        for index in indexes {
+            if index >= everyChallenge.count {
+                invalidIndexes.append(index)
+                continue
+            }
 
-             let challenge = everyChallenge[index]
-             let topic = challenge.topic // Assuming `Challenge` has a `topic` property
+            let challenge = everyChallenge[index]
+            let topic = challenge.topic // Assuming `Challenge` has a `topic` property
 
-             if topicIndexes[topic] == nil {
-                 topicIndexes[topic] = []
-             }
-             topicIndexes[topic]?.append(index)
-         }
+            if stati[index] != .allocated {
+                invalidIndexes.append(index)
+                continue
+            }
 
-         // Check for invalid indexes
-         if !invalidIndexes.isEmpty {
-             return .error(.invalidTopics(["Invalid indexes: \(invalidIndexes)"]))
-         }
+            if topicIndexes[topic] == nil {
+                topicIndexes[topic] = []
+            }
+            topicIndexes[topic]?.append(index)
+        }
 
-         // Update tinfo to deallocate challenges
-         for (topic, indexes) in topicIndexes {
-             if var topicInfo = tinfo[topic] {
-                 // Remove indexes from topicInfo.ch
-                 topicInfo.ch.removeAll { indexes.contains($0) }
-                 topicInfo.freecount += indexes.count
+        // Check for invalid indexes
+        if !invalidIndexes.isEmpty {
+            return .error(.invalidTopics(["Invalid or non-allocated indexes: \(invalidIndexes)"]))
+        }
 
-                 // Update tinfo to keep it in sync
-                 tinfo[topic] = topicInfo
-             } else {
-                 return .error(.invalidTopics([topic]))
-             }
-         }
+        // Update tinfo to deallocate challenges
+        for (topic, indexes) in topicIndexes {
+            if var topicInfo = tinfo[topic] {
+                // Remove indexes from topicInfo.ch
+                for index in indexes {
+                    if let pos = topicInfo.ch.firstIndex(of: index) {
+                        topicInfo.ch.remove(at: pos)
+                    }
+                }
+                topicInfo.freecount += indexes.count
 
-         // Update stati to reflect deallocation
-         for index in indexes {
-             if index < stati.count {
-                 stati[index] = .inReserve // Set the status to inReserve
-             }
-         }
+                // Add the deallocated indexes back to topicInfo.ch
+                topicInfo.ch.append(contentsOf: indexes)
+                topicInfo.ch.sort()
 
-         return .success([])
-     }
-     
-     // Put back challenges into the general pool for re-allocation
-     func putback(indexes: [Int]) -> AllocationResult {
-         var topicIndexes: [String: [Int]] = [:]
-         var invalidIndexes: [Int] = []
-         
-         // Collect the indexes of the challenges to put back and group by topic
-         for index in indexes {
-             if index >= everyChallenge.count {
-                 invalidIndexes.append(index)
-                 continue
-             }
-             
-             let challenge = everyChallenge[index]
-             let topic = challenge.topic // Assuming `Challenge` has a `topic` property
-             
-             if topicIndexes[topic] == nil {
-                 topicIndexes[topic] = []
-             }
-             topicIndexes[topic]?.append(index)
-         }
-         
-         // Check for invalid indexes
-         if !invalidIndexes.isEmpty {
-             return .error(.invalidTopics(["Invalid indexes: \(invalidIndexes)"]))
-         }
-         
-         // Update tinfo to put back challenges
-         for (topic, indexes) in topicIndexes {
-             if var topicInfo = tinfo[topic] {
-                 // Add indexes back to topicInfo.ch 
-               topicInfo.ch.append(contentsOf: indexes)
-               topicInfo.ch.sort() // Ensure the list remains sorted
-               topicInfo.freecount += indexes.count
-               
-               // Update tinfo to keep it in sync
-               tinfo[topic] = topicInfo
-           } else {
-               return .error(.invalidTopics([topic]))
-           }
-       }
-       
-       // Update stati to reflect deallocation
-       for index in indexes {
-           if index < stati.count {
-               stati[index] = .inReserve // Set the status to inReserve
-           }
-       }
-       
-       return .success([])
-   }
+                // Update tinfo to keep it in sync
+                tinfo[topic] = topicInfo
 
-   // Get the count of allocated challenges for a specific topic name
-   func allocatedChallengesCount(for topicName: String) -> Int {
-       guard let topicInfo = tinfo[topicName] else {
-           print("Warning: Topic \(topicName) not found in tinfo.")
-           return 0
-       }
-       
-       return topicInfo.totalcount - topicInfo.freecount
-   }
+                print("Deallocated from topic \(topic): indexes \(indexes), freecount now \(topicInfo.freecount)")
+            } else {
+                return .error(.invalidTopics([topic]))
+            }
+        }
+
+        // Update stati to reflect deallocation
+        for index in indexes {
+            if index < stati.count {
+                stati[index] = .inReserve
+              stati[index] = .inReserve // Set the status to inReserve
+              print("Set stati[\(index)] to .inReserve")
+          }
+      }
+
+      return .success([])
+  }
+
+  // Replace a challenge at a specific index and update internal structures
+  // Replace a challenge at a specific index and update internal structures
+  func replaceChallenge(at index: Int) -> AllocationResult {
+      guard index < everyChallenge.count else {
+          return .error(.invalidTopics(["Invalid index: \(index)"]))
+      }
+
+      let challenge = everyChallenge[index]
+      let topic = challenge.topic // Assuming `Challenge` has a `topic` property
+
+      // Mark the old challenge as abandoned
+      stati[index] = .abandoned
+
+      // Find a new challenge to replace the old one
+      if var topicInfo = tinfo[topic] {
+          if let newChallengeIndex = topicInfo.ch.first(where: { stati[$0] == .inReserve }) {
+              // Allocate the new challenge
+              stati[newChallengeIndex] = .allocated
+              topicInfo.ch.removeAll(where: { $0 == newChallengeIndex })
+              topicInfo.replacedcount += 1
+              topicInfo.freecount -= 1
+              tinfo[topic] = topicInfo
+
+              // Return the index of the newly replaced challenge
+              return .success([newChallengeIndex])
+          } else {
+              return .error(.insufficientChallenges)
+          }
+      } else {
+          return .error(.invalidTopics([topic]))
+      }
+  }
+  
+  // Get the count of allocated challenges for a specific topic name
+  func allocatedChallengesCount(for topicName: String) -> Int {
+      guard let topicInfo = tinfo[topicName] else {
+          print("Warning: Topic \(topicName) not found in tinfo.")
+          return 0
+      }
+      
+      return topicInfo.totalcount - topicInfo.freecount
+  }
+  
+  // Verify that tinfo and stati arrays are in sync
+  func verifySync() -> Bool {
+      for (topicName, topicInfo) in tinfo {
+          var calculatedFreeCount = 0
+          for index in topicInfo.ch {
+              if index >= stati.count || index >= everyChallenge.count {
+                  print("Index out of bounds in topic \(topicName)")
+                  return false
+              }
+              if stati[index] == .inReserve {
+                  calculatedFreeCount += 1
+              }
+          }
+          if calculatedFreeCount != topicInfo.freecount {
+              print("Free count mismatch in topic \(topicName): calculated \(calculatedFreeCount), expected \(topicInfo.freecount)")
+              return false
+          }
+      }
+      return true
+  }
 }
+
 
 // Result enum to handle allocation and deallocation outcomes
-enum AllocationResult {
-   case success([Challenge])
-   case error(AllocationError)
-   
-   enum AllocationError: Error {
-       case emptyTopics
-       case invalidTopics([String])
-       case insufficientChallenges
-   }
+// Result enum to handle allocation and deallocation outcomes
+enum AllocationResult: Equatable {
+  case success([Int])
+  case error(AllocationError)
+  
+  enum AllocationError: Equatable, Error {
+      static func ==(lhs: AllocationError, rhs: AllocationError) -> Bool {
+          switch (lhs, rhs) {
+          case (.emptyTopics, .emptyTopics):
+              return true
+          case (.invalidTopics(let lhsTopics), .invalidTopics(let rhsTopics)):
+              return lhsTopics == rhsTopics
+          case (.insufficientChallenges, .insufficientChallenges):
+              return true
+          default:
+              return false
+          }
+      }
+      case emptyTopics
+      case invalidTopics([String])
+      case insufficientChallenges
+      
+  }
 }
+
 
 
           
@@ -308,8 +382,28 @@ extension ChaMan {
       print("Failed to load PlayData: \(error)")
     }
   }
+
+  // Function to calculate freecount for each topic by examining PlayData
+  func calculateFreeCount() -> [String: Int] {
+      var freeCountByTopic: [String: Int] = [:]
+
+      // Initialize counts for each topic
+      for topic in playData.topicData.topics {
+          freeCountByTopic[topic.name] = 0
+      }
+
+      // Iterate through all challenges and count free ones
+      for (index, challenge) in everyChallenge.enumerated() {
+          if stati[index] == .inReserve {
+              freeCountByTopic[challenge.topic, default: 0] += 1
+          }
+      }
+
+      return freeCountByTopic
+  }
   func loadPlayData(from filename: String ) throws {
     let starttime = Date.now
+  
     
     guard let url = Bundle.main.url(forResource: filename, withExtension: nil) else {
       throw URLError(.fileDoesNotExist)
@@ -328,10 +422,51 @@ extension ChaMan {
       }
       self.stati = cs
     }
-    for t in playData.topicData.topics  {
-      let ti = TopicInfo(topicname: t.name, totalcount: 0, freecount: 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: [])
-      tinfo[t.name] = ti
+    // calculate free counts by topic
+    var freeCountByTopic: [String: Int] = [:]
+
+    // Initialize counts for each topic
+    for topic in playData.topicData.topics {
+        freeCountByTopic[topic.name] = 0
     }
+
+    // Iterate through all challenges and count free ones
+    for (index, challenge) in everyChallenge.enumerated() {
+        if stati[index] == .inReserve {
+            freeCountByTopic[challenge.topic, default: 0] += 1
+        }
+    }
+    //give them all the correct free count so we can alloate some
+    let sortedChallengesByTopic = playData.gameDatum.flatMap { $0.challenges }.sorted { $0.topic < $1.topic }
+    var lastTopic = ""
+    var lastidx = -1
+    var first = true
+    var count = 0
+    var accumulated:[Int] = []
+    for (idx,challenge) in sortedChallengesByTopic.enumerated() {
+      if challenge.topic == lastTopic {
+        // same topic must bump count
+        count += 1
+        accumulated.append(idx)
+      }
+      else {
+        if !first {
+          // new topic, first push out one block
+          let ti = TopicInfo(topicname: lastTopic, totalcount: freeCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
+          tinfo[lastTopic] = ti
+        }
+        // then reset for next topic
+        count = 0
+        accumulated = []
+      }
+      lastTopic = challenge.topic
+      lastidx = idx
+      first = false
+    }
+    let ti = TopicInfo(topicname: lastTopic, totalcount: freeCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
+    tinfo[lastTopic] = ti
+    accumulated.append(lastidx)
+    
     
     print("Loaded PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
   }
@@ -341,11 +476,14 @@ extension ChaMan {
   //  }
   
   func dumpTopics () {
-    print("Dump of Challenge Allocations")
+    print("Dump of Challenges By Topic")
     print("=============================")
     print("Allocated: \( allocatedChallengesCount()) Free: \( freeChallengesCount())")
     for topic in playData.topicData.topics {
-      print("\(topic.name) \(allocatedChallengesCount(for:topic.name)) \(freeChallengesCount(for:topic.name))")
+      let pp = """
+\(topic.name.paddedOrTruncated(toLength: 50, withPadCharacter: ".")) \(allocatedChallengesCount(for:topic.name)) \(freeChallengesCount(for:topic.name)) \(abandonedChallengesCount(for: topic.name)) \(correctChallengesCount(for: topic.name)) \(incorrectChallengesCount(for: topic.name))
+"""
+      print(pp )
     }
     print("=============================")
   }
@@ -375,61 +513,7 @@ extension ChaMan {
     self.stati = [ChallengeStatus](repeating:ChallengeStatus.inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
   }
  
-  // Allocates N challenges nearly evenly from specified topics, taking from any topic in the list if needed
-  func xallocateChallenges(forTopics topics: [String], count n: Int) -> [Challenge]? {
-    var topicChallengeMap: [String: [Int]] = [:]
-    var allocatedChallenges: [Challenge] = []
-    var allocatedCount = 0
-    
-    defer {
-      saveChallengeStatuses(stati)
-    }
-    
-    // Initialize the topicChallengeMap
-    for (index, challenge) in everyChallenge.enumerated() {
-      if topics.contains(challenge.topic) && stati[index]  == .inReserve {
-        topicChallengeMap[challenge.topic, default: []].append(index)
-      }
-    }
-    
-    // Calculate how many challenges to allocate per topic initially
-    let challengesPerTopicInitial = n / topics.count
-    
-    // Check if all topics together have enough challenges
-    let totalAvailableChallenges = topics.flatMap { topicChallengeMap[$0] ?? [] }.count
-    guard totalAvailableChallenges >= n else {
-      return nil
-    }
-    
-    // Allocate challenges from each topic nearly evenly
-    for topic in topics {
-      let availableChallenges = topicChallengeMap[topic] ?? []
-      let challengesToAllocate = min(challengesPerTopicInitial, availableChallenges.count)
-      for index in availableChallenges.prefix(challengesToAllocate) {
-        if stati[index]  == .inReserve { // Double-check that the challenge is still in reserve
-          stati[index]  = ChallengeStatus.allocated
-          allocatedChallenges.append(everyChallenge[index])
-          allocatedCount += 1
-        }
-      }
-    }
-    
-    // Allocate any remaining challenges, taking from any available topics
-    if allocatedCount < n {
-      let additionalChallengesNeeded = n - allocatedCount
-      let remainingAvailableChallenges = topics.flatMap { topicChallengeMap[$0] ?? [] }
-      for index in remainingAvailableChallenges.prefix(additionalChallengesNeeded) {
-        if stati[index] == ChallengeStatus.inReserve { // Double-check that the challenge is still in reserve
-          stati[index]  = ChallengeStatus.allocated
-          allocatedChallenges.append(everyChallenge[index])
-          allocatedCount += 1
-        }
-      }
-    }
-    
-    return allocatedCount == n ? allocatedChallenges.shuffled() : nil
-  }
-  
+
   // get challenge at index
   func getChallenge(row: Int,col:Int) -> Challenge? {
     let index = row*starting_size+col
@@ -438,27 +522,7 @@ extension ChaMan {
     return chs[index]
   }
   
-  // Replaces one challenge with another, marking the old one as abandoned
-  func replaceChallenge(at index: Int) -> Challenge? {
-    guard index >= 0 && index < everyChallenge.count else { return nil }
-    defer {
-      saveChallengeStatuses(stati)
-    }
-    // Mark the old challenge as abandoned
-    stati[index]  = .abandoned
-    // Allocate a new challenge from the same topic
-    let topic = everyChallenge[index].topic
-    let topicChallenges = everyChallenge.enumerated().filter { $0.element.topic == topic && stati[$0.offset]  == .inReserve }
-    
-    guard let newChallengeIndex = topicChallenges.first?.offset else {
-      return nil
-    }
-    
-    stati[newChallengeIndex] = .allocated
-    return everyChallenge[newChallengeIndex]
-  }
-  
-  
+
   // Helper functions to get counts
   
   
@@ -469,9 +533,7 @@ extension ChaMan {
   func freeChallengesCount() -> Int {
     return  stati.filter { $0   == .inReserve }.count
   }
-  
 
-  
   func abandonedChallengesCount(for topicName: String) -> Int {
     guard let topicInfo = tinfo[topicName] else {
         return -1

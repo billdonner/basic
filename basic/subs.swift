@@ -6,6 +6,28 @@
 //
 
 import SwiftUI
+extension String {
+    /// Pads or truncates the string to the specified length.
+    ///
+    /// - Parameters:
+    ///   - length: The target length for the string.
+    ///   - padCharacter: The character to use for padding, default is a space.
+    /// - Returns: The padded or truncated string.
+    func paddedOrTruncated(toLength length: Int, withPadCharacter padCharacter: Character = " ") -> String {
+        if self.count < length {
+            // Pad the string
+            return self + String(repeating: padCharacter, count: length - self.count)
+        } else if self.count > length {
+            // Truncate the string
+            let endIndex = self.index(self.startIndex, offsetBy: length)
+            return String(self[..<endIndex])
+        } else {
+            // The string is already of the desired length
+            return self
+        }
+    }
+}
+
  func indexOfTopic(_ topic:String,gb:GameBoard) -> Int? {
   for (index,t) in gb.topicsinplay.enumerated()  {
   if t == topic { return index}
