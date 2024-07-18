@@ -18,7 +18,7 @@ struct IdentifiablePoint: Identifiable {
 // MARK: - Data Models
 
 
-struct Topic: Codable {
+struct BasicTopic: Codable {
     public init(name: String, subject: String, pic: String, notes: String, subtopics: [String]) {
         self.name = name
         self.subject = subject
@@ -35,7 +35,7 @@ struct Topic: Codable {
 }
 
 struct TopicGroup: Codable {
-    public init(description: String, version: String, author: String, date: String, topics: [Topic]) {
+    public init(description: String, version: String, author: String, date: String, topics: [BasicTopic]) {
         self.description = description
         self.version = version
         self.author = author
@@ -47,7 +47,7 @@ struct TopicGroup: Codable {
     public var version: String
     public var author: String
     public var date: String
-    public var topics: [Topic]
+    public var topics: [BasicTopic]
 }
 
 struct GameData: Codable, Hashable, Identifiable, Equatable {
@@ -92,7 +92,7 @@ struct PlayData: Codable {
 // these will be small and fast for all the math done on the matrices
 
 // these will be ungainly
-enum ChallengeStatusVal : Int, Codable  {
+enum ChallengeStatus : Int, Codable  {
   case inReserve         // 0
   case allocated         // 1
   case playedCorrectly   // 2
@@ -109,14 +109,6 @@ enum ChallengeStatusVal : Int, Codable  {
     }
   }
 }
-
-struct ChallengeStatus: Codable,Equatable {
-  var id: String
-  var val: ChallengeStatusVal
-}
- 
-
-
 
 
 // Get the file path for storing challenge statuses
@@ -155,18 +147,7 @@ func loadChallengeStatuses() -> [ChallengeStatus]? {
         return nil
     }
 }
-// Assuming a mock PlayData JSON file in the main bundle
 
-/*
- 
- ### Explanation
- 1. **GameBoard Class**:
- - The `GameBoard` class is initialized with a size and an array of topics.
- - It has methods to populate the board with challenges, reset the board, replace a challenge, and get unplayed challenges.
-
-/////////////
- 
- */
 enum ChallengeOutcomes: Codable {
   case playedCorrectly, playedIncorrectly, unplayed
   

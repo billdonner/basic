@@ -165,7 +165,7 @@ let ourTopics: [String]
       //{ _,_ in onParameterChange() }
       
       Section(header: Text("Topics")) {
-        NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.allTopics, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $l_selectedTopics)) {
+        NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, schemes: AppColors.allSchemes, boardSize: boardSize, selectedTopics: $l_selectedTopics)) {
           Text("Choose Topics")
             .padding()
             .foregroundColor(.blue)
@@ -217,6 +217,7 @@ let ourTopics: [String]
         onDonePressed()
         dumpAppStorage()
         gameBoard.dumpGameBoard()
+        chmgr.dumpTopics()
         
         self.presentationMode.wrappedValue.dismiss()
       }

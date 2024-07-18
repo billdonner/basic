@@ -22,12 +22,11 @@ struct AllocatorView: View {
       .font(.footnote)
       .padding(.bottom, 8)
       
-      let playData =
-      chmgr.playData
+      let playData = chmgr.playData
       ScrollView {
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
-            if chmgr.allocatedChallengesCount(for: topic) > 0 {
+            if chmgr.allocatedChallengesCount(for: topic.name) > 0 {
               TopicCountsView(topic: topic,chmgr: chmgr, gameBoard: gameBoard )
             }
           }
@@ -35,7 +34,7 @@ struct AllocatorView: View {
         Divider()
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
-            if chmgr.allocatedChallengesCount(for: topic) <=  0 {
+            if chmgr.allocatedChallengesCount(for: topic.name) <=  0 {
               TopicCountsView(topic: topic,chmgr: chmgr,gameBoard: gameBoard)
             }
           }
@@ -73,16 +72,16 @@ struct AllocatorView_Previews: PreviewProvider {
 }
 
 fileprivate struct TopicCountsView: View {
-  let topic: Topic
+  let topic: BasicTopic
   let chmgr: ChaMan
   let gameBoard: GameBoard
   
   var counts: some View {
-    Text("\(chmgr.allocatedChallengesCount(for: topic)) - "
-         + "\(chmgr.freeChallengesCount(for: topic)) - "
-         + "\(chmgr.abandonedChallengesCount(for: topic)) - "
-         + "\(chmgr.correctChallengesCount(for: topic)) - "
-         + "\(chmgr.incorrectChallengesCount(for: topic))"
+    Text("\(chmgr.allocatedChallengesCount(for: topic.name)) - "
+         + "\(chmgr.freeChallengesCount(for: topic.name)) - "
+         + "\(chmgr.abandonedChallengesCount(for: topic.name)) - "
+         + "\(chmgr.correctChallengesCount(for: topic.name)) - "
+         + "\(chmgr.incorrectChallengesCount(for: topic.name))"
     )
   }
   var body: some View {

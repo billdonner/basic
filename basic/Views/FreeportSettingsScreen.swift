@@ -67,7 +67,7 @@ struct FreeportSettingsScreen: View {
             
             Button(action:{ //showReset.toggle()
                     let _ = gameBoard.resetBoardReturningUnplayed()
-                     chmgr.resetAllChallengeStatuses(gameBoard: gameBoard)
+                     chmgr.totalresetofAllChallengeStatuses(gameBoard: gameBoard)
               
             }) {
               Text("Factory Reset")

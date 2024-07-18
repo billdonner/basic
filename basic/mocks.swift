@@ -9,10 +9,10 @@ import Foundation
 
 extension PlayData {
 
-  static let topic1 = Topic(name: "topic1", subject: "topic1", pic: "", notes: "notes", subtopics: [])
-  static let topic2 = Topic(name: "topic2", subject: "topic2", pic: "", notes: "notes", subtopics: [])
-  static let topic3 = Topic(name: "topic3", subject: "topic3", pic: "", notes: "notes", subtopics: [])
-  static let topic4 = Topic(name: "topic4", subject: "topic4", pic: "", notes: "notes", subtopics: [])
+  static let topic1 = BasicTopic(name: "topic1", subject: "topic1", pic: "", notes: "notes", subtopics: [])
+  static let topic2 = BasicTopic(name: "topic2", subject: "topic2", pic: "", notes: "notes", subtopics: [])
+  static let topic3 = BasicTopic(name: "topic3", subject: "topic3", pic: "", notes: "notes", subtopics: [])
+  static let topic4 = BasicTopic(name: "topic4", subject: "topic4", pic: "", notes: "notes", subtopics: [])
   static var tg : TopicGroup =  TopicGroup(description: "Mock Topics",
                                            version:"1.0",
                                            author: "WLD",

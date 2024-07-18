@@ -4,8 +4,8 @@ struct QandAScreen: View {
   let row: Int
   let col: Int
   @Binding var isPresentingDetailView: Bool
- @Bindable  var chmgr:ChaMan //
-  @Bindable var gb: GameBoard  // 
+  @Bindable  var chmgr:ChaMan //
+  @Bindable var gb: GameBoard  //
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   
   @State private var selectedAnswer: String? = nil  // State to track selected answer
@@ -14,22 +14,22 @@ struct QandAScreen: View {
   @State private var timer: Timer? = nil  // Timer to track elapsed time
   @State private var elapsedTime: TimeInterval = 0  // Elapsed time in seconds
   @State private var showCorrectAnswer: Bool = false  // State to show correct answer temporarily
-
+  
   @State private var showBorders: Bool = false  // State to show borders after animation
   
   @State private var showHint: Bool = false  // State to show/hide hint
-
+  
   @State private var animateBackToBlue: Bool = false  // State to animate answers back to blue
   @State private var dismissToRootFlag = false
   @State private var answerGiven: Bool = false  // State to prevent further interactions after an answer is given
-
+  
   var body: some View {
     GeometryReader { geometry in
-     // let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
+      // let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
       ZStack {
         VStack {
           QandATopBarView(
-            topic: gb.board[row][col].topic, hint: gb.board[row][col].hint, 
+            topic: gb.board[row][col].topic, hint: gb.board[row][col].hint,
             elapsedTime:elapsedTime,
             additionalInfo: "Scores will go here",
             handlePass: handlePass,
@@ -187,7 +187,7 @@ struct QandAScreen: View {
             .foregroundColor(.gray)
             .padding(.top, 10)
         }
-         .frame(width: contentWidth) // Set width of the scrolling area
+          .frame(width: contentWidth) // Set width of the scrolling area
       )
     } else if answers.count == 3 {
       return AnyView(
@@ -261,10 +261,10 @@ struct QandAScreen: View {
         .animation(.easeInOut(duration: 0.5), value: showBorders)
     }
   }
-
+  
 }
 extension QandAScreen {
-
+  
   private func handleDismissal(toRoot:Bool) {
     if toRoot {
       withAnimation(.easeInOut(duration: 0.75)) { // Slower dismissal
@@ -295,9 +295,9 @@ extension QandAScreen {
     }
   }
 }
-  extension QandAScreen { /* actions */
-    
-    
+extension QandAScreen { /* actions */
+  
+  
   func markAnswerCorrect() {
     // selectedAnswer = gb.board[row][col].correct
     answerCorrect = true
@@ -307,10 +307,11 @@ extension QandAScreen {
     gb.cellstate[row][col] = .playedCorrectly
     gb.rightcount += 1
     gb.saveGameBoard()
-    try! chmgr.setStatus(for: gb.board[row][col], status: .playedCorrectly)
+    chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col,
+                    status: .playedCorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       animateBackToBlue = false
-
+      
     }
     stopTimer()
   }
@@ -325,13 +326,13 @@ extension QandAScreen {
     gb.cellstate[row][col] = .playedIncorrectly
     gb.wrongcount += 1
     gb.saveGameBoard()
-    try! chmgr.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
+    chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col, status: .playedIncorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-
+      
     }
     stopTimer()
   }
- 
+  
   func handleGimmee() {
     gb.playcount += 1
     stopTimer()
@@ -353,18 +354,18 @@ extension QandAScreen {
       gb.cellstate[row][col] = .playedIncorrectly
       gb.wrongcount += 1
       gb.saveGameBoard()
-      try! chmgr.setStatus(for: gb.board[row][col], status: .playedIncorrectly)
+      chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col, status: .playedIncorrectly)
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         showCorrectAnswer = false
         showBorders = true
       }
     }
-      else {
-        animateBackToBlue = true
-        try! chmgr.setStatus(for: gb.board[row][col], status: .playedCorrectly)
-        gb.cellstate[row][col] = .playedCorrectly
-        gb.rightcount += 1
-        gb.saveGameBoard()
+    else {
+      animateBackToBlue = true
+      chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col,status: .playedCorrectly)
+      gb.cellstate[row][col] = .playedCorrectly
+      gb.rightcount += 1
+      gb.saveGameBoard()
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         animateBackToBlue = false
         showBorders = true
@@ -385,10 +386,10 @@ extension QandAScreen {
 }
 #Preview {
   QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
-
+  
 }
 #Preview {
   QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
-
+  
 }
 

@@ -9,6 +9,7 @@ import SwiftUI
 
 
 struct HowToPlayScreen: View {
+  let chmgr: ChaMan
   @Binding var  isPresented: Bool
   var body: some View {
     TabView {
@@ -54,6 +55,9 @@ struct HowToPlayScreen: View {
         .tag(mkID())
     }
     .tabViewStyle(PageTabViewStyle())
+    .onAppear{
+      chmgr.dumpTopics()
+    }
   }
 }
 
@@ -395,5 +399,5 @@ func move2(isPresented: Binding<Bool>) -> MatrixView {
   ]), topLabel: "Good Job, Now Finish Up", bottomLabel: "If you answer the associated questions correctly,  you win!", correctColor: .yellow, incorrectColor: .blue, isPresented: isPresented)
 }
 #Preview {
-  HowToPlayScreen(isPresented:.constant(true))
+  HowToPlayScreen(chmgr: ChaMan(playData: PlayData.mock), isPresented:.constant(true))
 }

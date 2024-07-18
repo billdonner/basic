@@ -142,7 +142,7 @@ func dumpAppStorage() {
   
  // let t = gameState.topics.compactMap  {$0.isLive ? $0.topic : nil}
   
-  print("Dump of Settings")
+  print("Dump of AppStorage")
   print("================") 
   print("gameNumber ",gameNumber)
   print("moveNumber ",moveNumber)
