@@ -307,7 +307,7 @@ extension QandAScreen { /* actions */
     gb.cellstate[row][col] = .playedCorrectly
     gb.rightcount += 1
     gb.saveGameBoard()
-    chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col,
+    chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col,
                     status: .playedCorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       animateBackToBlue = false
@@ -326,7 +326,7 @@ extension QandAScreen { /* actions */
     gb.cellstate[row][col] = .playedIncorrectly
     gb.wrongcount += 1
     gb.saveGameBoard()
-    chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col, status: .playedIncorrectly)
+    chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col, status: .playedIncorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       
     }
@@ -354,7 +354,7 @@ extension QandAScreen { /* actions */
       gb.cellstate[row][col] = .playedIncorrectly
       gb.wrongcount += 1
       gb.saveGameBoard()
-      chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col, status: .playedIncorrectly)
+      chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col, status: .playedIncorrectly)
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         showCorrectAnswer = false
         showBorders = true
@@ -362,7 +362,7 @@ extension QandAScreen { /* actions */
     }
     else {
       animateBackToBlue = true
-      chmgr.setStatus(for: gb.board[row][col], index: row*gb.size + col,status: .playedCorrectly)
+      chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col,status: .playedCorrectly)
       gb.cellstate[row][col] = .playedCorrectly
       gb.rightcount += 1
       gb.saveGameBoard()

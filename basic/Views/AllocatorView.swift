@@ -44,10 +44,10 @@ struct AllocatorView: View {
     .background(backgroundColor)
     .padding()
     .onAppear {
-      print("//AllocatorView onAppear size:\(gameBoard.size) topics:\(gameBoard.topicsinplay)")
+      print("//AllocatorView onAppear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)")
     }
     .onDisappear {
-      print("//AllocatorView onDisappear size:\(gameBoard.size) topics:\(gameBoard.topicsinplay)")
+      print("//AllocatorView onDisappear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)")
       
     }
   }

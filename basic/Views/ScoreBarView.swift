@@ -10,7 +10,7 @@ private struct zz:View {
   let showchars:String
 let gb: GameBoard
   //@EnvironmentObject var chmgr: ChaMan
-  @AppStorage("boardSize") var boardSize = 6
+ // @AppStorage("boardSize") var boardSize = 6
   var body: some View{
     VStack {
       HStack {

@@ -91,62 +91,7 @@ struct PlayData: Codable {
 // MARK: - Enums
 // these will be small and fast for all the math done on the matrices
 
-// these will be ungainly
-enum ChallengeStatus : Int, Codable  {
-  case inReserve         // 0
-  case allocated         // 1
-  case playedCorrectly   // 2
-  case playedIncorrectly // 3
-  case abandoned         // 4
-  
-  func describe () -> String {
-    switch self {
-    case .inReserve : return "RR"
-    case .allocated : return "AA"
-    case .playedCorrectly: return "CC"
-    case .playedIncorrectly: return "XX"
-    case .abandoned: return "ZZ"
-    }
-  }
-}
 
-
-// Get the file path for storing challenge statuses
-func getChallengeStatusesFilePath() -> URL {
-    let fileManager = FileManager.default
-    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
-    return urls[0].appendingPathComponent("challengeStatuses.json")
-}
-// Get the file path for storing challenge statuses
-func getGameBoardFilePath() -> URL {
-    let fileManager = FileManager.default
-    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
-    return urls[0].appendingPathComponent("gameBoard.json")
-}
-
-// Save the challenge statuses to a file
-func saveChallengeStatuses(_ statuses: [ChallengeStatus]) {
-    let filePath = getChallengeStatusesFilePath()
-    do {
-        let data = try JSONEncoder().encode(statuses)
-        try data.write(to: filePath)
-    } catch {
-        print("Failed to save challenge statuses: \(error)")
-    }
-}
-
-// Load the challenge statuses from a file
-func loadChallengeStatuses() -> [ChallengeStatus]? {
-    let filePath = getChallengeStatusesFilePath()
-    do {
-        let data = try Data(contentsOf: filePath)
-        let statuses = try JSONDecoder().decode([ChallengeStatus].self, from: data)
-        return statuses
-    } catch {
-        print("Failed to load challenge statuses: \(error)")
-        return nil
-    }
-}
 
 enum ChallengeOutcomes: Codable {
   case playedCorrectly, playedIncorrectly, unplayed

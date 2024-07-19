@@ -25,7 +25,7 @@ struct GameScreen: View {
   private let shrinkFactor: CGFloat = 0.9
   
   @AppStorage("faceUpCards")   var faceUpCards = true
-  @AppStorage("boardSize")  var boardSize = 6
+ // @AppStorage("boardSize")  var boardSize = 6
   
   var bodyMsg: String {
   let t =  """
@@ -39,7 +39,7 @@ struct GameScreen: View {
       topButtonsVeew // down below
         .padding(.horizontal)
       ScoreBarView(gb: gameBoard)
-      if gameBoard.size > 1 {
+      if gameBoard.boardsize > 1 {
           mainGridVeew
       } 
       else {
@@ -63,22 +63,22 @@ struct GameScreen: View {
         print("//GameScreen onChangeof(CellState)")
       onChangeOfCellState()
     }
-    .onChange(of:gameBoard.size) {
+    .onChange(of:gameBoard.boardsize) {
         print("//GameScreen onChangeof(Size)")
+      onBoardSizeChange ()
     }
     .sheet(isPresented: $showSettings){
-      GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard, ourTopics: topics,onExit: {t in
-        print("//GameScreen isPresented closure topics:\(t) ")
-        onGameSettingsExit (t)
+      GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard,
+          onExit: {t in
+        print("//GameSettingsScreen onExit closure topics:\(t) ")
+        gameBoard.topicsinplay = t //was
+      //  onGameSettingsExit (t)
       })
     }
     .fullScreenCover(isPresented: $showingHelp ){
       HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
     }
-    .onChange(of: boardSize) {
-      print("//GameScreen onChange(ofBoardSize:\(boardSize))")
-      onBoardSizeChange ()
-    }
+ 
     .sheet(isPresented: $showAllocatorView) {
       AllocatorView(chmgr: chmgr, gameBoard: gameBoard)
         .presentationDetents([.fraction(0.25)])
@@ -87,13 +87,13 @@ struct GameScreen: View {
   
   var mainGridVeew: some View {
     GeometryReader { geometry in
-      let totalSpacing = spacing * CGFloat(gameBoard.size - 1)
+      let totalSpacing = spacing * CGFloat(gameBoard.boardsize - 1)
       let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
-      let cellSize = (axisSize / CGFloat(gameBoard.size)) * shrinkFactor  // Apply shrink factor
+      let cellSize = (axisSize / CGFloat(gameBoard.boardsize)) * shrinkFactor  // Apply shrink factor
       VStack(alignment:.center, spacing: spacing) {
-        ForEach(0..<gameBoard.size, id: \.self) { row in
+        ForEach(0..<gameBoard.boardsize, id: \.self) { row in
           HStack(spacing: spacing) {
-            ForEach(0..<gameBoard.size, id: \.self) { col in
+            ForEach(0..<gameBoard.boardsize, id: \.self) { col in
               makeOneCellVue(row:row,col:col,challenge: gameBoard.board[row][col],status:gameBoard.cellstate[row][col], cellSize: cellSize)
             }
           }
@@ -168,12 +168,12 @@ extension GameScreen /* actions */ {
   func onAppearAction () { 
     // on a completely cold start
     if gameBoard.playcount == 0 {
-      print("//GameScreen OnAppear Coldstart size:\(gameBoard.size) topics: \(topics)")
+      print("//GameScreen OnAppear Coldstart size:\(gameBoard.boardsize) topics: \(topics)")
       // setup a blank board, dont allocate anything, wait for the start button
       //gameBoard.reinit(size: size, topics: topics, challenges: [],dontPopulate: true)
       
     } else {
-      print("//GameScreen OnAppear Warmstart size:\(gameBoard.size) topics: \(topics)")
+      print("//GameScreen OnAppear Warmstart size:\(gameBoard.boardsize) topics: \(topics)")
     }
 
   }
@@ -199,13 +199,12 @@ extension GameScreen /* actions */ {
     endGame(status:.justAbandoned)
   }
 
-  func onGameSettingsExit(_ topics:[String]) {
-    // here on the way out
-    print("//GameScreen onGameSettingsExit topics:\(topics)")
-  }
+//  func onGameSettingsExit(_ topics:[String]) {
+//    // here on the way out
+//    print("//GameScreen onGameSettingsExit topics:\(topics)")
+//  }
   
-  func onBoardSizeChange() {
-    gameBoard.size = boardSize
+  func onBoardSizeChange() { 
   }
 
   func onChangeOfCellState() {
@@ -223,11 +222,14 @@ extension GameScreen /* actions */ {
     chmgr.dumpTopics()
   }
   func onStartGame() -> Bool {
+    
+    print("//GameScreen onStartGame before  topics: \(gameBoard.topicsinplay) size:\(gameBoard.boardsize)")
+      // chmgr.dumpTopics()
     let ok = gameBoard.setupForNewGame(chmgr: chmgr )
-    print("//GameScreen onStartGame   topics: \(gameBoard.topicsinplay)")
-    chmgr.dumpTopics()
+    print("//GameScreen onStartGame after")
+      // chmgr.dumpTopics()
     if !ok {
-      print("Failed to allocate \(gameBoard.size*gameBoard.size) challenges for topic \(topics.joined(separator: ","))")
+      print("Failed to allocate \(gameBoard.boardsize*gameBoard.boardsize) challenges for topic \(topics.joined(separator: ","))")
       print("Consider changing the topics in setting and trying again ...")
     }
     return ok

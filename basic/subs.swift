@@ -67,7 +67,6 @@ enum AppIconProvider {
               let iconFileName = iconFiles.last else {
             fatalError("Could not find icons in bundle")
         }
-
         return iconFileName
     }
 }
@@ -77,7 +76,6 @@ enum AppVersionProvider {
               let y =  bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String else {
             fatalError("CFBundlexxx missing from info dictionary")
         }
-      
         return x + "." + y
     }
 }
@@ -86,7 +84,6 @@ enum AppNameProvider {
         guard let x = bundle.object(forInfoDictionaryKey: "CFBundleName") as? String else {
             fatalError("CFBundleName missing from info dictionary")
         }
-      
         return x
     }
 }
@@ -146,15 +143,14 @@ struct AppVersionInformationView_Previews: PreviewProvider {
 
 func dumpAppStorage() {
   
-  @AppStorage("gameNumber") var gameNumber = 1
-  @AppStorage("moveNumber") var moveNumber = 0
-  @AppStorage("boardSize")  var boardSize = 6
+ // @AppStorage("moveNumber") var moveNumber = 0
+ // @AppStorage("boardSize")  var boardSize = 6
   @AppStorage("startInCorners")   var startInCorners = false
   @AppStorage("faceUpCards")   var faceUpCards = true
   @AppStorage("doubleDiag")   var doubleDiag = false
   @AppStorage("currentScheme") var currentScheme = 1
   @AppStorage("difficultyLevel")  var difficultyLevel = 1
-  @AppStorage("selectedTopicsPiped") var selectedTopicsPiped:String  = ""
+ // @AppStorage("selectedTopicsPiped") var selectedTopicsPiped:String  = ""
   @AppStorage("elementWidth") var elementWidth = 100.0
   @AppStorage("shuffleUp")  var shuffleUp = true
   @AppStorage("fontsize")  var fontsize = 24.0
@@ -165,16 +161,15 @@ func dumpAppStorage() {
  // let t = gameState.topics.compactMap  {$0.isLive ? $0.topic : nil}
   
   print("Dump of AppStorage")
-  print("================") 
-  print("gameNumber ",gameNumber)
-  print("moveNumber ",moveNumber)
-  print("boardSize ",boardSize)
+  print("================")
+  //print("moveNumber ",moveNumber)
+  //print("boardSize ",boardSize)
   print("startInCorners ",startInCorners)
   print("faceUpCards ",faceUpCards)
   print("doubleDiag ",doubleDiag)
   print("currentScheme ",currentScheme)
   print("difficultyLevel ",difficultyLevel)
-  print("selectedTopics ",selectedTopicsPiped)
+ // print("selectedTopics ",selectedTopicsPiped)
   print("elementWidth ",elementWidth)
   print("shuffleUp ",shuffleUp)
   print("fontsize ",fontsize)

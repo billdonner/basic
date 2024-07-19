@@ -8,97 +8,9 @@
 import SwiftUI
 @Observable
 class GameBoard :  Codable {
-  
-
-  func setupForNewGame (chmgr:ChaMan) -> Bool {
-    // assume all cleaned up, using size
-    var allocatedChallenges:[Challenge] = []
-    self.playcount += 1
-    self.size = size
-    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: self.size), count:  self.size)
-    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.size), count: self.size)
-    
-    // use topicsinplay and allocated fresh challenges
-    let result:AllocationResult = chmgr.allocateChallenges(forTopics: topicsinplay, count: size * size)
-    switch result {
-    case .success(let x):
-      print("Success:\(x.count)")
-      for j   in 0..<x.count {
-        allocatedChallenges.append(chmgr.everyChallenge[x[j]])
-      }
-      //continue after the error path
-      
-    case .error(let err):
-      print("Allocation failed for topics \(topicsinplay),count :\(size*size)")
-      print ("Error: \(err)")
-      switch err {
-      case .emptyTopics:
-        print("EmptyTopics")
-      case .invalidTopics(let names):
-        print("Invalid Topics \(names)")
-      case .insufficientChallenges:
-        print("Insufficient Challenges")
-      }
-      return false
-    }
-    
-    
-    // put these challenges into the board
-    // set cellstate to unplayed
-    for row in 0..<size {
-      for col in 0..<size {
-        board[row][col] = allocatedChallenges[row * size + col]
-        cellstate[row][col] = .unplayed
-      }
-    }
-    gamestate = .playingNow
-    saveGameBoard()
-    print("END OF SETUPFORNEWGAME")
-    chmgr.dumpTopics()
-    return true
-  }
-
-
-func teardownAfterGame (state:GameState,chmgr:ChaMan) {
-  var challenge_indexes:[Int] = []
-  gamestate = state
-  // examine each board cell and recycle everything thats unplayed
-  for row in 0..<size {
-    for col in 0..<size {
-      if cellstate[row][col] == .unplayed {
-        challenge_indexes.append(row*size+col)
-      }
-    }
-  }
-  // return stuff
-  chmgr.resetChallengeStatuses(at: challenge_indexes)
-  saveGameBoard()
-}
-
-func clearAllCells() {
-  for row in 0..<size {
-    for col in 0..<size {
-      cellstate[row][col] = .unplayed
-      
-    }
-  }
-  saveGameBoard()
-}
-func dumpGameBoard () {
-  print("Dump of GameBoard")
-  print("================")
-  print("size ",size)
-  print("gamestate",gamestate)
-  print("gimmees ",gimmees)
-  print("totaltime ",totaltime)
-  print("topicsinplay ",topicsinplay)
-  print("================")
-}
-
-
 var board: [[Challenge]]  // Array of arrays to represent the game board with challenges
 var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell
-var size: Int  // Size of the game board
+var boardsize: Int  // Size of the game board
 var topicsinplay: [String] // a subset of allTopics (which is constant and maintained in ChaMan)
 var gamestate: GameState = .initializingApp
 var totaltime: TimeInterval // aka Double
@@ -114,7 +26,7 @@ var gimmees: Int  // Number of "gimmee" actions available
 enum CodingKeys: String, CodingKey {
   case _board = "board"
   case _cellstate = "cellstate"
-  case _size = "size"
+  case _boardsize = "boardsize"
   case _gimmees = "gimmees"
   case _gamestate = "gamestate"
   case _playcount = "playcount"
@@ -128,7 +40,7 @@ enum CodingKeys: String, CodingKey {
 }
 
 init(size: Int, topics: [String], challenges: [Challenge]) {
-  self.size = size
+  self.boardsize = size
   self.topicsinplay = topics //*****4
   self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
   self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
@@ -140,14 +52,19 @@ init(size: Int, topics: [String], challenges: [Challenge]) {
   self.wrongcount = 0
   self.replacedcount = 0
   self.totaltime = 0.0
-  //populateBoard(with: challenges)
-  print("//*****5")
 }
 }
-extension GameBoard {
+
+extension GameBoard { 
+  // Get the file path for storing challenge statuses
+  static func getGameBoardFilePath() -> URL {
+      let fileManager = FileManager.default
+      let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
+      return urls[0].appendingPathComponent("gameBoard.json")
+  }
   
   func saveGameBoard( ) {
-    let filePath = getGameBoardFilePath()
+    let filePath = Self.getGameBoardFilePath()
     do {
       let data = try JSONEncoder().encode(self)
       try data.write(to: filePath)
@@ -167,17 +84,102 @@ extension GameBoard {
       return nil
     }
   }
-  // add Persistence to GameBoard
+
+  func setupForNewGame (chmgr:ChaMan) -> Bool {
+    // assume all cleaned up, using size
+    var allocatedChallenges:[Challenge] = []
+    self.playcount += 1 
+    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: self.boardsize), count:  self.boardsize)
+    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
+    
+    // use topicsinplay and allocated fresh challenges
+    let result:AllocationResult = chmgr.allocateChallenges(forTopics: topicsinplay, count: boardsize * boardsize)
+    switch result {
+    case .success(let x):
+      print("Success:\(x.count)")
+      for j   in 0..<x.count {
+        allocatedChallenges.append(chmgr.everyChallenge[x[j]])
+      }
+      //continue after the error path
+      
+    case .error(let err):
+      print("Allocation failed for topics \(topicsinplay),count :\(boardsize*boardsize)")
+      print ("Error: \(err)")
+      switch err {
+      case .emptyTopics:
+        print("EmptyTopics")
+      case .invalidTopics(let names):
+        print("Invalid Topics \(names)")
+      case .insufficientChallenges:
+        print("Insufficient Challenges")
+      }
+      return false
+    }
+    
+    
+    // put these challenges into the board
+    // set cellstate to unplayed
+    for row in 0..<boardsize {
+      for col in 0..<boardsize {
+        board[row][col] = allocatedChallenges[row * boardsize + col]
+        cellstate[row][col] = .unplayed
+      }
+    }
+    gamestate = .playingNow
+    saveGameBoard()
+    print("END OF SETUPFORNEWGAME")
+    chmgr.dumpTopics()
+    return true
+  }
+
+
+func teardownAfterGame (state:GameState,chmgr:ChaMan) {
+  var challenge_indexes:[Int] = []
+  gamestate = state
+  // examine each board cell and recycle everything thats unplayed
+  for row in 0..<boardsize {
+    for col in 0..<boardsize {
+      if cellstate[row][col] == .unplayed {
+        challenge_indexes.append(row*boardsize+col)
+      }
+    }
+  }
+  // return stuff
+  chmgr.resetChallengeStatuses(at: challenge_indexes)
+  saveGameBoard()
+}
+
+func clearAllCells() {
+  for row in 0..<boardsize {
+    for col in 0..<boardsize {
+      cellstate[row][col] = .unplayed
+      
+    }
+  }
+  saveGameBoard()
+}
+func dumpGameBoard () {
+  print("Dump of GameBoard")
+  print("================")
+  print("size ",boardsize)
+  print("gamestate",gamestate)
+  print("gimmees ",gimmees)
+  print("totaltime ",totaltime)
+  print("topicsinplay ",topicsinplay)
+  print("================")
+}
+
+
   
   // this returns unplayed challenges and their indices in the challengestatus array
   func resetBoardReturningUnplayed() -> ([Challenge],[Int]) {
     var unplayedChallenges: [Challenge] = []
     var unplayedInts: [Int] = []
-    for row in 0..<size {
-      for col in 0..<size {
+    for row in 0..<boardsize {
+      for col in 0..<boardsize {
         if cellstate[row][col]  == .unplayed {
           unplayedChallenges.append(board[row][col])
-          unplayedInts.append( (row * size + col))
+          unplayedInts.append( (row * boardsize + col))
         }
         // cellstate[row][col] = .unplayed
       }
@@ -187,7 +189,7 @@ extension GameBoard {
   
   func replaceChallenge(at position: (Int, Int), with newChallenge: Challenge) {
     let (row, col) = position
-    if row >= 0 && row < size && col >= 0 && col < size {
+    if row >= 0 && row < boardsize && col >= 0 && col < boardsize {
       board[row][col] = newChallenge
       cellstate[row][col] = .unplayed // probably dont need this
     }
@@ -195,8 +197,8 @@ extension GameBoard {
   
   func getUnplayedChallenges() -> [Challenge] {
     var unplayedChallenges: [Challenge] = []
-    for row in 0..<size {
-      for col in 0..<size {
+    for row in 0..<boardsize {
+      for col in 0..<boardsize {
         if cellstate[row][col] == .unplayed {
           unplayedChallenges.append(board[row][col])
         }
@@ -224,14 +226,5 @@ extension GameBoard {
     default: return 7
     }
   }
-  
-  //  func windDown(_ status: GameState, chmgr:ChaMan) {
-  //    print("//GameBoard windown")
-  //    let (_,unplayedIndices) = self.resetBoardReturningUnplayed()
-  //    chmgr.resetChallengeStatuses(at: unplayedIndices)
-  //    chmgr.saveChallengeStatus()
-  //    self.gamestate = status
-  //    self.saveGameBoard()
-  //  }
   
 }

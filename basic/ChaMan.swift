@@ -26,14 +26,33 @@ class ChaMan {
     // eliminating lots of scanning to get counts
     struct TopicInfo {
         let topicname: String
-        var totalcount: Int
+        var alloccount: Int
         var freecount: Int
         var replacedcount: Int
         var rightcount: Int
         var wrongcount: Int
         var ch: [Int] // indexes into stati
     }
+  // these will be ungainly
+  enum ChallengeStatus : Int, Codable  {
+    case inReserve         // 0
+    case allocated         // 1
+    case playedCorrectly   // 2
+    case playedIncorrectly // 3
+    case abandoned         // 4
     
+    func describe () -> String {
+      switch self {
+      case .inReserve : return "RR"
+      case .allocated : return "AA"
+      case .playedCorrectly: return "CC"
+      case .playedIncorrectly: return "XX"
+      case .abandoned: return "ZZ"
+      }
+    }
+  }
+
+
     // tinfo and stati must be maintained in sync
     // tinfo["topicname"].ch[123] and stati[123] are in sync with everychallenge[123]
     
@@ -292,8 +311,40 @@ class ChaMan {
       } else {
           return .error(.invalidTopics([topic]))
       }
+    
   }
   
+  // Get the file path for storing challenge statuses
+  func getChallengeStatusesFilePath() -> URL {
+      let fileManager = FileManager.default
+      let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
+      return urls[0].appendingPathComponent("challengeStatuses.json")
+  }
+
+
+  // Save the challenge statuses to a file
+  func saveChallengeStatuses(_ statuses: [ChallengeStatus]) {
+      let filePath = getChallengeStatusesFilePath()
+      do {
+          let data = try JSONEncoder().encode(statuses)
+          try data.write(to: filePath)
+      } catch {
+          print("Failed to save challenge statuses: \(error)")
+      }
+  }
+
+  // Load the challenge statuses from a file
+  func loadChallengeStatuses() -> [ChallengeStatus]? {
+      let filePath = getChallengeStatusesFilePath()
+      do {
+          let data = try Data(contentsOf: filePath)
+          let statuses = try JSONDecoder().decode([ChallengeStatus].self, from: data)
+          return statuses
+      } catch {
+          print("Failed to load challenge statuses: \(error)")
+          return nil
+      }
+  }
   // Get the count of allocated challenges for a specific topic name
   func allocatedChallengesCount(for topicName: String) -> Int {
       guard let topicInfo = tinfo[topicName] else {
@@ -301,7 +352,7 @@ class ChaMan {
           return 0
       }
       
-      return topicInfo.totalcount - topicInfo.freecount
+    return topicInfo.alloccount
   }
   
   // Verify that tinfo and stati arrays are in sync
@@ -363,7 +414,7 @@ extension ChaMan {
     do {
       if  let gb =  GameBoard.loadGameBoard() {
         gameBoard.cellstate = gb.cellstate
-        gameBoard.size = gb.size
+        gameBoard.boardsize = gb.boardsize
         gameBoard.board = gb.board
         gameBoard.gimmees = gb.gimmees
         gameBoard.playcount = gb.playcount
@@ -385,30 +436,31 @@ extension ChaMan {
 
   // Function to calculate freecount for each topic by examining PlayData
   func calculateFreeCount() -> [String: Int] {
-      var freeCountByTopic: [String: Int] = [:]
-
-      // Initialize counts for each topic
-      for topic in playData.topicData.topics {
-          freeCountByTopic[topic.name] = 0
+    var freeCountByTopic: [String: Int] = [:]
+    var allocatedCountByTopic: [String: Int] = [:]
+    
+    // Initialize counts for each topic
+    for topic in playData.topicData.topics {
+      freeCountByTopic[topic.name] = 0
+      allocatedCountByTopic[topic.name] = 0
+    }
+    
+    // Iterate through all challenges and count free ones
+    for (index, challenge) in everyChallenge.enumerated() {
+      if stati[index] == .inReserve {
+        freeCountByTopic[challenge.topic, default: 0] += 1
+      } else  if stati[index] == .allocated {
+        allocatedCountByTopic[challenge.topic, default: 0] += 1
       }
-
-      // Iterate through all challenges and count free ones
-      for (index, challenge) in everyChallenge.enumerated() {
-          if stati[index] == .inReserve {
-              freeCountByTopic[challenge.topic, default: 0] += 1
-          }
-      }
-
+    }
       return freeCountByTopic
   }
   func loadPlayData(from filename: String ) throws {
     let starttime = Date.now
-  
     
     guard let url = Bundle.main.url(forResource: filename, withExtension: nil) else {
       throw URLError(.fileDoesNotExist)
     }
-    
     let data = try Data(contentsOf: url)
     let pd = try JSONDecoder().decode(PlayData.self, from: data)
     self.playData = pd
@@ -424,16 +476,19 @@ extension ChaMan {
     }
     // calculate free counts by topic
     var freeCountByTopic: [String: Int] = [:]
-
+    var allocCountByTopic: [String: Int] = [:]
     // Initialize counts for each topic
     for topic in playData.topicData.topics {
         freeCountByTopic[topic.name] = 0
+     allocCountByTopic[topic.name] = 0
     }
 
     // Iterate through all challenges and count free ones
     for (index, challenge) in everyChallenge.enumerated() {
         if stati[index] == .inReserve {
             freeCountByTopic[challenge.topic, default: 0] += 1
+        } else     if stati[index] == .allocated {
+         allocCountByTopic[challenge.topic, default: 0] += 1
         }
     }
     //give them all the correct free count so we can alloate some
@@ -452,7 +507,7 @@ extension ChaMan {
       else {
         if !first {
           // new topic, first push out one block
-          let ti = TopicInfo(topicname: lastTopic, totalcount: freeCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
+          let ti = TopicInfo(topicname: lastTopic, alloccount: allocCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
           tinfo[lastTopic] = ti
         }
         // then reset for next topic
@@ -463,18 +518,22 @@ extension ChaMan {
       lastidx = idx
       first = false
     }
-    let ti = TopicInfo(topicname: lastTopic, totalcount: freeCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
-    tinfo[lastTopic] = ti
+    
     accumulated.append(lastidx)
-    
-    
+    let ti = TopicInfo(topicname: lastTopic, alloccount: allocCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
+    tinfo[lastTopic] = ti
     print("Loaded PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
   }
-  
-  //  func saveChallengeStatus( ) {
-  //    saveChallengeStatuses(stati)
-  //  }
-  
+  func checkTopicConsistency() {
+    var freecount = 0
+    var alloccount = 0
+    for t in  playData.topicData.topics {
+      freecount += freeChallengesCount(for:t.name)
+      alloccount += allocatedChallengesCount(for:t.name)
+    }
+    assert(freecount ==  freeChallengesCount())
+    assert(alloccount == allocatedChallengesCount())
+  }
   func dumpTopics () {
     print("Dump of Challenges By Topic")
     print("=============================")
@@ -559,7 +618,7 @@ extension ChaMan {
     }
     return topicInfo.freecount
   }
-  
+ 
 }
 
 
