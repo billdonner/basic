@@ -1,13 +1,13 @@
 import SwiftUI
 
 let playDataFileName = "playdata.json"
-let starting_size = 3 // Example size, can be 3 to 6
+let starting_size = 6 // Example size, can be 3 to 6
 
 struct ContentView:View {
   @State var chaMan = ChaMan(playData: PlayData.mock )
   @State var gameBoard = GameBoard(size: starting_size,
-                                         topics: [],//Array(MockTopics.mockTopics.prefix(starting_size)),
-                                         challenges:Challenge.mockChallenges)
+                                   topics: [],//Array(MockTopics.mockTopics.prefix(starting_size)),
+                                   challenges:Challenge.mockChallenges)
   
   @State var current_size: Int = starting_size
   @State var current_topics: [String] = []//Array(MockTopics.mockTopics[0..<starting_size])
@@ -15,7 +15,7 @@ struct ContentView:View {
   @State var isPresentingDetailView =  false
   var body: some View {
     GameScreen(gameBoard:gameBoard,
-               chmgr:chaMan, topics: $current_topics)
+               chmgr:chaMan, topics: $current_topics, size:$current_size )
     { row,col    in
       //tap behavior
       isPresentingDetailView = true 
@@ -33,16 +33,16 @@ struct ContentView:View {
       chaMan.checkTopicConsistency("ContentView onAppear")
       print("//ContentView onAppear size:\(current_size) topics:\(current_topics)")
       chaMan.dumpTopics()
-      }
-      .onDisappear {
-        print("//ContentView onDisappear size:\(current_size) topics:\(current_topics)")
-  
-      }
-      .sheet(item:$chal ) { cha in
-        QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,chmgr: chaMan, gb: gameBoard)
-        }
-      }
+    }
+    .onDisappear {
+      print("//ContentView onDisappear size:\(current_size) topics:\(current_topics)")
+      
+    }
+    .sheet(item:$chal ) { cha in
+      QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,chmgr: chaMan, gb: gameBoard)
+    }
   }
+}
 
 
 #Preview {

@@ -10,8 +10,9 @@ struct GameScreen: View {
   @Bindable var gameBoard: GameBoard
   @Bindable var chmgr: ChaMan
   @Binding  var topics: [String]
+  @Binding var size:Int
   let onTapGesture: (_ row:Int, _ col:Int ) -> Void
-
+  
   @State private var startAfresh = true
   @State private var showCantStartAlert = false
   @State private var showSettings = false
@@ -25,13 +26,13 @@ struct GameScreen: View {
   private let shrinkFactor: CGFloat = 0.9
   
   @AppStorage("faceUpCards")   var faceUpCards = true
- // @AppStorage("boardSize")  var boardSize = 6
+  // @AppStorage("boardSize")  var boardSize = 6
   
   var bodyMsg: String {
-  let t =  """
+    let t =  """
     That was game \(gameBoard.playcount) of which you've won \(gameBoard.woncount) and lost \(gameBoard.lostcount) games
 """
-  return t
+    return t
   }
   
   var body: some View {
@@ -40,10 +41,10 @@ struct GameScreen: View {
         .padding(.horizontal)
       ScoreBarView(gb: gameBoard)
       if gameBoard.boardsize > 1 {
-          mainGridVeew
-      } 
+        mainGridVeew
+      }
       else {
-          loadingVeew
+        loadingVeew
       }
       Spacer()
       Divider()
@@ -51,38 +52,38 @@ struct GameScreen: View {
         Text ("Index of Topics")
       }
     }
-    .youWinAlert(isPresented: $showWinAlert, title: "You Win", 
+    .youWinAlert(isPresented: $showWinAlert, title: "You Win",
                  bodyMessage: bodyMsg, buttonTitle: "OK"){
       onYouWin()
     }
-    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose", 
-                  bodyMessage: bodyMsg, buttonTitle: "OK"){
-      onYouLose()
-    }
-    .onChange(of:gameBoard.cellstate) { 
-        print("//GameScreen onChangeof(CellState)")
-      onChangeOfCellState()
-    }
-    .onChange(of:gameBoard.boardsize) {
-        print("//GameScreen onChangeof(Size)")
-      onBoardSizeChange ()
-    }
-    .sheet(isPresented: $showSettings){
-      GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard,
-          onExit: {t in
-        print("//GameSettingsScreen onExit closure topics:\(t) ")
-        gameBoard.topicsinplay = t //was
-      //  onGameSettingsExit (t)
-      })
-    }
-    .fullScreenCover(isPresented: $showingHelp ){
-      HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
-    }
- 
-    .sheet(isPresented: $showAllocatorView) {
-      AllocatorView(chmgr: chmgr, gameBoard: gameBoard)
-        .presentationDetents([.fraction(0.25)])
-    }
+                 .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
+                               bodyMessage: bodyMsg, buttonTitle: "OK"){
+                   onYouLose()
+                 }
+                               .onChange(of:gameBoard.cellstate) {
+                                 print("//GameScreen onChangeof(CellState) to \(gameBoard.cellstate)")
+                                 onChangeOfCellState()
+                               }
+                               .onChange(of:gameBoard.boardsize) {
+                                 print("//GameScreen onChangeof(Size) to \(gameBoard.boardsize)")
+                                 onBoardSizeChange ()
+                               }
+                               .sheet(isPresented: $showSettings){
+                                 GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard,
+                                                    onExit: {t in
+                                   print("//GameSettingsScreen onExit closure topics:\(t) ")
+                                   gameBoard.topicsinplay = t //was
+                                   //  onGameSettingsExit (t)
+                                 })
+                               }
+                               .fullScreenCover(isPresented: $showingHelp ){
+                                 HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
+                               }
+    
+                               .sheet(isPresented: $showAllocatorView) {
+                                 AllocatorView(chmgr: chmgr, gameBoard: gameBoard)
+                                   .presentationDetents([.fraction(0.25)])
+                               }
   }
   
   var mainGridVeew: some View {
@@ -130,12 +131,12 @@ struct GameScreen: View {
       } else {
         // END GAME
         Button(action: {
-         // withAnimation {
+          // withAnimation {
           onEndGamePressed()  //should estore consistency
           
-           chmgr.checkTopicConsistency("GameScreen EndGamePressed")
-            print("//GameScreen return from onEndGamePressed")
-       //   }
+          chmgr.checkTopicConsistency("GameScreen EndGamePressed")
+          print("//GameScreen return from onEndGamePressed")
+          //   }
         }) {
           Text("End Game")
             .padding()
@@ -166,8 +167,8 @@ struct GameScreen: View {
   }
 }
 extension GameScreen /* actions */ {
-
-  func onAppearAction () { 
+  
+  func onAppearAction () {
     // on a completely cold start
     if gameBoard.playcount == 0 {
       print("//GameScreen OnAppear Coldstart size:\(gameBoard.boardsize) topics: \(topics)")
@@ -177,18 +178,15 @@ extension GameScreen /* actions */ {
     } else {
       print("//GameScreen OnAppear Warmstart size:\(gameBoard.boardsize) topics: \(topics)")
     }
-
   }
   
-
- 
   func onCantStartNewGameAction() {
     print("//GameScreen onCantStartNewGameAction")
     gameBoard.clearAllCells()
     showCantStartAlert = false
   } //stick the right here
   
-
+  
   func onYouWin () {
     endGame(status: .justWon)
   }
@@ -200,48 +198,42 @@ extension GameScreen /* actions */ {
     print("//GameScreen EndGamePressed")
     endGame(status:.justAbandoned)
   }
-
-//  func onGameSettingsExit(_ topics:[String]) {
-//    // here on the way out
-//    print("//GameScreen onGameSettingsExit topics:\(topics)")
-//  }
   
-  func onBoardSizeChange() { 
+  
+  
+  func onBoardSizeChange() {
+    // treat this like and end
   }
-
+  
   func onChangeOfCellState() {
-  if isWinningPath(in:gameBoard.cellstate) {
-    print("--->YOU WIN")
-    showWinAlert = true
-  } else {
-    if !isPossibleWinningPath(in:gameBoard.cellstate) {
-      print("--->YOU LOSE")
-      showLoseAlert = true
+    if isWinningPath(in:gameBoard.cellstate) {
+      print("--->YOU WIN")
+      showWinAlert = true
+    } else {
+      if !isPossibleWinningPath(in:gameBoard.cellstate) {
+        print("--->YOU LOSE")
+        showLoseAlert = true
+      }
     }
-  }
   }
   func onDump() {
     chmgr.dumpTopics()
   }
   func onStartGame() -> Bool {
-    
     print("//GameScreen onStartGame before  topics: \(gameBoard.topicsinplay) size:\(gameBoard.boardsize)")
-      // chmgr.dumpTopics()
+    // chmgr.dumpTopics()
     let ok = gameBoard.setupForNewGame(chmgr: chmgr )
     print("//GameScreen onStartGame after")
-      // chmgr.dumpTopics()
+    // chmgr.dumpTopics()
     if !ok {
       print("Failed to allocate \(gameBoard.boardsize*gameBoard.boardsize) challenges for topic \(topics.joined(separator: ","))")
       print("Consider changing the topics in setting and trying again ...")
     }
     return ok
   }
-  
-  
   func endGame(status:GameState){
     gameBoard.teardownAfterGame(state: status, chmgr: chmgr)
   }
-  
 }
 private extension GameScreen {
   func makeOneCellVue(row:Int,
@@ -254,51 +246,53 @@ private extension GameScreen {
       .font(.caption)
       .padding(10)
       .frame(width: cellSize, height: cellSize)
-          .background(colormix.0)
-          .foregroundColor(colormix.1)
+      .background(colormix.0)
+      .foregroundColor(colormix.1)
       .border(status.borderColor , width: 8)
       .cornerRadius(8)
       .opacity(gameBoard.gamestate == .playingNow ? 1.0:0.3)
     }
     // for some unknown reason, the tap surface area is bigger if placed outside the VStack
-      .onTapGesture {
-        if  gameBoard.gamestate == .playingNow &&
-              gameBoard.cellstate[row][col] == .unplayed {
-          onTapGesture(row,col)
+    .onTapGesture {
+      if  gameBoard.gamestate == .playingNow &&
+            gameBoard.cellstate[row][col] == .unplayed {
+        onTapGesture(row,col)
+      }
+    }
+    
+  }// make one cell
+  
+  
+  var loadingVeew: some View {
+    Text("Loading...")
+      .onAppear {
+        onAppearAction()
+      }
+      .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
+        Button("OK", role: .cancel) {
+          onCantStartNewGameAction()
         }
       }
-   
-  }// make one cell
-    var loadingVeew: some View {
-      Text("Loading...")
-        .onAppear {
-          onAppearAction()
-        }
-        .alert("Can't start new Game from this download, sorry. \nWe will reuse your last download to start afresh.",isPresented: $showCantStartAlert){
-          Button("OK", role: .cancel) {
-            onCantStartNewGameAction()
-          }
-        }
   }
 }
 
 // Preview Provider for SwiftUI preview
 #Preview ("GameScreen") {
-    Group {
-      ForEach([3, 4, 5, 6], id: \.self) { s in
-        GameScreen(
-          gameBoard:GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]),
-          chmgr: ChaMan(playData: PlayData.mock),
-          topics: .constant(["Actors", "Animals", "Cars"]),
-          onTapGesture: { row,col in
-            print("Tapped cell with challenge \(row) \(col)")
-          }
-        )
-        .previewLayout(.fixed(width: 300, height: 300))
-        .previewDisplayName("Size \(s)x\(s)")
-      }
+  Group {
+    ForEach([3, 4, 5, 6], id: \.self) { s in
+      GameScreen(
+        gameBoard:GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]),
+        chmgr: ChaMan(playData: PlayData.mock),
+        topics: .constant(["Actors", "Animals", "Cars"]), size:.constant(s),
+        onTapGesture: { row,col in
+          print("Tapped cell with challenge \(row) \(col)")
+        }
+      )
+      .previewLayout(.fixed(width: 300, height: 300))
+      .previewDisplayName("Size \(s)x\(s)")
     }
   }
+}
 
- 
+
 
