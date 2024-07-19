@@ -165,7 +165,7 @@ let onExit: ([String])->()
         if firstOnAppear {
           //selectedTopics = getRandomTopics(boardSize - 1, from: chmgr.allTopics)
           firstOnAppear = false
-          chmgr.checkTopicConsistency()
+          chmgr.checkTopicConsistency("GameSettings onAppear")
         }
       }
       
@@ -225,7 +225,7 @@ let onExit: ([String])->()
     selectedTopics = l_selectedTopics //selectedTopics +
     gameBoard.boardsize = l_boardSize
     gameBoard.topicsinplay = l_selectedTopics // //*****2
-    chmgr.checkTopicConsistency()
+    chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
     print( "//gameboardsize is \(l_boardSize) topics: \(l_selectedTopics)")
   }
 //  private func replaceTopic(at index: Int) {

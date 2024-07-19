@@ -144,6 +144,7 @@ class ChaMan {
                 if var topicInfo = tinfo[topic] {
                     topicInfo.ch = topicIndexes[topic] ?? []
                     topicInfo.freecount -= allocatedIndexes.count
+                topicInfo.alloccount += allocatedIndexes.count
                     tinfo[topic] = topicInfo
                 }
             }
@@ -168,6 +169,7 @@ class ChaMan {
                 if var topicInfo = tinfo[topic] {
                     topicInfo.ch = topicIndexes[topic] ?? []
                     topicInfo.freecount -= allocatedIndexes.count
+                  topicInfo.alloccount += allocatedIndexes.count
                     tinfo[topic] = topicInfo
                 }
             }
@@ -193,6 +195,8 @@ class ChaMan {
                         if var topicInfo = tinfo[topic] {
                             topicInfo.ch = topicIndexes[topic] ?? []
                             topicInfo.freecount -= allocatedIndexes.count
+                          
+                        topicInfo.alloccount += allocatedIndexes.count
                             tinfo[topic] = topicInfo
                         }
                         
@@ -228,7 +232,7 @@ class ChaMan {
             let challenge = everyChallenge[index]
             let topic = challenge.topic // Assuming `Challenge` has a `topic` property
 
-            if stati[index] != .allocated {
+            if stati[index] == .inReserve {
                 invalidIndexes.append(index)
                 continue
             }
@@ -241,7 +245,7 @@ class ChaMan {
 
         // Check for invalid indexes
         if !invalidIndexes.isEmpty {
-            return .error(.invalidTopics(["Invalid or non-allocated indexes: \(invalidIndexes)"]))
+          return .error(.invalidDeallocIndices(invalidIndexes))
         }
 
         // Update tinfo to deallocate challenges
@@ -254,6 +258,7 @@ class ChaMan {
                     }
                 }
                 topicInfo.freecount += indexes.count
+              topicInfo.alloccount -= indexes.count 
 
                 // Add the deallocated indexes back to topicInfo.ch
                 topicInfo.ch.append(contentsOf: indexes)
@@ -276,7 +281,6 @@ class ChaMan {
               print("Set stati[\(index)] to .inReserve")
           }
       }
-
       return .success([])
   }
 
@@ -399,17 +403,14 @@ enum AllocationResult: Equatable {
       }
       case emptyTopics
       case invalidTopics([String])
+       case invalidDeallocIndices([Int])
       case insufficientChallenges
       
   }
 }
-
-
-
-          
+     
 extension ChaMan {
-  
-  
+
   func loadAllData  (gameBoard:GameBoard) {
     do {
       if  let gb =  GameBoard.loadGameBoard() {
@@ -455,9 +456,9 @@ extension ChaMan {
     }
       return freeCountByTopic
   }
+  
   func loadPlayData(from filename: String ) throws {
     let starttime = Date.now
-    
     guard let url = Bundle.main.url(forResource: filename, withExtension: nil) else {
       throw URLError(.fileDoesNotExist)
     }
@@ -474,6 +475,7 @@ extension ChaMan {
       }
       self.stati = cs
     }
+    
     // calculate free counts by topic
     var freeCountByTopic: [String: Int] = [:]
     var allocCountByTopic: [String: Int] = [:]
@@ -491,6 +493,7 @@ extension ChaMan {
          allocCountByTopic[challenge.topic, default: 0] += 1
         }
     }
+    
     //give them all the correct free count so we can alloate some
     let sortedChallengesByTopic = playData.gameDatum.flatMap { $0.challenges }.sorted { $0.topic < $1.topic }
     var lastTopic = ""
@@ -524,16 +527,17 @@ extension ChaMan {
     tinfo[lastTopic] = ti
     print("Loaded PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
   }
-  func checkTopicConsistency() {
+  func checkTopicConsistency(_ x:String) {
     var freecount = 0
     var alloccount = 0
     for t in  playData.topicData.topics {
       freecount += freeChallengesCount(for:t.name)
       alloccount += allocatedChallengesCount(for:t.name)
     }
-    assert(freecount ==  freeChallengesCount())
-    assert(alloccount == allocatedChallengesCount())
+    assert(freecount ==  freeChallengesCount(),x )
+    assert(alloccount == allocatedChallengesCount(),x)
   }
+  
   func dumpTopics () {
     print("Dump of Challenges By Topic")
     print("=============================")
@@ -555,6 +559,7 @@ extension ChaMan {
     stati[index] = status
     return
   }
+  
   func resetChallengeStatuses(at challengeIndices: [Int]) {
     defer {
       saveChallengeStatuses(stati)
@@ -574,17 +579,15 @@ extension ChaMan {
  
 
   // get challenge at index
-  func getChallenge(row: Int,col:Int) -> Challenge? {
-    let index = row*starting_size+col
-    let chs = everyChallenge
-    guard index >= 0 && index < chs.count else { return nil }
-    return chs[index]
-  }
+//  func getChallenge(row: Int,col:Int) -> Challenge? {
+//    let index = row*starting_size+col
+//    let chs = everyChallenge
+//    guard index >= 0 && index < chs.count else { return nil }
+//    return chs[index]
+//  }
   
 
   // Helper functions to get counts
-  
-  
   func allocatedChallengesCount() -> Int {
     return  stati.filter { $0 == .allocated }.count
   }

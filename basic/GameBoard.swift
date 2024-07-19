@@ -21,7 +21,7 @@ var rightcount: Int
 var wrongcount: Int
 var replacedcount: Int
 var gimmees: Int  // Number of "gimmee" actions available
-
+  var challengeindices: [[Int]] //into the ChallengeStatuses
 
 enum CodingKeys: String, CodingKey {
   case _board = "board"
@@ -37,6 +37,7 @@ enum CodingKeys: String, CodingKey {
   case _replacedcount = "replacedcount"
   case _totaltime = "totaltime"
   case _topicsinplay = "topicsinplay"
+  case _challengeindices = "challengeindices"
 }
 
 init(size: Int, topics: [String], challenges: [Challenge]) {
@@ -44,6 +45,7 @@ init(size: Int, topics: [String], challenges: [Challenge]) {
   self.topicsinplay = topics //*****4
   self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
   self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
+  self.challengeindices = Array(repeating: Array(repeating: -1, count: size), count: size)
   self.gimmees = 0
   self.playcount = 0
   self.woncount = 0
@@ -87,8 +89,8 @@ extension GameBoard {
 
   func setupForNewGame (chmgr:ChaMan) -> Bool {
     // assume all cleaned up, using size
-    var allocatedChallenges:[Challenge] = []
-    self.playcount += 1 
+    var allocatedChallengeIndices:[Int] = []
+    self.playcount += 1
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: self.boardsize), count:  self.boardsize)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
     
@@ -97,9 +99,7 @@ extension GameBoard {
     switch result {
     case .success(let x):
       print("Success:\(x.count)")
-      for j   in 0..<x.count {
-        allocatedChallenges.append(chmgr.everyChallenge[x[j]])
-      }
+      allocatedChallengeIndices = x
       //continue after the error path
       
     case .error(let err):
@@ -112,6 +112,8 @@ extension GameBoard {
         print("Invalid Topics \(names)")
       case .insufficientChallenges:
         print("Insufficient Challenges")
+      case .invalidDeallocIndices(let indices):
+        print("Indices cant be deallocated \(indices)")
       }
       return false
     }
@@ -121,8 +123,10 @@ extension GameBoard {
     // set cellstate to unplayed
     for row in 0..<boardsize {
       for col in 0..<boardsize {
-        board[row][col] = allocatedChallenges[row * boardsize + col]
+        let idxs = allocatedChallengeIndices[row * boardsize + col]
+        board[row][col] = chmgr.everyChallenge[idxs]
         cellstate[row][col] = .unplayed
+        challengeindices[row][col] = idxs
       }
     }
     gamestate = .playingNow
@@ -140,12 +144,24 @@ func teardownAfterGame (state:GameState,chmgr:ChaMan) {
   for row in 0..<boardsize {
     for col in 0..<boardsize {
       if cellstate[row][col] == .unplayed {
-        challenge_indexes.append(row*boardsize+col)
+        // this is wrong , should be index in everyChallenge
+        challenge_indexes.append(challengeindices[row][col])
       }
     }
   }
-  // return stuff
+  // dealloc at indices first before resetting
+  let allocationResult = chmgr.deallocAt(challenge_indexes)
+  switch allocationResult {
+    
+  case .success(_):
+    print("dealloc succeeded")
+  case .error(let err):
+    print("dealloc failed \(err)")
+  }
+  
+  
   chmgr.resetChallengeStatuses(at: challenge_indexes)
+
   saveGameBoard()
 }
 

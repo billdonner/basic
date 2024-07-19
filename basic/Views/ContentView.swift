@@ -27,10 +27,10 @@ struct ContentView:View {
       if gameBoard.topicsinplay.count == 0 {
         print("//*****1")
         // ask for just one topic 
-        gameBoard.topicsinplay = getRandomTopics(2, from: chaMan.everyTopicName) //*****1
+        gameBoard.topicsinplay = getRandomTopics(5, from: chaMan.everyTopicName) //*****1
       }
       current_topics = gameBoard.topicsinplay
-      chaMan.checkTopicConsistency()
+      chaMan.checkTopicConsistency("ContentView onAppear")
       print("//ContentView onAppear size:\(current_size) topics:\(current_topics)")
       chaMan.dumpTopics()
       }

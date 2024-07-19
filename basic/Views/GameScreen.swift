@@ -131,7 +131,9 @@ struct GameScreen: View {
         // END GAME
         Button(action: {
          // withAnimation {
-            onEndGamePressed()
+          onEndGamePressed()  //should estore consistency
+          
+           chmgr.checkTopicConsistency("GameScreen EndGamePressed")
             print("//GameScreen return from onEndGamePressed")
        //   }
         }) {
