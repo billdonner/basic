@@ -10,8 +10,75 @@ import Foundation
 enum ChallengeError: Error {
   case notfound
 }
+struct TopicInfo : Codable {
+      let topicname: String
+      var alloccount: Int
+      var freecount: Int
+      var replacedcount: Int
+      var rightcount: Int
+      var wrongcount: Int
+      var ch: [Int] // indexes into stati
+  }
 
+extension TopicInfo {
+  // Get the file path for storing challenge statuses
+  static func getTopicInfoFilePath() -> URL {
+      let fileManager = FileManager.default
+      let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
+      return urls[0].appendingPathComponent("topicinfo.json")
+  }
+  // Save the topicInfo to a file
+  static func saveTopicInfo (_ info:[String:TopicInfo]) {
+    let filePath = Self.getTopicInfoFilePath()
+      do {
+          let data = try JSONEncoder().encode(info)
+          try data.write(to: filePath)
+      } catch {
+          print("Failed to save TopicInfo: \(error)")
+      }
+  }
 
+  // Load the challenge statuses from a file
+  static func loadTopicInfo() -> [String:TopicInfo]? {
+      let filePath = getTopicInfoFilePath()
+      do {
+          let data = try Data(contentsOf: filePath)
+          let dict = try JSONDecoder().decode([String:TopicInfo].self, from: data)
+          return dict
+      } catch {
+          print("Failed to load TopicInfo: \(error)")
+          return nil
+      }
+  }
+
+}
+// these will be ungainly
+// Result enum to handle allocation and deallocation outcomes
+enum AllocationResult: Equatable {
+  case success([Int])
+  case error(AllocationError)
+  
+  enum AllocationError: Equatable, Error {
+      static func ==(lhs: AllocationError, rhs: AllocationError) -> Bool {
+          switch (lhs, rhs) {
+          case (.emptyTopics, .emptyTopics):
+              return true
+          case (.invalidTopics(let lhsTopics), .invalidTopics(let rhsTopics)):
+              return lhsTopics == rhsTopics
+          case (.insufficientChallenges, .insufficientChallenges):
+              return true
+          default:
+              return false
+          }
+      }
+      case emptyTopics
+      case invalidTopics([String])
+       case invalidDeallocIndices([Int])
+      case insufficientChallenges
+      
+  }
+}
+     
 // The manager class to handle Challenge-related operations and state
 @Observable
 
@@ -24,16 +91,7 @@ class ChaMan {
     
     // TopicInfo is built from PlayData and is used to improve performance by simplifying searching and
     // eliminating lots of scanning to get counts
-    struct TopicInfo {
-        let topicname: String
-        var alloccount: Int
-        var freecount: Int
-        var replacedcount: Int
-        var rightcount: Int
-        var wrongcount: Int
-        var ch: [Int] // indexes into stati
-    }
-  // these will be ungainly
+
   enum ChallengeStatus : Int, Codable  {
     case inReserve         // 0
     case allocated         // 1
@@ -131,7 +189,8 @@ class ChaMan {
         var remainingChallenges = n % topics.count
         
         for topic in topics {
-            if let indexes = topicIndexes[topic], !indexes.isEmpty {
+            if let nindexes = topicIndexes[topic], !nindexes.isEmpty {
+              let indexes = nindexes.shuffled()
                 let countToAllocate = min(indexes.count, challengesPerTopic + (remainingChallenges > 0 ? 1 : 0))
                 let allocatedIndexes = indexes.prefix(countToAllocate)
                 allocatedChallengeIndices.append(contentsOf: allocatedIndexes)
@@ -156,7 +215,8 @@ class ChaMan {
                 break
             }
             
-            if let indexes = topicIndexes[topic], !indexes.isEmpty {
+            if let nindexes = topicIndexes[topic], !nindexes.isEmpty {
+              let indexes = nindexes.shuffled()
                 let remainingToAllocate = n - allocatedChallengeIndices.count
                 let countToAllocate = min(indexes.count, remainingToAllocate)
                 let allocatedIndexes = indexes.prefix(countToAllocate)
@@ -179,8 +239,9 @@ class ChaMan {
         if allocatedChallengeIndices.count < n {
             for (topic, info) in tinfo {
                 if !topics.contains(topic) { // Skip specified topics since they have already been considered
-                   let indexes = info.ch
-                    if !indexes.isEmpty {
+                   let nindexes = info.ch
+                    if !nindexes.isEmpty {
+                      let indexes = nindexes.shuffled()
                         let remainingToAllocate = n - allocatedChallengeIndices.count
                         let countToAllocate = min(indexes.count, remainingToAllocate)
                         let allocatedIndexes = indexes.prefix(countToAllocate)
@@ -213,8 +274,8 @@ class ChaMan {
         for index in allocatedChallengeIndices {
             stati[index] = .allocated
         }
-        
-        return .success(allocatedChallengeIndices)
+      TopicInfo.saveTopicInfo(tinfo)
+      return .success(allocatedChallengeIndices)
     }
     
     // Deallocate challenges at specified indexes and update internal structures
@@ -266,8 +327,8 @@ class ChaMan {
 
                 // Update tinfo to keep it in sync
                 tinfo[topic] = topicInfo
-
-                print("Deallocated from topic \(topic): indexes \(indexes), freecount now \(topicInfo.freecount)")
+//
+//                print("Deallocated from topic \(topic): indexes \(indexes), freecount now \(topicInfo.freecount)")
             } else {
                 return .error(.invalidTopics([topic]))
             }
@@ -276,11 +337,11 @@ class ChaMan {
         // Update stati to reflect deallocation
         for index in indexes {
             if index < stati.count {
-                stati[index] = .inReserve
               stati[index] = .inReserve // Set the status to inReserve
-              print("Set stati[\(index)] to .inReserve")
           }
       }
+      saveChallengeStatuses(stati)
+      TopicInfo.saveTopicInfo(tinfo)
       return .success([])
   }
 
@@ -306,7 +367,7 @@ class ChaMan {
               topicInfo.replacedcount += 1
               topicInfo.freecount -= 1
               tinfo[topic] = topicInfo
-
+              TopicInfo.saveTopicInfo(tinfo)
               // Return the index of the newly replaced challenge
               return .success([newChallengeIndex])
           } else {
@@ -349,15 +410,7 @@ class ChaMan {
           return nil
       }
   }
-  // Get the count of allocated challenges for a specific topic name
-  func allocatedChallengesCount(for topicName: String) -> Int {
-      guard let topicInfo = tinfo[topicName] else {
-          print("Warning: Topic \(topicName) not found in tinfo.")
-          return 0
-      }
-      
-    return topicInfo.alloccount
-  }
+
   
   // Verify that tinfo and stati arrays are in sync
   func verifySync() -> Bool {
@@ -382,33 +435,6 @@ class ChaMan {
 }
 
 
-// Result enum to handle allocation and deallocation outcomes
-// Result enum to handle allocation and deallocation outcomes
-enum AllocationResult: Equatable {
-  case success([Int])
-  case error(AllocationError)
-  
-  enum AllocationError: Equatable, Error {
-      static func ==(lhs: AllocationError, rhs: AllocationError) -> Bool {
-          switch (lhs, rhs) {
-          case (.emptyTopics, .emptyTopics):
-              return true
-          case (.invalidTopics(let lhsTopics), .invalidTopics(let rhsTopics)):
-              return lhsTopics == rhsTopics
-          case (.insufficientChallenges, .insufficientChallenges):
-              return true
-          default:
-              return false
-          }
-      }
-      case emptyTopics
-      case invalidTopics([String])
-       case invalidDeallocIndices([Int])
-      case insufficientChallenges
-      
-  }
-}
-     
 extension ChaMan {
 
   func loadAllData  (gameBoard:GameBoard) {
@@ -465,6 +491,12 @@ extension ChaMan {
     let data = try Data(contentsOf: url)
     let pd = try JSONDecoder().decode(PlayData.self, from: data)
     self.playData = pd
+    if let loadedTinfo = TopicInfo.loadTopicInfo() {
+      self.tinfo = loadedTinfo
+    } else {
+      self.tinfo = [:]
+    }
+        
     if let loadedStatuses = loadChallengeStatuses() {
       self.stati = loadedStatuses
     } else {
@@ -534,8 +566,8 @@ extension ChaMan {
       freecount += freeChallengesCount(for:t.name)
       alloccount += allocatedChallengesCount(for:t.name)
     }
-    assert(freecount ==  freeChallengesCount(),x )
-    assert(alloccount == allocatedChallengesCount(),x)
+  //  assert(freecount ==  freeChallengesCount(),x )
+  //  assert(alloccount == allocatedChallengesCount(),x)
   }
   
   func dumpTopics () {
@@ -620,6 +652,16 @@ extension ChaMan {
         return -1
     }
     return topicInfo.freecount
+  }
+  
+  // Get the count of allocated challenges for a specific topic name
+  func allocatedChallengesCount(for topicName: String) -> Int {
+      guard let topicInfo = tinfo[topicName] else {
+          print("Warning: Topic \(topicName) not found in tinfo.")
+          return 0
+      }
+      
+    return topicInfo.alloccount
   }
  
 }

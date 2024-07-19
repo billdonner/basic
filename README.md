@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+version 0.1.8 put something in carol's hands
 version 0.1.7 all integrated but many bugs
 version 0.1.6 fewer bugs, playing correctly, needs integration with topic settings
 version 0.1.5 tests all pass without changes, integrated new topic settings ; many bugs

@@ -90,7 +90,7 @@ struct QandAScreen: View {
   
   var markCorrectButton: some View {
     Button(action: {
-      markAnswerCorrect()
+      markAnswerCorrect(gb.board[row][col])
     }) {
       Image(systemName: "checkmark.circle")
         .font(.title)
@@ -103,7 +103,7 @@ struct QandAScreen: View {
   
   var markIncorrectButton: some View {
     Button(action: {
-      markAnswerIncorrect()
+      markAnswerIncorrect(gb.board[row][col])
     }) {
       Image(systemName: "xmark.circle")
         .font(.title)
@@ -298,7 +298,7 @@ extension QandAScreen {
 extension QandAScreen { /* actions */
   
   
-  func markAnswerCorrect() {
+  func markAnswerCorrect(_ ch:Challenge) {
     // selectedAnswer = gb.board[row][col].correct
     answerCorrect = true
     answerGiven = true
@@ -307,8 +307,15 @@ extension QandAScreen { /* actions */
     gb.cellstate[row][col] = .playedCorrectly
     gb.rightcount += 1
     gb.saveGameBoard()
+    
+    // get the topic from the challenge
+    if var t = chmgr.tinfo[ch.topic] {
+      t.rightcount += 1
+      chmgr.tinfo[ch.topic] = t
+    }
     chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col,
                     status: .playedCorrectly)
+   
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       animateBackToBlue = false
       
@@ -316,7 +323,7 @@ extension QandAScreen { /* actions */
     stopTimer()
   }
   
-  func markAnswerIncorrect() {
+  func markAnswerIncorrect(_ ch:Challenge) {
     // if let sel = selectedAnswer, sel != //gb.board[row][col].correct {
     answerCorrect = false
     answerGiven = true
@@ -326,7 +333,14 @@ extension QandAScreen { /* actions */
     gb.cellstate[row][col] = .playedIncorrectly
     gb.wrongcount += 1
     gb.saveGameBoard()
+    // get the topic from the challenge
+    if var t = chmgr.tinfo[ch.topic] {
+      t.wrongcount += 1
+      chmgr.tinfo[ch.topic] = t
+    }
+    
     chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col, status: .playedIncorrectly)
+    
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       
     }
@@ -354,6 +368,11 @@ extension QandAScreen { /* actions */
       gb.cellstate[row][col] = .playedIncorrectly
       gb.wrongcount += 1
       gb.saveGameBoard()
+      // get the topic from the challenge
+      if var t = chmgr.tinfo[gb.board[row][col].topic] {
+        t.wrongcount += 1
+        chmgr.tinfo[gb.board[row][col].topic] = t
+      }
       chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col, status: .playedIncorrectly)
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         showCorrectAnswer = false
