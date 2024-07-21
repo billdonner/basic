@@ -26,7 +26,8 @@ import SwiftUI
 
             List {
                 Section(header: Text("Pre-selected Topics")) {
-                    ForEach(selectedTopics.prefix(boardSize - 1), id: \.self) { topic in
+               
+                    ForEach(selectedTopics.prefix(boardSize-1), id: \.self) { topic in
                         HStack {
                             Text(topic)
                             Spacer()

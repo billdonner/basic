@@ -36,7 +36,7 @@ extension String {
 }
   func colorForTopic(_ topic:String,gb:GameBoard) ->   (Color, Color, UUID) {
       if let index = indexOfTopic(topic,gb:gb) {
-        return AppColors.colorForTopicIndex(index:index)
+        return AppColors.colorForTopicIndex(index:index,gb:gb)
       } else {
         return (Color.white, Color.black, UUID())
       }
@@ -143,14 +143,11 @@ struct AppVersionInformationView_Previews: PreviewProvider {
 
 func dumpAppStorage() {
   
- // @AppStorage("moveNumber") var moveNumber = 0
- // @AppStorage("boardSize")  var boardSize = 6
+ 
   @AppStorage("startInCorners")   var startInCorners = false
-  @AppStorage("faceUpCards")   var faceUpCards = true
+ 
   @AppStorage("doubleDiag")   var doubleDiag = false
-  @AppStorage("currentScheme") var currentScheme = 1
   @AppStorage("difficultyLevel")  var difficultyLevel = 1
- // @AppStorage("selectedTopicsPiped") var selectedTopicsPiped:String  = ""
   @AppStorage("elementWidth") var elementWidth = 100.0
   @AppStorage("shuffleUp")  var shuffleUp = true
   @AppStorage("fontsize")  var fontsize = 24.0
@@ -162,14 +159,11 @@ func dumpAppStorage() {
   
   print("Dump of AppStorage")
   print("================")
-  //print("moveNumber ",moveNumber)
-  //print("boardSize ",boardSize)
+ 
   print("startInCorners ",startInCorners)
-  print("faceUpCards ",faceUpCards)
-  print("doubleDiag ",doubleDiag)
-  print("currentScheme ",currentScheme)
+ 
+  print("doubleDiag ",doubleDiag) 
   print("difficultyLevel ",difficultyLevel)
- // print("selectedTopics ",selectedTopicsPiped)
   print("elementWidth ",elementWidth)
   print("shuffleUp ",shuffleUp)
   print("fontsize ",fontsize)

@@ -18,7 +18,7 @@ struct ContentView:View {
                chmgr:chaMan, topics: $current_topics, size:$current_size )
     { row,col    in
       //tap behavior
-      isPresentingDetailView = true 
+      isPresentingDetailView = true
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
@@ -26,7 +26,7 @@ struct ContentView:View {
       current_size = gameBoard.boardsize
       if gameBoard.topicsinplay.count == 0 {
         print("//*****1")
-        // ask for just one topic 
+        // ask for just one topic
         gameBoard.topicsinplay = getRandomTopics(5, from: chaMan.everyTopicName) //*****1
       }
       current_topics = gameBoard.topicsinplay
@@ -35,9 +35,8 @@ struct ContentView:View {
       chaMan.dumpTopics()
     }
     .onDisappear {
-      print("//ContentView onDisappear size:\(current_size) topics:\(current_topics)")
-      
-    }
+        fatalError("Yikes the ContentView is Disappearing!")
+      }
     .sheet(item:$chal ) { cha in
       QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,chmgr: chaMan, gb: gameBoard)
     }

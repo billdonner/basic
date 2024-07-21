@@ -1,9 +1,9 @@
 import SwiftUI
 struct QandATopBarView: View {
+  let gameBoard:GameBoard
     let topic: String
     let hint:String
     let elapsedTime: TimeInterval
-    let additionalInfo: String
     let handlePass: () -> Void
     let toggleHint: () -> Void
   
@@ -26,18 +26,19 @@ struct QandATopBarView: View {
             VStack {
                 Text(topic)
                     .font(.headline)
+                    .lineLimit(2,reservesSpace: true)
                     .foregroundColor(.primary)
                 elapsedTimeView
                 additionalInfoView
             }
         }
         .padding(.top)
-        .onAppear {
-          print ("//QandATopBarView onAppear")
-        }
-        .onDisappear {
-          print ("//QandATopBarView onDisAppear")
-        }
+//        .onAppear {
+//          print ("//QandATopBarView onAppear")
+//        }
+//        .onDisappear {
+//          print ("//QandATopBarView onDisAppear")
+//        }
     }
     
     var passButton: some View {
@@ -75,7 +76,7 @@ struct QandATopBarView: View {
     }
 
     var additionalInfoView: some View {
-        Text(additionalInfo)
+      Text("won:\(gameBoard.woncount) lost:\(gameBoard.lostcount) gimmees:\(gameBoard.gimmees)")
             .font(.footnote)
             .foregroundColor(.secondary)
     }
@@ -83,10 +84,10 @@ struct QandATopBarView: View {
 
 #Preview {
     QandATopBarView(
-      topic: "American History", 
+      gameBoard: GameBoard(size:1,topics:["foo"],challenges:[Challenge.complexMock]),
+      topic: "American History",
       hint: "What can we say about history?",
       elapsedTime: 23984923.0,
-        additionalInfo: "Some extra information",
         handlePass: {},
         toggleHint: {}
     )

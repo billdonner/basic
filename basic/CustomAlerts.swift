@@ -258,15 +258,15 @@ fileprivate struct HintAlert: View {
         .padding()
     }
 }
-#Preview("Answered") {
- AnsweredAlert(title: "Thanks for Answering this question", message: "This is a custom alert view with spring animation.", buttonTitle: "OK", onButtonTapped: {} )
-}
-// Custom alert view with easeInOut animation
-fileprivate struct AnsweredAlert: View {
+// Custom alert view with spring animation
+fileprivate struct  GimmeeAlert: View {
     let title: String
     let message: String
     let buttonTitle: String
     let onButtonTapped: () -> Void
+    let animation: Animation
+    
+    @State private var rotationAngle: Double = 0
     
     var body: some View {
         VStack(spacing: 16) {
@@ -282,6 +282,68 @@ fileprivate struct AnsweredAlert: View {
                 .foregroundColor(.primary)
                 .padding([.leading, .trailing])
                 .multilineTextAlignment(.center)
+            
+            Divider()
+                .background(Color.primary)
+                .padding([.leading, .trailing])
+            
+            Button(action: {
+                withAnimation(animation) {
+                    onButtonTapped()
+                }
+            }) {
+                Text(buttonTitle)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 20)
+                    .background(Color.clear)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.primary, lineWidth: 1)
+                    )
+                    .padding(.bottom, 20) // Added padding below the button
+            }
+        }
+        .background(FrostedBackgroundView())
+        .cornerRadius(16)
+        .rotationEffect(.degrees(rotationAngle))
+        .transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .rotateAndFade))
+        .onAppear {
+            withAnimation(animation.speed(0.5)) { // Slowed down rotation
+                rotationAngle = 360
+            }
+        }
+        .padding()
+    }
+}
+#Preview("Answered") {
+ AnsweredAlert(title: "Thanks for Answering this question", message: "This is a custom alert view with spring animation.", buttonTitle: "OK", onButtonTapped: {} )
+}
+// Custom alert view with easeInOut animation
+fileprivate struct AnsweredAlert: View {
+    let title: String
+    let message: String
+    let buttonTitle: String
+    let onButtonTapped: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+          VStack {
+            Text(title)
+              .font(.headline)
+              .foregroundColor(.primary)
+              .padding(.top)
+              .multilineTextAlignment(.center)
+              .frame(maxWidth: .infinity, alignment: .center)
+            
+            Text(message)
+              .font(.body)
+              .foregroundColor(.primary)
+              .padding([.leading, .trailing])
+              .multilineTextAlignment(.center)
+          }.padding()
             
             Divider()
                 .background(Color.primary)
@@ -304,7 +366,7 @@ fileprivate struct AnsweredAlert: View {
                             .stroke(Color.primary, lineWidth: 1)
                     )
                     .padding(.bottom, 20) // Added padding below the button
-            }
+            }.padding(.bottom,10)
         }
         .background(FrostedBackgroundView())
         .cornerRadius(16)
@@ -434,6 +496,37 @@ fileprivate struct HintAlertModifier: ViewModifier {
       }
   }
 }
+// Custom alert modifier for GimmeeAlert with spring animation
+fileprivate struct GimmeeAlertModifier: ViewModifier {
+  @Binding var isPresented: Bool
+  let title: String
+  let message: String
+  let buttonTitle: String
+  let onButtonTapped: () -> Void
+  let animation: Animation
+  
+  func body(content: Content) -> some View {
+      ZStack {
+          content
+              .blur(radius: isPresented ? 1 : 0)
+          
+          if isPresented {
+              GimmeeAlert(
+                  title: title,
+                  message: message,
+                  buttonTitle: buttonTitle,
+                  onButtonTapped: {
+                      withAnimation(animation.speed(0.75)) { // Slower dismissal
+                          isPresented = false
+                      }
+                      onButtonTapped()
+                  },
+                  animation: animation
+              )
+          }
+      }
+  }
+}
 
 // Extension methods for the new alerts
 extension View {
@@ -450,6 +543,10 @@ extension View {
   }
   
   func hintAlert(isPresented: Binding<Bool>, title: String, message: String, buttonTitle: String, onButtonTapped: @escaping () -> Void, animation: Animation) -> some View {
-      self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))
+    self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))
+  }
+    
+    func gimmeeAlert(isPresented: Binding<Bool>, title: String, message: String, buttonTitle: String, onButtonTapped: @escaping () -> Void, animation: Animation) -> some View {
+        self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))
   }
 }

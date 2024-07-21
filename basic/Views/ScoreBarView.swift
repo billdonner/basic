@@ -9,8 +9,6 @@ import SwiftUI
 private struct zz:View {
   let showchars:String
 let gb: GameBoard
-  //@EnvironmentObject var chmgr: ChaMan
- // @AppStorage("boardSize") var boardSize = 6
   var body: some View{
     VStack {
       HStack {
@@ -20,6 +18,7 @@ let gb: GameBoard
         Text("lost:");Text("\(gb.lostcount)")
       }
       HStack {
+        Text("gimmees:");Text("\(gb.gimmees)")
         Text("right:");Text("\(gb.rightcount)")
         Text("wrong:");Text("\(gb.wrongcount)")
         Text("time:");Text(formatTimeInterval(gb.totaltime))

@@ -25,8 +25,6 @@ struct GameScreen: View {
   // Adding a shrink factor to slightly reduce the cell size
   private let shrinkFactor: CGFloat = 0.9
   
-  @AppStorage("faceUpCards")   var faceUpCards = true
-  // @AppStorage("boardSize")  var boardSize = 6
   
   var bodyMsg: String {
     let t =  """
@@ -56,34 +54,36 @@ struct GameScreen: View {
                  bodyMessage: bodyMsg, buttonTitle: "OK"){
       onYouWin()
     }
-                 .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
-                               bodyMessage: bodyMsg, buttonTitle: "OK"){
-                   onYouLose()
-                 }
-                               .onChange(of:gameBoard.cellstate) {
-                                 print("//GameScreen onChangeof(CellState) to \(gameBoard.cellstate)")
-                                 onChangeOfCellState()
-                               }
-                               .onChange(of:gameBoard.boardsize) {
-                                 print("//GameScreen onChangeof(Size) to \(gameBoard.boardsize)")
-                                 onBoardSizeChange ()
-                               }
-                               .sheet(isPresented: $showSettings){
-                                 GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard,
-                                                    onExit: {t in
-                                   print("//GameSettingsScreen onExit closure topics:\(t) ")
-                                   gameBoard.topicsinplay = t //was
-                                   //  onGameSettingsExit (t)
-                                 })
-                               }
-                               .fullScreenCover(isPresented: $showingHelp ){
-                                 HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
-                               }
-    
-                               .sheet(isPresented: $showAllocatorView) {
-                                 AllocatorView(chmgr: chmgr, gameBoard: gameBoard)
-                                   .presentationDetents([.fraction(0.25)])
-                               }
+   .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
+                 bodyMessage: bodyMsg, buttonTitle: "OK"){
+     onYouLose()
+   }
+   .onChange(of:gameBoard.cellstate) {
+     //print("//GameScreen onChangeof(CellState) to \(gameBoard.cellstate)")
+     onChangeOfCellState()
+   }
+   .onChange(of:gameBoard.boardsize) {
+     print("//GameScreen onChangeof(Size) to \(gameBoard.boardsize)")
+     onBoardSizeChange ()
+   }
+   .sheet(isPresented: $showSettings){
+     GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard,
+                        onExit: {t in
+       print("//GameSettingsScreen onExit closure topics:\(t) ")
+       gameBoard.topicsinplay = t //was
+       //  onGameSettingsExit (t)
+     })
+   }
+   .fullScreenCover(isPresented: $showingHelp ){
+     HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
+   }
+   .sheet(isPresented: $showAllocatorView) {
+     AllocatorView(chmgr: chmgr, gameBoard: gameBoard)
+       .presentationDetents([.fraction(0.25)])
+   }
+   .onDisappear {
+     fatalError("Yikes the GameScreen is Disappearing!")
+   }
   }
   
   var mainGridVeew: some View {
@@ -95,7 +95,10 @@ struct GameScreen: View {
         ForEach(0..<gameBoard.boardsize, id: \.self) { row in
           HStack(spacing: spacing) {
             ForEach(0..<gameBoard.boardsize, id: \.self) { col in
-              makeOneCellVue(row:row,col:col,challenge: gameBoard.board[row][col],status:gameBoard.cellstate[row][col], cellSize: cellSize)
+              makeOneCellVue(row:row,col:col,
+                             challenge:gameBoard.board[row][col],
+                             status:gameBoard.cellstate[row][col],
+                             cellSize: cellSize)
             }
           }
         }
@@ -133,7 +136,6 @@ struct GameScreen: View {
         Button(action: {
           // withAnimation {
           onEndGamePressed()  //should estore consistency
-          
           chmgr.checkTopicConsistency("GameScreen EndGamePressed")
           print("//GameScreen return from onEndGamePressed")
           //   }
@@ -172,9 +174,6 @@ extension GameScreen /* actions */ {
     // on a completely cold start
     if gameBoard.playcount == 0 {
       print("//GameScreen OnAppear Coldstart size:\(gameBoard.boardsize) topics: \(topics)")
-      // setup a blank board, dont allocate anything, wait for the start button
-      //gameBoard.reinit(size: size, topics: topics, challenges: [],dontPopulate: true)
-      
     } else {
       print("//GameScreen OnAppear Warmstart size:\(gameBoard.boardsize) topics: \(topics)")
     }
@@ -184,8 +183,7 @@ extension GameScreen /* actions */ {
     print("//GameScreen onCantStartNewGameAction")
     gameBoard.clearAllCells()
     showCantStartAlert = false
-  } //stick the right here
-  
+  }
   
   func onYouWin () {
     endGame(status: .justWon)
@@ -198,11 +196,9 @@ extension GameScreen /* actions */ {
     print("//GameScreen EndGamePressed")
     endGame(status:.justAbandoned)
   }
-  
-  
-  
+
   func onBoardSizeChange() {
-    // treat this like and end
+//
   }
   
   func onChangeOfCellState() {
@@ -238,11 +234,13 @@ extension GameScreen /* actions */ {
 private extension GameScreen {
   func makeOneCellVue(row:Int,
                       col:Int ,
-                      challenge:Challenge, status:ChallengeOutcomes,  cellSize: CGFloat) -> some View {
+                      challenge:Challenge,
+                      status:ChallengeOutcomes,
+                      cellSize: CGFloat) -> some View {
     let colormix = colorForTopic(challenge.topic, gb: gameBoard)
     return VStack {
       Text(//hideCellContent ||hideCellContent ||
-        ( !faceUpCards) ? " " : challenge.question )
+        ( !gameBoard.faceup) ? " " : challenge.question )
       .font(.caption)
       .padding(10)
       .frame(width: cellSize, height: cellSize)
@@ -259,7 +257,6 @@ private extension GameScreen {
         onTapGesture(row,col)
       }
     }
-    
   }// make one cell
   
   

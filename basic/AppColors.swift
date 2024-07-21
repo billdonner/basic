@@ -15,9 +15,8 @@ typealias ColorSpec  = (backname:String, forename:String, backrgb:(Double, Doubl
 class
 AppColors  {
 
-  static func colorForTopicIndex(index:Int) ->   (Color, Color, UUID) {
-    @AppStorage("currentScheme") var currentScheme = 1
-    return   allSchemes[currentScheme].mappedColors[index]
+  static func colorForTopicIndex(index:Int,gb:GameBoard) -> (Color, Color, UUID) {
+    return   allSchemes[gb.currentscheme].mappedColors[index]
   }
 
   // Define the color schemes
@@ -102,11 +101,7 @@ AppColors  {
   static let allSchemes = [winter,spring,summer,autumn,bleak]
   
 }
-  /// Model for representing a color scheme.
 
-  
-  
-  
   class  ColorScheme {
     internal init(name:String,colors:[ColorSpec]) {
       self.name = name

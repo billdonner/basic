@@ -8,37 +8,29 @@ let onExit: ([String])->()
 @Bindable var gameBoard:GameBoard
 
 @Binding var startInCorners: Bool
-@Binding var faceUpCards: Bool
 @Binding var doubleDiag: Bool
-@Binding var currentScheme: Int
 @Binding var difficultyLevel: Int
-//@Binding var returningTopics:  [String]
-  internal init(chmgr:ChaMan,gameBoard:GameBoard,  startInCorners: Binding<Bool>, faceUpCards: Binding<Bool>, doubleDiag: Binding<Bool>, currentScheme: Binding<Int>, difficultyLevel: Binding<Int>,
+  internal init(chmgr:ChaMan,gameBoard:GameBoard,  startInCorners: Binding<Bool>, doubleDiag: Binding<Bool>,  difficultyLevel: Binding<Int>,
               //  returningTopics:Binding<[String]>,
                 onExit:@escaping ([String])->()) {
     self.onExit = onExit
     self.gameBoard = gameBoard
     _startInCorners = startInCorners
-    _faceUpCards = faceUpCards
     _doubleDiag = doubleDiag
-    _currentScheme = currentScheme
     _difficultyLevel = difficultyLevel
-  //  _returningTopics = returningTopics
     self.chmgr = chmgr
     self.ourTopics =    chmgr.playData.allTopics
     let randomTopics = ourTopics.shuffled()
-    let chosenTopics = Array(randomTopics.prefix(gameBoard.boardsize  - 2))
+    let chosenTopics = Array(randomTopics.prefix(gameBoard.boardsize  - 1))
     let remainingTopics = Array(randomTopics.dropFirst(gameBoard.boardsize - 2))
     _selectedTopics = State(initialValue: chosenTopics)
     _availableTopics = State(initialValue: remainingTopics)
-    
+    l_faceUpCards = gameBoard.faceup
     l_boardSize = gameBoard.boardsize
     l_doubleDiag = doubleDiag.wrappedValue
-    l_currentScheme = currentScheme.wrappedValue
+    l_currentScheme = gameBoard.currentscheme
     l_difficultyLevel = difficultyLevel.wrappedValue
-    l_faceUpCards = faceUpCards.wrappedValue
     l_startInCorners = startInCorners.wrappedValue
-   // l_returningTopics = returningTopics.wrappedValue
     l_selectedTopics = chosenTopics
   }
   let ourTopics: [String]
@@ -48,7 +40,6 @@ let onExit: ([String])->()
   @State private var  l_doubleDiag: Bool
   @State private var  l_currentScheme: Int
   @State private var  l_difficultyLevel: Int
- // @State private var  l_returningTopics: [String]
   @State private var  l_selectedTopics: [String]
   
   @State var selectedTopics: [String]
@@ -155,7 +146,11 @@ let onExit: ([String])->()
       //{ _,_ in onParameterChange() }
       
       Section(header: Text("Topics")) {
-        NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, schemes: AppColors.allSchemes, boardSize: gameBoard.boardsize, selectedTopics: $l_selectedTopics)) {
+        NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, schemes: AppColors.allSchemes, 
+          gameBoard:gameBoard,
+          currentScheme: $l_currentScheme,
+          selectedTopics: $l_selectedTopics))
+        {
           Text("Choose Topics")
             .padding()
             .foregroundColor(.blue)
@@ -218,16 +213,18 @@ let onExit: ([String])->()
   private func onDonePressed() {
     // copy every change into appsettings
     doubleDiag = l_doubleDiag
-    faceUpCards = l_faceUpCards
-    currentScheme = l_currentScheme
     difficultyLevel = l_difficultyLevel
     startInCorners = l_startInCorners
     selectedTopics = l_selectedTopics //selectedTopics +
+    gameBoard.faceup = l_faceUpCards
     gameBoard.boardsize = l_boardSize
     gameBoard.topicsinplay = l_selectedTopics // //*****2
+    gameBoard.currentscheme = l_currentScheme
     chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
-    print( "//gameboardsize is \(l_boardSize) topics: \(l_selectedTopics)")
   }
+}
+  
+  
 //  private func replaceTopic(at index: Int) {
 //    guard !tappedIndices.contains(index), !availableTopics.isEmpty else { return }
 //    let newTopic = availableTopics.removeFirst()
@@ -252,7 +249,6 @@ let onExit: ([String])->()
 //    replacedTopics.removeAll()
 //    selectedAdditionalTopics.removeAll()
 //  }
-}
 
 struct GameSettingsScreen :
   View {
@@ -261,9 +257,8 @@ struct GameSettingsScreen :
   let onExit: ([String])->()
   
   @AppStorage("startInCorners") private var startInCorners = false
-  @AppStorage("faceUpCards") private var faceUpCards = true
+
   @AppStorage("doubleDiag") private var doubleDiag = false
-  @AppStorage("currentScheme") var currentScheme = 1
   @AppStorage("difficultyLevel") private var difficultyLevel = 1
   
   var body: some View {
@@ -272,20 +267,12 @@ struct GameSettingsScreen :
         chmgr: chmgr,
         gameBoard:gameBoard,
         startInCorners: $startInCorners,
-        faceUpCards: $faceUpCards,
         doubleDiag: $doubleDiag,
-        currentScheme:$currentScheme,
         difficultyLevel: $difficultyLevel,
         onExit: onExit
       )
     }
   }
-  
-//  private func onChangeOfReturningTopics() {
-//    selectedTopicsPiped = returningTopics.map({$0}).joined(separator: "|")
-//    gameBoard.topicsinplay = returningTopics //*****3
-//    print("//*****3")
-//  }
 }
 #Preview("Tester") {
 //  let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]

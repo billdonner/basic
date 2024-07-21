@@ -43,13 +43,12 @@ struct AllocatorView: View {
     }
     .background(backgroundColor)
     .padding()
-    .onAppear {
-      print("//AllocatorView onAppear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)")
-    }
-    .onDisappear {
-      print("//AllocatorView onDisappear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)")
-      
-    }
+//    .onAppear {
+//      print("//AllocatorView onAppear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)")
+//    }
+//    .onDisappear {
+//      print("//AllocatorView onDisappear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)") 
+//    }
   }
   
   // Computed properties for background and text colors

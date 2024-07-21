@@ -127,14 +127,20 @@ class ChaMan {
     
     // Cache for allChallenges
     private var _allChallenges: [Challenge]?
-    var everyChallenge: [Challenge] {
-        // If _allChallenges is nil, compute the value and cache it
-        if _allChallenges == nil {
-            _allChallenges = playData.gameDatum.flatMap { $0.challenges }
-        }
-        // Return the cached value
-        return _allChallenges!
-    }
+  var everyChallenge: [Challenge] {
+      get {
+          // If _allChallenges is nil, compute the value and cache it
+          if _allChallenges == nil {
+              _allChallenges = playData.gameDatum.flatMap { $0.challenges }
+          }
+          // Return the cached value
+          return _allChallenges!
+      }
+      set {
+          // Update the cache with the new value
+          _allChallenges = newValue
+      }
+  }
     
     // Cache for allTopics
     private var _allTopics: [String]?
@@ -156,7 +162,18 @@ class ChaMan {
     func invalidateAllTopicsCache() {
         _allTopics = nil
     }
-    
+  func bumpWrongcount(topic:String){
+    if var t =  tinfo[topic] {
+      t.wrongcount += 1
+     tinfo[topic] = t
+    }
+  }
+  func bumpRightcount(topic:String){
+    if var t =  tinfo[topic] {
+      t.rightcount += 1
+     tinfo[topic] = t
+    }
+  }
     // Allocate N challenges nearly evenly from specified topics, taking from any topic if needed
     func allocateChallenges(forTopics topics: [String], count n: Int) -> AllocationResult {
         var allocatedChallengeIndices: [Int] = []
@@ -275,7 +292,7 @@ class ChaMan {
             stati[index] = .allocated
         }
       TopicInfo.saveTopicInfo(tinfo)
-      return .success(allocatedChallengeIndices)
+      return .success(allocatedChallengeIndices)//.shuffled()) // see if this works
     }
     
     // Deallocate challenges at specified indexes and update internal structures
@@ -363,6 +380,7 @@ class ChaMan {
           if let newChallengeIndex = topicInfo.ch.first(where: { stati[$0] == .inReserve }) {
               // Allocate the new challenge
               stati[newChallengeIndex] = .allocated
+            everyChallenge[newChallengeIndex] = challenge // aha
               topicInfo.ch.removeAll(where: { $0 == newChallengeIndex })
               topicInfo.replacedcount += 1
               topicInfo.freecount -= 1
