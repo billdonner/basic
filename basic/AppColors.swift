@@ -15,7 +15,7 @@ typealias ColorSpec  = (backname:String, forename:String, backrgb:(Double, Doubl
 class
 AppColors  {
 
-  static func colorForTopicIndex(index:Int,gb:GameBoard) -> (Color, Color, UUID) {
+  static func colorForTopicIndex(index:Int,gb:GameState) -> (Color, Color, UUID) {
     return   allSchemes[gb.currentscheme].mappedColors[index]
   }
 

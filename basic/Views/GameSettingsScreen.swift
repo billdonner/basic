@@ -5,12 +5,12 @@ fileprivate struct GameSettingsView: View {
  
 let onExit: ([String])->()
 @Bindable var chmgr:ChaMan
-@Bindable var gameBoard:GameBoard
+@Bindable var gs:GameState
 
 @Binding var startInCorners: Bool
 @Binding var doubleDiag: Bool
 @Binding var difficultyLevel: Int
-  internal init(chmgr:ChaMan,gameBoard:GameBoard,  startInCorners: Binding<Bool>, doubleDiag: Binding<Bool>,  difficultyLevel: Binding<Int>,
+  internal init(chmgr:ChaMan,gs:GameState,  startInCorners: Binding<Bool>, doubleDiag: Binding<Bool>,  difficultyLevel: Binding<Int>,
               //  returningTopics:Binding<[String]>,
                 onExit:@escaping ([String])->()) {
     self.onExit = onExit
@@ -147,7 +147,7 @@ let onExit: ([String])->()
       
       Section(header: Text("Topics")) {
         NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, schemes: AppColors.allSchemes, 
-          gameBoard:gameBoard,
+          gs:gameBoard,
           currentScheme: $l_currentScheme,
           selectedTopics: $l_selectedTopics))
         {
@@ -185,7 +185,7 @@ let onExit: ([String])->()
       }
     }
     .sheet(isPresented:$showSettings){
-      FreeportSettingsScreen(gameBoard: gameBoard, chmgr: chmgr)
+      FreeportSettingsScreen(gs: gameBoard, chmgr: chmgr)
     }
     .onDisappear {
       onExit(selectedTopics) // do whatever
@@ -253,7 +253,7 @@ let onExit: ([String])->()
 struct GameSettingsScreen :
   View {
   @Bindable var chmgr: ChaMan
-  @Bindable var gameBoard: GameBoard
+  @Bindable var gs: GameState
   let onExit: ([String])->()
   
   @AppStorage("startInCorners") private var startInCorners = false
@@ -265,7 +265,7 @@ struct GameSettingsScreen :
     NavigationView  {
       GameSettingsView(
         chmgr: chmgr,
-        gameBoard:gameBoard,
+        gs:gameBoard,
         startInCorners: $startInCorners,
         doubleDiag: $doubleDiag,
         difficultyLevel: $difficultyLevel,
@@ -277,7 +277,7 @@ struct GameSettingsScreen :
 #Preview("Tester") {
 //  let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
 //  GameSettingsScreen(chmgr: ChaMan(playData: PlayData.mock),
-//                     gameBoard: GameBoard(size: starting_size,
+//                     gs: GameBoard(size: starting_size,
 //                                          topics: Array(MockTopics.mockTopics.prefix(starting_size)),  challenges:Challenge.mockChallenges)
 //                         ,
 //                                              ourTopics: t) {  strings in

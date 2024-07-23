@@ -8,13 +8,13 @@
 import SwiftUI
 
 @Observable
-class GameBoard :  Codable {
+class GameState :  Codable {
   var board: [[Challenge]]  // Array of arrays to represent the game board with challenges
   var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell
   var challengeindices: [[Int]] //into the ChallengeStatuses
   var boardsize: Int  // Size of the game board
   var topicsinplay: [String] // a subset of allTopics (which is constant and maintained in ChaMan)
-  var gamestate: GameState = .initializingApp
+  var gamestate: StateOfPlay = .initializingApp
   var totaltime: TimeInterval // aka Double
   var playcount:  Int  // woncount + lostcount + abandoned
   var woncount:  Int
@@ -25,6 +25,7 @@ class GameBoard :  Codable {
   var faceup:Bool
   var gimmees: Int  // Number of "gimmee" actions available
   var currentscheme: Int
+  var veryfirstgame:Bool
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -43,6 +44,7 @@ class GameBoard :  Codable {
     case _challengeindices = "challengeindices"
     case _faceup = "faceup"
     case _currentscheme = "currentscheme"
+    case _veryfirstgame = "veryfirstgame"
   }
   
   init(size: Int, topics: [String], challenges: [Challenge]) {
@@ -61,39 +63,11 @@ class GameBoard :  Codable {
     self.totaltime = 0.0
     self.faceup = false
     self.currentscheme = 0 
+    self.veryfirstgame = true
   }
 }
 
-extension GameBoard {
-  // Get the file path for storing challenge statuses
-  static func getGameBoardFilePath() -> URL {
-    let fileManager = FileManager.default
-    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
-    return urls[0].appendingPathComponent("gameBoard.json")
-  }
-  
-  func saveGameBoard( ) {
-    let filePath = Self.getGameBoardFilePath()
-    do {
-      let data = try JSONEncoder().encode(self)
-      try data.write(to: filePath)
-    } catch {
-      print("Failed to save gameboard: \(error)")
-    }
-  }
-  // Load the GameBoard
-  static func loadGameBoard() -> GameBoard? {
-    let filePath = getGameBoardFilePath()
-    do {
-      let data = try Data(contentsOf: filePath)
-      let gb = try JSONDecoder().decode(GameBoard.self, from: data)
-      return gb
-    } catch {
-      print("Failed to load gameboard: \(error)")
-      return nil
-    }
-  }
-  
+extension GameState {
   func setupForNewGame (chmgr:ChaMan) -> Bool {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
@@ -101,9 +75,7 @@ extension GameBoard {
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: self.boardsize), count:  self.boardsize)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
     // give player a few gimmees depending on boardsize
-    self.gimmees += boardsize - 1 
-    
-    
+    self.gimmees += boardsize - 1
     // use topicsinplay and allocated fresh challenges
     let result:AllocationResult = chmgr.allocateChallenges(forTopics: topicsinplay, count: boardsize * boardsize)
     switch result {
@@ -138,14 +110,14 @@ extension GameBoard {
       }
     }
     gamestate = .playingNow
-    saveGameBoard()
+    saveGameState()
     print("END OF SETUPFORNEWGAME")
-    chmgr.dumpTopics()
+    //chmgr.dumpTopics()
     return true
   }
   
   
-  func teardownAfterGame (state:GameState,chmgr:ChaMan) {
+  func teardownAfterGame (state:StateOfPlay,chmgr:ChaMan) {
     var challenge_indexes:[Int] = []
     gamestate = state
     // examine each board cell and recycle everything thats unplayed
@@ -169,17 +141,16 @@ extension GameBoard {
       print("dealloc failed \(err)")
     }
     chmgr.resetChallengeStatuses(at: challenge_indexes)
-    saveGameBoard()
+    saveGameState()
   }
   
   func clearAllCells() {
     for row in 0..<boardsize {
       for col in 0..<boardsize {
         cellstate[row][col] = .unplayed
-        
       }
     }
-    saveGameBoard()
+    saveGameState()
   }
   func dumpGameBoard () {
     print("Dump of GameBoard")
@@ -208,26 +179,6 @@ extension GameBoard {
     return (unplayedChallenges,unplayedInts)
   }
   
-  func replaceChallenge(at position: (Int, Int), with newChallenge: Challenge) {
-    let (row, col) = position
-    if row >= 0 && row < boardsize && col >= 0 && col < boardsize {
-      board[row][col] = newChallenge
-      cellstate[row][col] = .unplayed // probably dont need this
-    }
-  }
-  
-  func getUnplayedChallenges() -> [Challenge] {
-    var unplayedChallenges: [Challenge] = []
-    for row in 0..<boardsize {
-      for col in 0..<boardsize {
-        if cellstate[row][col] == .unplayed {
-          unplayedChallenges.append(board[row][col])
-        }
-      }
-    }
-    return unplayedChallenges
-  }
-  
   static  func minTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
     case 3: return 2
@@ -245,6 +196,34 @@ extension GameBoard {
     case 5: return 9
     case 6: return 10
     default: return 7
+    }
+  }
+  // Get the file path for storing challenge statuses
+  static func getGameStateFileURL() -> URL {
+    let fileManager = FileManager.default
+    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
+    return urls[0].appendingPathComponent("gameBoard.json")
+  }
+  
+  func saveGameState( ) {
+    let filePath = Self.getGameStateFileURL()
+    do {
+      let data = try JSONEncoder().encode(self)
+      try data.write(to: filePath)
+    } catch {
+      print("Failed to save gs: \(error)")
+    }
+  }
+  // Load the GameBoard
+  static func loadGameState() -> GameState? {
+    let filePath = getGameStateFileURL()
+    do {
+      let data = try Data(contentsOf: filePath)
+      let gb = try JSONDecoder().decode(GameState.self, from: data)
+      return gb
+    } catch {
+      print("Failed to load gs: \(error)")
+      return nil
     }
   }
   

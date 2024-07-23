@@ -10,7 +10,7 @@ import SwiftUI
 struct TopicsChooserScreen: View {
   let allTopics: [String]
   let schemes: [ColorScheme]
-  let gameBoard: GameBoard
+  let gs: GameState
   @Binding var currentScheme: Int
   @Binding var selectedTopics: [String]
   var body: some View {
@@ -19,7 +19,7 @@ struct TopicsChooserScreen: View {
         Text("If you want to change the topics, that's okay but you will end your game. If you just want to change colors or ordering, you should use 'Arrange Topics'.")
           .font(.body)
           .padding(.bottom)
-        Text("At board size \(gameBoard.boardsize) you can add \(GameBoard.maxTopicsForBoardSize(gameBoard.boardsize) - selectedTopics.count) more topics")
+        Text("At board size \(gameBoard.boardsize) you can add \(GameState.maxTopicsForBoardSize(gameBoard.boardsize) - selectedTopics.count) more topics")
           .font(.subheadline)
         
         HStack {

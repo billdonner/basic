@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct GameScreen: View {
-  @Bindable var gameBoard: GameBoard
+  @Bindable var gs: GameState
   @Bindable var chmgr: ChaMan
   @Binding  var topics: [String]
   @Binding var size:Int
@@ -28,7 +28,7 @@ struct GameScreen: View {
   
   var bodyMsg: String {
     let t =  """
-    That was game \(gameBoard.playcount) of which you've won \(gameBoard.woncount) and lost \(gameBoard.lostcount) games
+    That was game \(gs.playcount) of which you've won \(gs.woncount) and lost \(gs.lostcount) games
 """
     return t
   }
@@ -37,8 +37,8 @@ struct GameScreen: View {
     VStack {
       topButtonsVeew // down below
         .padding(.horizontal)
-      ScoreBarView(gb: gameBoard)
-      if gameBoard.boardsize > 1 {
+      ScoreBarView(gs: gs)
+      if gs.boardsize > 1 {
         mainGridVeew
       }
       else {
@@ -58,19 +58,19 @@ struct GameScreen: View {
                  bodyMessage: bodyMsg, buttonTitle: "OK"){
      onYouLose()
    }
-   .onChange(of:gameBoard.cellstate) {
-     //print("//GameScreen onChangeof(CellState) to \(gameBoard.cellstate)")
+   .onChange(of:gs.cellstate) {
+     //print("//GameScreen onChangeof(CellState) to \(gs.cellstate)")
      onChangeOfCellState()
    }
-   .onChange(of:gameBoard.boardsize) {
-     print("//GameScreen onChangeof(Size) to \(gameBoard.boardsize)")
+   .onChange(of:gs.boardsize) {
+     print("//GameScreen onChangeof(Size) to \(gs.boardsize)")
      onBoardSizeChange ()
    }
    .sheet(isPresented: $showSettings){
-     GameSettingsScreen(chmgr: chmgr, gameBoard: gameBoard,
+     GameSettingsScreen(chmgr: chmgr, gs: gs,
                         onExit: {t in
        print("//GameSettingsScreen onExit closure topics:\(t) ")
-       gameBoard.topicsinplay = t //was
+       gs.topicsinplay = t //was
        //  onGameSettingsExit (t)
      })
    }
@@ -78,26 +78,26 @@ struct GameScreen: View {
      HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
    }
    .sheet(isPresented: $showAllocatorView) {
-     AllocatorView(chmgr: chmgr, gameBoard: gameBoard)
+     AllocatorView(chmgr: chmgr, gs: gs)
        .presentationDetents([.fraction(0.25)])
    }
    .onDisappear {
-     fatalError("Yikes the GameScreen is Disappearing!")
+     print("Yikes the GameScreen is Disappearing!")
    }
   }
   
   var mainGridVeew: some View {
     GeometryReader { geometry in
-      let totalSpacing = spacing * CGFloat(gameBoard.boardsize - 1)
+      let totalSpacing = spacing * CGFloat(gs.boardsize - 1)
       let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
-      let cellSize = (axisSize / CGFloat(gameBoard.boardsize)) * shrinkFactor  // Apply shrink factor
+      let cellSize = (axisSize / CGFloat(gs.boardsize)) * shrinkFactor  // Apply shrink factor
       VStack(alignment:.center, spacing: spacing) {
-        ForEach(0..<gameBoard.boardsize, id: \.self) { row in
+        ForEach(0..<gs.boardsize, id: \.self) { row in
           HStack(spacing: spacing) {
-            ForEach(0..<gameBoard.boardsize, id: \.self) { col in
+            ForEach(0..<gs.boardsize, id: \.self) { col in
               makeOneCellVue(row:row,col:col,
-                             challenge:gameBoard.board[row][col],
-                             status:gameBoard.cellstate[row][col],
+                             challenge:gs.board[row][col],
+                             status:gs.cellstate[row][col],
                              cellSize: cellSize)
             }
           }
@@ -108,7 +108,7 @@ struct GameScreen: View {
   }
   var topButtonsVeew : some View{
     HStack {
-      if gameBoard.gamestate !=  GameState.playingNow {
+      if gs.gamestate !=  StateOfPlay.playingNow {
         //Start Game
         Button(action: {
           withAnimation {
@@ -155,8 +155,8 @@ struct GameScreen: View {
           .foregroundColor(.white)
           .cornerRadius(8)
       }
-      .disabled(gameBoard.gamestate == .playingNow)
-      .opacity(gameBoard.gamestate != .playingNow ? 1 : 0.5)
+      .disabled(gs.gamestate == .playingNow)
+      .opacity(gs.gamestate != .playingNow ? 1 : 0.5)
       //Help
       Button(action: { showingHelp = true }) {
         Text("Help")
@@ -172,16 +172,16 @@ extension GameScreen /* actions */ {
   
   func onAppearAction () {
     // on a completely cold start
-    if gameBoard.playcount == 0 {
-      print("//GameScreen OnAppear Coldstart size:\(gameBoard.boardsize) topics: \(topics)")
+    if gs.playcount == 0 {
+      print("//GameScreen OnAppear Coldstart size:\(gs.boardsize) topics: \(topics)")
     } else {
-      print("//GameScreen OnAppear Warmstart size:\(gameBoard.boardsize) topics: \(topics)")
+      print("//GameScreen OnAppear Warmstart size:\(gs.boardsize) topics: \(topics)")
     }
   }
   
   func onCantStartNewGameAction() {
     print("//GameScreen onCantStartNewGameAction")
-    gameBoard.clearAllCells()
+    gs.clearAllCells()
     showCantStartAlert = false
   }
   
@@ -202,11 +202,11 @@ extension GameScreen /* actions */ {
   }
   
   func onChangeOfCellState() {
-    if isWinningPath(in:gameBoard.cellstate) {
+    if isWinningPath(in:gs.cellstate) {
       print("--->YOU WIN")
       showWinAlert = true
     } else {
-      if !isPossibleWinningPath(in:gameBoard.cellstate) {
+      if !isPossibleWinningPath(in:gs.cellstate) {
         print("--->YOU LOSE")
         showLoseAlert = true
       }
@@ -216,19 +216,19 @@ extension GameScreen /* actions */ {
     chmgr.dumpTopics()
   }
   func onStartGame() -> Bool {
-    print("//GameScreen onStartGame before  topics: \(gameBoard.topicsinplay) size:\(gameBoard.boardsize)")
+    print("//GameScreen onStartGame before  topics: \(gs.topicsinplay) size:\(gs.boardsize)")
     // chmgr.dumpTopics()
-    let ok = gameBoard.setupForNewGame(chmgr: chmgr )
+    let ok = gs.setupForNewGame(chmgr: chmgr )
     print("//GameScreen onStartGame after")
     // chmgr.dumpTopics()
     if !ok {
-      print("Failed to allocate \(gameBoard.boardsize*gameBoard.boardsize) challenges for topic \(topics.joined(separator: ","))")
+      print("Failed to allocate \(gs.boardsize*gs.boardsize) challenges for topic \(topics.joined(separator: ","))")
       print("Consider changing the topics in setting and trying again ...")
     }
     return ok
   }
-  func endGame(status:GameState){
-    gameBoard.teardownAfterGame(state: status, chmgr: chmgr)
+  func endGame(status:StateOfPlay){
+    gs.teardownAfterGame(state: status, chmgr: chmgr)
   }
 }
 private extension GameScreen {
@@ -237,10 +237,10 @@ private extension GameScreen {
                       challenge:Challenge,
                       status:ChallengeOutcomes,
                       cellSize: CGFloat) -> some View {
-    let colormix = colorForTopic(challenge.topic, gb: gameBoard)
+    let colormix = colorForTopic(challenge.topic, gb: gs)
     return VStack {
       Text(//hideCellContent ||hideCellContent ||
-        ( !gameBoard.faceup) ? " " : challenge.question )
+        ( !gs.faceup) ? " " : challenge.question )
       .font(.caption)
       .padding(10)
       .frame(width: cellSize, height: cellSize)
@@ -248,12 +248,12 @@ private extension GameScreen {
       .foregroundColor(colormix.1)
       .border(status.borderColor , width: 8)
       .cornerRadius(8)
-      .opacity(gameBoard.gamestate == .playingNow ? 1.0:0.3)
+      .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
     }
     // for some unknown reason, the tap surface area is bigger if placed outside the VStack
     .onTapGesture {
-      if  gameBoard.gamestate == .playingNow &&
-            gameBoard.cellstate[row][col] == .unplayed {
+      if  gs.gamestate == .playingNow &&
+            gs.cellstate[row][col] == .unplayed {
         onTapGesture(row,col)
       }
     }
@@ -278,7 +278,7 @@ private extension GameScreen {
   Group {
     ForEach([3, 4, 5, 6], id: \.self) { s in
       GameScreen(
-        gameBoard:GameBoard(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]),
+        gs:GameState(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]),
         chmgr: ChaMan(playData: PlayData.mock),
         topics: .constant(["Actors", "Animals", "Cars"]), size:.constant(s),
         onTapGesture: { row,col in

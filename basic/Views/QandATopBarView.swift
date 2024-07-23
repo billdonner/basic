@@ -1,6 +1,6 @@
 import SwiftUI
 struct QandATopBarView: View {
-  let gameBoard:GameBoard
+  let gs:GameState
     let topic: String
     let hint:String
     let elapsedTime: TimeInterval
@@ -84,7 +84,7 @@ struct QandATopBarView: View {
 
 #Preview {
     QandATopBarView(
-      gameBoard: GameBoard(size:1,topics:["foo"],challenges:[Challenge.complexMock]),
+      gs: GameState(size:1,topics:["foo"],challenges:[Challenge.complexMock]),
       topic: "American History",
       hint: "What can we say about history?",
       elapsedTime: 23984923.0,

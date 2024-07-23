@@ -25,10 +25,10 @@ extension PlayData {
 }
 
 
-extension GameBoard {
+extension GameState {
 
   static var mock = {
-    GameBoard(size:3,topics:Array(MockTopics.mockTopics.prefix(5)),  challenges:Challenge.mockChallenges)
+    GameState(size:3,topics:Array(MockTopics.mockTopics.prefix(5)),  challenges:Challenge.mockChallenges)
   }
 }
 

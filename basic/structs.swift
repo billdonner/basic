@@ -1,5 +1,5 @@
 import SwiftUI
-enum GameState : Int, Codable {
+enum StateOfPlay : Int, Codable {
   case initializingApp
   case playingNow
   case justLost

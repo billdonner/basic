@@ -28,13 +28,13 @@ extension String {
     }
 }
 
- func indexOfTopic(_ topic:String,gb:GameBoard) -> Int? {
+ func indexOfTopic(_ topic:String,gb:GameState) -> Int? {
   for (index,t) in gb.topicsinplay.enumerated()  {
   if t == topic { return index}
   }
   return nil
 }
-  func colorForTopic(_ topic:String,gb:GameBoard) ->   (Color, Color, UUID) {
+  func colorForTopic(_ topic:String,gb:GameState) ->   (Color, Color, UUID) {
       if let index = indexOfTopic(topic,gb:gb) {
         return AppColors.colorForTopicIndex(index:index,gb:gb)
       } else {

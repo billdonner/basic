@@ -25,7 +25,7 @@ struct DismissButtonView: View {
 }
 
 struct FreeportSettingsScreen: View {
-  var gameBoard: GameBoard
+  var gs: GameState
   var chmgr: ChaMan
   
   @AppStorage("elementWidth") var elementWidth = 100.0
@@ -67,7 +67,7 @@ struct FreeportSettingsScreen: View {
             
             Button(action:{ //showReset.toggle()
                     let _ = gameBoard.resetBoardReturningUnplayed()
-                     chmgr.totalresetofAllChallengeStatuses(gameBoard: gameBoard)
+                     chmgr.totalresetofAllChallengeStatuses(gs: gameBoard)
               
             }) {
               Text("Factory Reset")
@@ -87,8 +87,8 @@ struct FreeportSettingsScreen: View {
 }
 
 #Preview ("Settings"){
-  FreeportSettingsScreen(gameBoard: 
-                          GameBoard(size: starting_size,topics: Array(MockTopics.mockTopics.prefix(starting_size)),
+  FreeportSettingsScreen(gs: 
+                          GameState(size: starting_size,topics: Array(MockTopics.mockTopics.prefix(starting_size)),
                                                 challenges:Challenge.mockChallenges)  
                           , chmgr: ChaMan(playData: PlayData.mock))
 }

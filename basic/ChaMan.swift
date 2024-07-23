@@ -373,28 +373,31 @@ class ChaMan {
       let topic = challenge.topic // Assuming `Challenge` has a `topic` property
 
       // Mark the old challenge as abandoned
-      stati[index] = .abandoned
+    //****  stati[index] = .abandoned
 
       // Find a new challenge to replace the old one
       if var topicInfo = tinfo[topic] {
           if let newChallengeIndex = topicInfo.ch.first(where: { stati[$0] == .inReserve }) {
-              // Allocate the new challenge
-              stati[newChallengeIndex] = .allocated
-            everyChallenge[newChallengeIndex] = challenge // aha
-              topicInfo.ch.removeAll(where: { $0 == newChallengeIndex })
+            let newChallenge = everyChallenge[newChallengeIndex]
+            // swap the actual challenges
+            everyChallenge[index] = newChallenge
+            everyChallenge[newChallengeIndex] = challenge
+            
+            stati[newChallengeIndex] = .abandoned
+            // dont need to change the indices because we swapped challenges
+              ////topicInfo.ch.removeAll(where: { $0 == newChallengeIndex })
               topicInfo.replacedcount += 1
               topicInfo.freecount -= 1
               tinfo[topic] = topicInfo
               TopicInfo.saveTopicInfo(tinfo)
-              // Return the index of the newly replaced challenge
-              return .success([newChallengeIndex])
+              // Return the index of the we supplied
+              return .success([index])
           } else {
               return .error(.insufficientChallenges)
           }
       } else {
           return .error(.invalidTopics([topic]))
       }
-    
   }
   
   // Get the file path for storing challenge statuses
@@ -455,22 +458,22 @@ class ChaMan {
 
 extension ChaMan {
 
-  func loadAllData  (gameBoard:GameBoard) {
+  func loadAllData  (gs:GameState) {
     do {
-      if  let gb =  GameBoard.loadGameBoard() {
-        gameBoard.cellstate = gb.cellstate
-        gameBoard.boardsize = gb.boardsize
-        gameBoard.board = gb.board
-        gameBoard.gimmees = gb.gimmees
-        gameBoard.playcount = gb.playcount
-        gameBoard.rightcount = gb.rightcount
-        gameBoard.wrongcount = gb.wrongcount
-        gameBoard.lostcount = gb.lostcount
-        gameBoard.woncount = gb.woncount
-        gameBoard.replacedcount = gb.replacedcount
-        gameBoard.totaltime = gb.totaltime
-        gameBoard.gamestate = gb.gamestate
-        gameBoard.topicsinplay = gb.topicsinplay
+      if  let gb =  GameState.loadGameState() {
+        gs.cellstate = gb.cellstate
+        gs.boardsize = gb.boardsize
+        gs.board = gb.board
+        gs.gimmees = gb.gimmees
+        gs.playcount = gb.playcount
+        gs.rightcount = gb.rightcount
+        gs.wrongcount = gb.wrongcount
+        gs.lostcount = gb.lostcount
+        gs.woncount = gb.woncount
+        gs.replacedcount = gb.replacedcount
+        gs.totaltime = gb.totaltime
+        gs.gamestate = gb.gamestate
+        gs.topicsinplay = gb.topicsinplay
       }
       try self.loadPlayData(from: playDataFileName)
       
@@ -619,7 +622,7 @@ extension ChaMan {
     }
   }
   
-  func totalresetofAllChallengeStatuses(gameBoard:GameBoard) {
+  func totalresetofAllChallengeStatuses(gs:GameState) {
     defer {
       saveChallengeStatuses(stati)
     }

@@ -8,7 +8,7 @@
 import SwiftUI
 struct AllocatorView: View {
   let chmgr: ChaMan
-  let  gameBoard:GameBoard
+  let  gs:GameState
   @Environment(\.colorScheme) var colorScheme //system light/dark
   @State var succ = false
   
@@ -27,7 +27,7 @@ struct AllocatorView: View {
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) > 0 {
-              TopicCountsView(topic: topic,chmgr: chmgr, gameBoard: gameBoard )
+              TopicCountsView(topic: topic,chmgr: chmgr, gs: gameBoard )
             }
           }
         }
@@ -35,7 +35,7 @@ struct AllocatorView: View {
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) <=  0 {
-              TopicCountsView(topic: topic,chmgr: chmgr,gameBoard: gameBoard)
+              TopicCountsView(topic: topic,chmgr: chmgr,gs: gameBoard)
             }
           }
         }
@@ -65,7 +65,7 @@ struct AllocatorView: View {
 struct AllocatorView_Previews: PreviewProvider {
   static var previews: some View {
     AllocatorView(chmgr: ChaMan(playData:PlayData.mock),
-                  gameBoard: GameBoard(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges))
+                  gs: GameState(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges))
     
   }
 }
@@ -73,7 +73,7 @@ struct AllocatorView_Previews: PreviewProvider {
 fileprivate struct TopicCountsView: View {
   let topic: BasicTopic
   let chmgr: ChaMan
-  let gameBoard: GameBoard
+  let gs: GameState
   
   var counts: some View {
     Text("\(chmgr.allocatedChallengesCount(for: topic.name)) - "

@@ -5,10 +5,11 @@ struct QandAScreen: View {
   let col: Int
   @Binding var isPresentingDetailView: Bool
   @Bindable  var chmgr:ChaMan //
-  @Bindable var gb: GameBoard  //
+  @Bindable var gb: GameState  //
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   
   @State private var gimmeeAlert = false
+  @State private var gimmeeAllAlert = false
   @State private var selectedAnswer: String? = nil  // State to track selected answer
   @State private var answerCorrect: Bool = false   // State to track if the selected answer is correct
   @State private var timer: Timer? = nil  // Timer to track elapsed time
@@ -27,7 +28,7 @@ struct QandAScreen: View {
       ZStack {
         VStack {
           QandATopBarView(
-            gameBoard: gb, topic: ch.topic, hint: ch.hint,
+            gs: gb, topic: ch.topic, hint: ch.hint,
             elapsedTime:elapsedTime,
             handlePass: handlePass,
             toggleHint: toggleHint
@@ -58,9 +59,14 @@ struct QandAScreen: View {
           handleDismissal(toRoot:true)
         })
         
-        .gimmeeAlert(isPresented: $gimmeeAlert, title: "I replaced this Question", message: "I charged you one gimmee", buttonTitle: "OK", onButtonTapped: {
+        .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question with another from the same topic, if possible", message: "I will charge you one gimmee", buttonTitle: "OK", onButtonTapped: {
           handleGimmee(row:row,col:col)
-          handleDismissal(toRoot:true)
+          handleDismissal(toRoot:false)
+        }, animation: .spring())
+        
+        .gimmeeAllAlert(isPresented: $gimmeeAlert, title: "I will replace this Question with another from any topic", message: "I will charge you one gimmee", buttonTitle: "OK", onButtonTapped: {
+          handleGimmee(row:row,col:col)
+          handleDismissal(toRoot:false)
         }, animation: .spring())
       }
     }
@@ -120,7 +126,7 @@ struct QandAScreen: View {
     Button(action: {
       gimmeeAlert = true
     }) {
-      Image(systemName: "hands.clap")
+      Image(systemName: "arcade.stick.and.arrow.down")
         .font(.title)
         .foregroundColor(.white)
         .frame(width: 50, height: 50)
@@ -134,13 +140,13 @@ struct QandAScreen: View {
   
   var gimmeeAllButton: some View {
     Button(action: {
-      handleGimmeeAll()
+      gimmeeAllAlert = true
     }) {
-      Image(systemName: "rectangle.stack.person.crop.fill")
+      Image(systemName: "arcade.stick.and.arrow.up")
         .font(.title)
         .foregroundColor(.white)
         .frame(width: 50, height: 50)
-        .background(Color.blue)
+        .background(Color.purple)
         .cornerRadius(10)
     }
     .disabled(gb.gimmees<1)
@@ -308,9 +314,10 @@ extension QandAScreen { /* actions */
     let idx = row*gb.boardsize + col
     let result = chmgr.replaceChallenge(at:idx)
     switch result {
-    case .success(let indices):
+    case .success(let index):
       gb.gimmees -= 1
-     print(" Gimmee realloation successful:\(indices)")
+      gb.board[row][col] = chmgr.everyChallenge[index[0]]
+     print("Gimmee realloation successful")
   
     case .error(let error):
     print("Couldn't handle gimmee reallocation \(error)")
@@ -329,7 +336,7 @@ extension QandAScreen { /* actions */
     showBorders = true
     gb.cellstate[row][col] = .playedCorrectly
     gb.rightcount += 1
-    gb.saveGameBoard()
+    gb.saveGameState()
     chmgr.bumpRightcount(topic: ch.topic)
     chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col,
                     status: .playedCorrectly)
@@ -347,7 +354,7 @@ extension QandAScreen { /* actions */
     showBorders = true
     gb.cellstate[row][col] = .playedIncorrectly
     gb.wrongcount += 1
-    gb.saveGameBoard()
+    gb.saveGameState()
     chmgr.bumpWrongcount(topic: ch.topic)
     chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col, status: .playedIncorrectly)
     stopTimer()
@@ -375,11 +382,11 @@ extension QandAScreen { /* actions */
 
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameBoard(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   
 }
 

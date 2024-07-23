@@ -12,7 +12,7 @@
 		88575CBA2C47122D005D3E55 /* ChaManTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88575CB82C4711BE005D3E55 /* ChaManTests.swift */; };
 		885CEB0C2C28879000234C17 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB0B2C28879000234C17 /* AppColors.swift */; };
 		885CEB142C289D5300234C17 /* ChaMan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB132C289D5300234C17 /* ChaMan.swift */; };
-		885CEB162C289DDC00234C17 /* GameBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB152C289DDC00234C17 /* GameBoard.swift */; };
+		885CEB162C289DDC00234C17 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB152C289DDC00234C17 /* GameState.swift */; };
 		885CEB202C29085700234C17 /* Guts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB1B2C29085700234C17 /* Guts.swift */; };
 		885CEB232C290C6000234C17 /* subs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB222C290C6000234C17 /* subs.swift */; };
 		885CEB252C2A266100234C17 /* WinLose.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB242C2A266100234C17 /* WinLose.swift */; };
@@ -43,7 +43,7 @@
 		88575CB82C4711BE005D3E55 /* ChaManTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaManTests.swift; sourceTree = "<group>"; };
 		885CEB0B2C28879000234C17 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		885CEB132C289D5300234C17 /* ChaMan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaMan.swift; sourceTree = "<group>"; };
-		885CEB152C289DDC00234C17 /* GameBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoard.swift; sourceTree = "<group>"; };
+		885CEB152C289DDC00234C17 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
 		885CEB1B2C29085700234C17 /* Guts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guts.swift; sourceTree = "<group>"; };
 		885CEB222C290C6000234C17 /* subs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = subs.swift; sourceTree = "<group>"; };
 		885CEB242C2A266100234C17 /* WinLose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinLose.swift; sourceTree = "<group>"; };
@@ -137,7 +137,7 @@
 				884548972C3B9AF6009A725F /* CustomAlerts.swift */,
 				885CEB1B2C29085700234C17 /* Guts.swift */,
 				885CEB0B2C28879000234C17 /* AppColors.swift */,
-				885CEB152C289DDC00234C17 /* GameBoard.swift */,
+				885CEB152C289DDC00234C17 /* GameState.swift */,
 				885CEB132C289D5300234C17 /* ChaMan.swift */,
 				885CEB242C2A266100234C17 /* WinLose.swift */,
 				88F6F8D62C1A1E2500A50C31 /* Assets.xcassets */,
@@ -267,7 +267,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				885CEB162C289DDC00234C17 /* GameBoard.swift in Sources */,
+				885CEB162C289DDC00234C17 /* GameState.swift in Sources */,
 				885CEB142C289D5300234C17 /* ChaMan.swift in Sources */,
 				88A6D6BC2C2C913A0080A63E /* structs.swift in Sources */,
 				88CB25F22C3DB77C0083FA73 /* mocks.swift in Sources */,

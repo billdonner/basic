@@ -16,8 +16,8 @@ import SwiftUI
     @State private var rerolledTopics: [String: String] = [:]  // Dictionary to keep track of rerolled topics
 
     var body: some View {
-      let maxTopics =  GameBoard.maxTopicsForBoardSize(boardSize)
-      let minTopics =  GameBoard.minTopicsForBoardSize(boardSize)
+      let maxTopics =  GameState.maxTopicsForBoardSize(boardSize)
+      let minTopics =  GameState.minTopicsForBoardSize(boardSize)
         VStack {
           Text("board size:\(boardSize)x\(boardSize) requires \(minTopics)-\(maxTopics) topics.")
             Text("You can select \(maxTopics - selectedTopics.count) more topics.")

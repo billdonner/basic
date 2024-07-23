@@ -549,4 +549,7 @@ extension View {
     func gimmeeAlert(isPresented: Binding<Bool>, title: String, message: String, buttonTitle: String, onButtonTapped: @escaping () -> Void, animation: Animation) -> some View {
         self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))
   }
+  func gimmeeAllAlert(isPresented: Binding<Bool>, title: String, message: String, buttonTitle: String, onButtonTapped: @escaping () -> Void, animation: Animation) -> some View {
+      self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))
+}
 }

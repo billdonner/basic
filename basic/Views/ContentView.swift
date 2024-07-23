@@ -4,17 +4,15 @@ let playDataFileName = "playdata.json"
 let starting_size = 6 // Example size, can be 3 to 6
 
 struct ContentView:View {
-  @State var chaMan = ChaMan(playData: PlayData.mock )
-  @State var gameBoard = GameBoard(size: starting_size,
-                                   topics: [],//Array(MockTopics.mockTopics.prefix(starting_size)),
-                                   challenges:Challenge.mockChallenges)
+@Bindable var gs: GameState
+  @Bindable var chaMan: ChaMan
   
   @State var current_size: Int = starting_size
   @State var current_topics: [String] = []//Array(MockTopics.mockTopics[0..<starting_size])
   @State var chal : IdentifiablePoint? = nil
   @State var isPresentingDetailView =  false
   var body: some View {
-    GameScreen(gameBoard:gameBoard,
+    GameScreen(gs:gameBoard,
                chmgr:chaMan, topics: $current_topics, size:$current_size )
     { row,col    in
       //tap behavior
@@ -22,20 +20,24 @@ struct ContentView:View {
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
-      chaMan.loadAllData(gameBoard:gameBoard)
-      current_size = gameBoard.boardsize
-      if gameBoard.topicsinplay.count == 0 {
-        print("//*****1")
-        // ask for just one topic
-        gameBoard.topicsinplay = getRandomTopics(5, from: chaMan.everyTopicName) //*****1
+      if gameBoard.veryfirstgame {
+        chaMan.loadAllData(gs:gameBoard)
+        current_size = gameBoard.boardsize
+        if gameBoard.topicsinplay.count == 0 {
+          gameBoard.topicsinplay = getRandomTopics(current_size-1, from: chaMan.everyTopicName) //*****1
+        }
+        current_topics = gameBoard.topicsinplay
+        chaMan.checkTopicConsistency("ContentView onAppear")
+        print("//ContentView first onAppear size:\(current_size) topics:\(current_topics)")
+        //chaMan.dumpTopics()
+      } else {
+        print("//ContentView onAppear size:\(current_size) topics:\(current_topics)")
       }
-      current_topics = gameBoard.topicsinplay
-      chaMan.checkTopicConsistency("ContentView onAppear")
-      print("//ContentView onAppear size:\(current_size) topics:\(current_topics)")
-      chaMan.dumpTopics()
+      
+      gameBoard.veryfirstgame = false
     }
     .onDisappear {
-        fatalError("Yikes the ContentView is Disappearing!")
+      print("Yikes the ContentView is Disappearing!")
       }
     .sheet(item:$chal ) { cha in
       QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,chmgr: chaMan, gb: gameBoard)
@@ -43,7 +45,6 @@ struct ContentView:View {
   }
 }
 
-
 #Preview {
-  ContentView()
+  ContentView(gs: GameState(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges), chaMan: ChaMan(playData: PlayData.mock))
 }
