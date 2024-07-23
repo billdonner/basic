@@ -12,7 +12,7 @@ struct ContentView:View {
   @State var chal : IdentifiablePoint? = nil
   @State var isPresentingDetailView =  false
   var body: some View {
-    GameScreen(gs:gameBoard,
+    GameScreen(gs:gs,
                chmgr:chaMan, topics: $current_topics, size:$current_size )
     { row,col    in
       //tap behavior
@@ -20,13 +20,13 @@ struct ContentView:View {
       chal = IdentifiablePoint(row:row,col:col)
     }
     .onAppear {
-      if gameBoard.veryfirstgame {
-        chaMan.loadAllData(gs:gameBoard)
-        current_size = gameBoard.boardsize
-        if gameBoard.topicsinplay.count == 0 {
-          gameBoard.topicsinplay = getRandomTopics(current_size-1, from: chaMan.everyTopicName) //*****1
+      if gs.veryfirstgame {
+        chaMan.loadAllData(gs:gs)
+        current_size = gs.boardsize
+        if gs.topicsinplay.count == 0 {
+          gs.topicsinplay = getRandomTopics(current_size-1, from: chaMan.everyTopicName) //*****1
         }
-        current_topics = gameBoard.topicsinplay
+        current_topics = gs.topicsinplay
         chaMan.checkTopicConsistency("ContentView onAppear")
         print("//ContentView first onAppear size:\(current_size) topics:\(current_topics)")
         //chaMan.dumpTopics()
@@ -34,13 +34,13 @@ struct ContentView:View {
         print("//ContentView onAppear size:\(current_size) topics:\(current_topics)")
       }
       
-      gameBoard.veryfirstgame = false
+      gs.veryfirstgame = false
     }
     .onDisappear {
       print("Yikes the ContentView is Disappearing!")
       }
     .sheet(item:$chal ) { cha in
-      QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,chmgr: chaMan, gb: gameBoard)
+      QandAScreen (row:cha.row,col:cha.col,  isPresentingDetailView: $isPresentingDetailView,chmgr: chaMan, gb: gs)
     }
   }
 }

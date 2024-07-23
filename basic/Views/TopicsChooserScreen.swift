@@ -19,11 +19,11 @@ struct TopicsChooserScreen: View {
         Text("If you want to change the topics, that's okay but you will end your game. If you just want to change colors or ordering, you should use 'Arrange Topics'.")
           .font(.body)
           .padding(.bottom)
-        Text("At board size \(gameBoard.boardsize) you can add \(GameState.maxTopicsForBoardSize(gameBoard.boardsize) - selectedTopics.count) more topics")
+        Text("At board size \(gs.boardsize) you can add \(GameState.maxTopicsForBoardSize(gs.boardsize) - selectedTopics.count) more topics")
           .font(.subheadline)
         
         HStack {
-          NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex:$currentScheme, boardSize: gameBoard.boardsize)) {
+          NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex:$currentScheme, boardSize: gs.boardsize)) {
             Text("Select Topics")
           }
           

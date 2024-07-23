@@ -76,7 +76,7 @@ struct QandATopBarView: View {
     }
 
     var additionalInfoView: some View {
-      Text("won:\(gameBoard.woncount) lost:\(gameBoard.lostcount) gimmees:\(gameBoard.gimmees)")
+      Text("won:\(gs.woncount) lost:\(gs.lostcount) gimmees:\(gs.gimmees)")
             .font(.footnote)
             .foregroundColor(.secondary)
     }

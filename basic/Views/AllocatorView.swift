@@ -17,7 +17,7 @@ struct AllocatorView: View {
       HStack {
         Text("Allocated: \(chmgr.allocatedChallengesCount())")
         Text("Free: \(chmgr.freeChallengesCount())")
-        Text("Played: \(gameBoard.playcount)")
+        Text("Played: \(gs.playcount)")
       }
       .font(.footnote)
       .padding(.bottom, 8)
@@ -27,7 +27,7 @@ struct AllocatorView: View {
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) > 0 {
-              TopicCountsView(topic: topic,chmgr: chmgr, gs: gameBoard )
+              TopicCountsView(topic: topic,chmgr: chmgr, gs: gs )
             }
           }
         }
@@ -35,7 +35,7 @@ struct AllocatorView: View {
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) <=  0 {
-              TopicCountsView(topic: topic,chmgr: chmgr,gs: gameBoard)
+              TopicCountsView(topic: topic,chmgr: chmgr,gs: gs)
             }
           }
         }
@@ -92,7 +92,7 @@ fileprivate struct TopicCountsView: View {
       counts
     }
     .font(.caption)
-    .background(colorForTopic(topic.name,gb:gameBoard).0)
+    .background(colorForTopic(topic.name,gb:gs).0)
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
   }

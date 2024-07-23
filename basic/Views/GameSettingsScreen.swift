@@ -14,21 +14,21 @@ let onExit: ([String])->()
               //  returningTopics:Binding<[String]>,
                 onExit:@escaping ([String])->()) {
     self.onExit = onExit
-    self.gameBoard = gameBoard
+    self.gs = gs
     _startInCorners = startInCorners
     _doubleDiag = doubleDiag
     _difficultyLevel = difficultyLevel
     self.chmgr = chmgr
     self.ourTopics =    chmgr.playData.allTopics
     let randomTopics = ourTopics.shuffled()
-    let chosenTopics = Array(randomTopics.prefix(gameBoard.boardsize  - 1))
-    let remainingTopics = Array(randomTopics.dropFirst(gameBoard.boardsize - 2))
+    let chosenTopics = Array(randomTopics.prefix(gs.boardsize  - 1))
+    let remainingTopics = Array(randomTopics.dropFirst(gs.boardsize - 2))
     _selectedTopics = State(initialValue: chosenTopics)
     _availableTopics = State(initialValue: remainingTopics)
-    l_faceUpCards = gameBoard.faceup
-    l_boardSize = gameBoard.boardsize
+    l_faceUpCards = gs.faceup
+    l_boardSize = gs.boardsize
     l_doubleDiag = doubleDiag.wrappedValue
-    l_currentScheme = gameBoard.currentscheme
+    l_currentScheme = gs.currentscheme
     l_difficultyLevel = difficultyLevel.wrappedValue
     l_startInCorners = startInCorners.wrappedValue
     l_selectedTopics = chosenTopics
@@ -147,7 +147,7 @@ let onExit: ([String])->()
       
       Section(header: Text("Topics")) {
         NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, schemes: AppColors.allSchemes, 
-          gs:gameBoard,
+          gs:gs,
           currentScheme: $l_currentScheme,
           selectedTopics: $l_selectedTopics))
         {
@@ -185,7 +185,7 @@ let onExit: ([String])->()
       }
     }
     .sheet(isPresented:$showSettings){
-      FreeportSettingsScreen(gs: gameBoard, chmgr: chmgr)
+      FreeportSettingsScreen(gs: gs, chmgr: chmgr)
     }
     .onDisappear {
       onExit(selectedTopics) // do whatever
@@ -216,10 +216,10 @@ let onExit: ([String])->()
     difficultyLevel = l_difficultyLevel
     startInCorners = l_startInCorners
     selectedTopics = l_selectedTopics //selectedTopics +
-    gameBoard.faceup = l_faceUpCards
-    gameBoard.boardsize = l_boardSize
-    gameBoard.topicsinplay = l_selectedTopics // //*****2
-    gameBoard.currentscheme = l_currentScheme
+    gs.faceup = l_faceUpCards
+    gs.boardsize = l_boardSize
+    gs.topicsinplay = l_selectedTopics // //*****2
+    gs.currentscheme = l_currentScheme
     chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
   }
 }
@@ -265,7 +265,7 @@ struct GameSettingsScreen :
     NavigationView  {
       GameSettingsView(
         chmgr: chmgr,
-        gs:gameBoard,
+        gs:gs,
         startInCorners: $startInCorners,
         doubleDiag: $doubleDiag,
         difficultyLevel: $difficultyLevel,
