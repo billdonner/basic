@@ -171,7 +171,7 @@ extension GameState {
     print("topicsinplay ",topicsinplay)
     print("================")
   }
-
+  
   // this returns unplayed challenges and their indices in the challengestatus array
   func resetBoardReturningUnplayed() -> ([Challenge],[Int]) {
     var unplayedChallenges: [Challenge] = []
@@ -206,43 +206,45 @@ extension GameState {
     case 6: return 10
     default: return 7
     }
+  }
     
-    static  func preselectedTopicsForBoardSize(_ size:Int) -> Int {
-      switch size  {
-      case 3: return 1
-      case 4: return 2
-      case 5: return 3
-      case 6: return 4
-      default: return 1
+  static  func preselectedTopicsForBoardSize(_ size:Int) -> Int {
+    switch size  {
+    case 3: return 1
+    case 4: return 2
+    case 5: return 3
+    case 6: return 4
+    default: return 1
+    }
+  }
+ 
+    // Get the file path for storing challenge statuses
+    static func getGameStateFileURL() -> URL {
+      let fileManager = FileManager.default
+      let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
+      return urls[0].appendingPathComponent("gameBoard.json")
+    }
+    
+    func saveGameState( ) {
+      let filePath = Self.getGameStateFileURL()
+      do {
+        let data = try JSONEncoder().encode(self)
+        try data.write(to: filePath)
+      } catch {
+        print("Failed to save gs: \(error)")
       }
-  }
-  // Get the file path for storing challenge statuses
-  static func getGameStateFileURL() -> URL {
-    let fileManager = FileManager.default
-    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
-    return urls[0].appendingPathComponent("gameBoard.json")
-  }
-  
-  func saveGameState( ) {
-    let filePath = Self.getGameStateFileURL()
-    do {
-      let data = try JSONEncoder().encode(self)
-      try data.write(to: filePath)
-    } catch {
-      print("Failed to save gs: \(error)")
     }
-  }
-  // Load the GameBoard
-  static func loadGameState() -> GameState? {
-    let filePath = getGameStateFileURL()
-    do {
-      let data = try Data(contentsOf: filePath)
-      let gb = try JSONDecoder().decode(GameState.self, from: data)
-      return gb
-    } catch {
-      print("Failed to load gs: \(error)")
-      return nil
+    // Load the GameBoard
+    static func loadGameState() -> GameState? {
+      let filePath = getGameStateFileURL()
+      do {
+        let data = try Data(contentsOf: filePath)
+        let gb = try JSONDecoder().decode(GameState.self, from: data)
+        return gb
+      } catch {
+        print("Failed to load gs: \(error)")
+        return nil
+      }
     }
+    
   }
-  
-}
