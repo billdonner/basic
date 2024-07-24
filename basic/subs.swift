@@ -36,7 +36,7 @@ extension String {
 }
   func colorForTopic(_ topic:String,gb:GameState) ->   (Color, Color, UUID) {
       if let index = indexOfTopic(topic,gb:gb) {
-        return AppColors.colorForTopicIndex(index:index,gb:gb)
+        return AppColors.colorForTopicIndex(index:ColorSchemeName(rawValue: index) ?? .bleak ,gb:gb)
       } else {
         return (Color.white, Color.black, UUID())
       }
@@ -142,12 +142,7 @@ struct AppVersionInformationView_Previews: PreviewProvider {
 }
 
 func dumpAppStorage() {
-  
- 
-  @AppStorage("startInCorners")   var startInCorners = false
- 
-  @AppStorage("doubleDiag")   var doubleDiag = false
-  @AppStorage("difficultyLevel")  var difficultyLevel = 1
+
   @AppStorage("elementWidth") var elementWidth = 100.0
   @AppStorage("shuffleUp")  var shuffleUp = true
   @AppStorage("fontsize")  var fontsize = 24.0
@@ -159,11 +154,7 @@ func dumpAppStorage() {
   
   print("Dump of AppStorage")
   print("================")
- 
-  print("startInCorners ",startInCorners)
- 
-  print("doubleDiag ",doubleDiag) 
-  print("difficultyLevel ",difficultyLevel)
+
   print("elementWidth ",elementWidth)
   print("shuffleUp ",shuffleUp)
   print("fontsize ",fontsize)

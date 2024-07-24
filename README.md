@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+version 0.2.0 can utilize gimmees , removed gimmee any
 version 0.2.0 can utilize gimmees :)
 version 0.1.9 can change board size, default size 6
 version 0.1.8 put something in carol's hands

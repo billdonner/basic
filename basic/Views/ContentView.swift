@@ -24,7 +24,7 @@ struct ContentView:View {
         chaMan.loadAllData(gs:gs)
         current_size = gs.boardsize
         if gs.topicsinplay.count == 0 {
-          gs.topicsinplay = getRandomTopics(current_size-1, from: chaMan.everyTopicName) //*****1
+          gs.topicsinplay = getRandomTopics(GameState.preselectedTopicsForBoardSize(current_size), from: chaMan.everyTopicName) //*****1
         }
         current_topics = gs.topicsinplay
         chaMan.checkTopicConsistency("ContentView onAppear")

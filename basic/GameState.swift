@@ -24,8 +24,11 @@ class GameState :  Codable {
   var replacedcount: Int
   var faceup:Bool
   var gimmees: Int  // Number of "gimmee" actions available
-  var currentscheme: Int
+  var currentscheme: ColorSchemeName
   var veryfirstgame:Bool
+  var startincorners:Bool
+  var doublediag:Bool
+  var difficultylevel:Int
   
   enum CodingKeys: String, CodingKey {
     case _board = "board"
@@ -45,6 +48,9 @@ class GameState :  Codable {
     case _faceup = "faceup"
     case _currentscheme = "currentscheme"
     case _veryfirstgame = "veryfirstgame"
+    case _startincorners = "startincorners"
+    case _doublediag = "doublediag"
+    case _difficultylevel = "difficultylevel"
   }
   
   init(size: Int, topics: [String], challenges: [Challenge]) {
@@ -62,8 +68,11 @@ class GameState :  Codable {
     self.replacedcount = 0
     self.totaltime = 0.0
     self.faceup = false
-    self.currentscheme = 0 
+    self.currentscheme = .winter
     self.veryfirstgame = true
+    self.doublediag = false
+    self.difficultylevel = 0
+    self.startincorners = false
   }
 }
 
@@ -197,6 +206,15 @@ extension GameState {
     case 6: return 10
     default: return 7
     }
+    
+    static  func preselectedTopicsForBoardSize(_ size:Int) -> Int {
+      switch size  {
+      case 3: return 1
+      case 4: return 2
+      case 5: return 3
+      case 6: return 4
+      default: return 1
+      }
   }
   // Get the file path for storing challenge statuses
   static func getGameStateFileURL() -> URL {

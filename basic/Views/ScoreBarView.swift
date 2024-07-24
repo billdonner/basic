@@ -49,6 +49,10 @@ struct ScoreBarView: View {
           Text ("game in progress...").foregroundStyle(.blue.opacity(0.5))
         } else {
           Text ("you can start a new game now ").foregroundStyle(.green.opacity(0.5))
+          if gs.startincorners {
+            Text("you've got to start in a corner")
+              .font(.footnote).opacity(0.5)
+          }
         }
       }
 

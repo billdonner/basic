@@ -398,8 +398,8 @@
             filePath = "basic/Views/QandAScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "299"
-            endingLineNumber = "299"
+            startingLineNumber = "302"
+            endingLineNumber = "302"
             landmarkName = "stopTimer()"
             landmarkType = "7">
          </BreakpointContent>
@@ -418,38 +418,6 @@
             endingLineNumber = "175"
             landmarkName = "onAppearAction()"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "52CC3B4E-512E-48E9-8643-CA46592881ED"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "basic/subs.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
-            landmarkName = "dumpAppStorage()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "EB7D5323-D65E-48BD-8DC9-6AC9D6C1672C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "basic/Views/TopicsChooserScreen.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "69"
-            endingLineNumber = "69"
-            landmarkName = "unknown"
-            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -494,8 +462,8 @@
             filePath = "basic/Views/GameSettingsScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "161"
-            endingLineNumber = "161"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -526,8 +494,8 @@
             filePath = "basic/AppColors.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "19"
-            endingLineNumber = "19"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
             landmarkName = "colorForTopicIndex(index:gb:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -606,8 +574,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "299"
-            endingLineNumber = "299"
+            startingLineNumber = "278"
+            endingLineNumber = "278"
             landmarkName = "deallocAt(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -622,8 +590,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "183"
-            endingLineNumber = "183"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
             landmarkName = "allocateChallenges(forTopics:count:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -638,8 +606,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "192"
-            endingLineNumber = "192"
+            startingLineNumber = "171"
+            endingLineNumber = "171"
             landmarkName = "allocateChallenges(forTopics:count:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -654,8 +622,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "200"
-            endingLineNumber = "200"
+            startingLineNumber = "179"
+            endingLineNumber = "179"
             landmarkName = "allocateChallenges(forTopics:count:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -670,8 +638,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "197"
-            endingLineNumber = "197"
+            startingLineNumber = "176"
+            endingLineNumber = "176"
             landmarkName = "allocateChallenges(forTopics:count:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -686,8 +654,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "205"
-            endingLineNumber = "205"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
             landmarkName = "allocateChallenges(forTopics:count:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -702,8 +670,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "581"
-            endingLineNumber = "581"
+            startingLineNumber = "554"
+            endingLineNumber = "554"
             landmarkName = "loadPlayData(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -718,8 +686,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "618"
-            endingLineNumber = "618"
+            startingLineNumber = "591"
+            endingLineNumber = "591"
             landmarkName = "resetChallengeStatuses(at:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -782,8 +750,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "348"
-            endingLineNumber = "348"
+            startingLineNumber = "327"
+            endingLineNumber = "327"
             landmarkName = "deallocAt(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -798,8 +766,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "314"
-            endingLineNumber = "314"
+            startingLineNumber = "293"
+            endingLineNumber = "293"
             landmarkName = "deallocAt(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -830,8 +798,8 @@
             filePath = "basic/Views/TopicSelectorView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "30"
-            endingLineNumber = "30"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -910,9 +878,25 @@
             filePath = "basic/Views/QandAScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "314"
-            endingLineNumber = "314"
+            startingLineNumber = "317"
+            endingLineNumber = "317"
             landmarkName = "handleGimmee(row:col:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2395985C-6B2E-4D61-AAB8-7A1E267C84FB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "basic/Views/GameSettingsScreen.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "210"
+            endingLineNumber = "210"
+            landmarkName = "onDonePressed()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

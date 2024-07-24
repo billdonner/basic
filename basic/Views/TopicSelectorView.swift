@@ -9,7 +9,8 @@ import SwiftUI
  struct TopicSelectorView: View {
     let allTopics: [String]
     @Binding var selectedTopics: [String]
-    @Binding var selectedSchemeIndex: Int
+    @Binding var selectedSchemeIndex: ColorSchemeName
+   
 
     let boardSize: Int
     @State private var searchText = ""
@@ -27,7 +28,7 @@ import SwiftUI
             List {
                 Section(header: Text("Pre-selected Topics")) {
                
-                    ForEach(selectedTopics.prefix(boardSize-1), id: \.self) { topic in
+                  ForEach(selectedTopics.prefix(GameState.preselectedTopicsForBoardSize(boardSize)), id: \.self) { topic in
                         HStack {
                             Text(topic)
                             Spacer()
@@ -109,7 +110,7 @@ import SwiftUI
 #Preview ("TopicSelectorView"){
  
   @Previewable @State var selectedTopics:[String] = Array(MockTopics.mockTopics.prefix(6-2))
-  @Previewable @State var selectedSchemeIndex: Int = 0
+  @Previewable @State var selectedSchemeIndex: ColorSchemeName = .autumn
   
   TopicSelectorView(allTopics: MockTopics.mockTopics, selectedTopics: $selectedTopics , selectedSchemeIndex: $selectedSchemeIndex,boardSize: 6)
 }

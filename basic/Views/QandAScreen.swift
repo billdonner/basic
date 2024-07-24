@@ -59,12 +59,15 @@ struct QandAScreen: View {
           handleDismissal(toRoot:true)
         })
         
-        .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question with another from the same topic, if possible", message: "I will charge you one gimmee", buttonTitle: "OK", onButtonTapped: {
+        .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question \nwith another from the same topic, \nif possible", message: "I will charge you one gimmee", button1Title: "OK", button2Title: "Cancel",onButton1Tapped: {
           handleGimmee(row:row,col:col)
           handleDismissal(toRoot:false)
-        }, animation: .spring())
+        }, onButton2Tapped: {
+          print("Gimmee cancelled")
+        },
+          animation: .spring())
         
-        .gimmeeAllAlert(isPresented: $gimmeeAlert, title: "I will replace this Question with another from any topic", message: "I will charge you one gimmee", buttonTitle: "OK", onButtonTapped: {
+        .gimmeeAllAlert(isPresented: $gimmeeAllAlert, title: "I will replace this Question \nwith another from any topic", message: "I will charge you one gimmee", buttonTitle: "OK", onButtonTapped: {
           handleGimmee(row:row,col:col)
           handleDismissal(toRoot:false)
         }, animation: .spring())
@@ -78,7 +81,7 @@ struct QandAScreen: View {
       markCorrectButton
       markIncorrectButton
       gimmeeButton
-      gimmeeAllButton  // New button for "Gimmee All"
+     // gimmeeAllButton  // New button for "Gimmee All"
     }
     .padding(.bottom)
     .frame(height: 60)

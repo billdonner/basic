@@ -1,23 +1,15 @@
 import SwiftUI
 
-
 fileprivate struct GameSettingsView: View {
- 
-let onExit: ([String])->()
-@Bindable var chmgr:ChaMan
-@Bindable var gs:GameState
-
-@Binding var startInCorners: Bool
-@Binding var doubleDiag: Bool
-@Binding var difficultyLevel: Int
-  internal init(chmgr:ChaMan,gs:GameState,  startInCorners: Binding<Bool>, doubleDiag: Binding<Bool>,  difficultyLevel: Binding<Int>,
-              //  returningTopics:Binding<[String]>,
+  
+  let onExit: ([String])->()
+  @Bindable var chmgr:ChaMan
+  @Bindable var gs:GameState
+  
+  internal init(chmgr:ChaMan,gs:GameState,
                 onExit:@escaping ([String])->()) {
     self.onExit = onExit
     self.gs = gs
-    _startInCorners = startInCorners
-    _doubleDiag = doubleDiag
-    _difficultyLevel = difficultyLevel
     self.chmgr = chmgr
     self.ourTopics =    chmgr.playData.allTopics
     let randomTopics = ourTopics.shuffled()
@@ -27,10 +19,10 @@ let onExit: ([String])->()
     _availableTopics = State(initialValue: remainingTopics)
     l_faceUpCards = gs.faceup
     l_boardSize = gs.boardsize
-    l_doubleDiag = doubleDiag.wrappedValue
+    l_doubleDiag = gs.doublediag
     l_currentScheme = gs.currentscheme
-    l_difficultyLevel = difficultyLevel.wrappedValue
-    l_startInCorners = startInCorners.wrappedValue
+    l_difficultyLevel = gs.difficultylevel
+    l_startInCorners = gs.startincorners
     l_selectedTopics = chosenTopics
   }
   let ourTopics: [String]
@@ -38,7 +30,7 @@ let onExit: ([String])->()
   @State private var  l_startInCorners: Bool
   @State private var  l_faceUpCards: Bool
   @State private var  l_doubleDiag: Bool
-  @State private var  l_currentScheme: Int
+  @State private var  l_currentScheme: ColorSchemeName
   @State private var  l_difficultyLevel: Int
   @State private var  l_selectedTopics: [String]
   
@@ -54,13 +46,13 @@ let onExit: ([String])->()
   
   var colorPaletteBackground: LinearGradient {
     switch l_currentScheme {
-    case 1:
+    case .winter:
       return LinearGradient(gradient: Gradient(colors: [Color.green, Color.yellow]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case 2:
+    case .spring:
       return LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case 3:
+    case .summer:
       return LinearGradient(gradient: Gradient(colors: [Color.brown, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case 4:
+    case .autumn:
       return LinearGradient(gradient: Gradient(colors: [Color.blue, Color.cyan]), startPoint: .topLeading, endPoint: .bottomTrailing)
     default:
       return LinearGradient(gradient: Gradient(colors: [Color.gray, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -91,8 +83,8 @@ let onExit: ([String])->()
         .pickerStyle(SegmentedPickerStyle())
         .background(Color(.systemBackground).clipShape(RoundedRectangle(cornerRadius: 10)))
       }
-     // .onChange(of: l_difficultyLevel, initial: false)
-     // { _,_ in onParameterChange() }
+      // .onChange(of: l_difficultyLevel, initial: false)
+      // { _,_ in onParameterChange() }
       Section(header: Text("Starting Position")) {
         HStack {
           Text("Anywhere")
@@ -104,8 +96,8 @@ let onExit: ([String])->()
         }
         .frame(maxWidth: .infinity)
       }
-     // .onChange(of: l_startInCorners, initial: false)
-     // { _,_ in onParameterChange() }
+      // .onChange(of: l_startInCorners, initial: false)
+      // { _,_ in onParameterChange() }
       Section(header: Text("Cards Face")) {
         HStack {
           Text("Face Down")
@@ -117,8 +109,8 @@ let onExit: ([String])->()
         }
         .frame(maxWidth: .infinity)
       }
-     // .onChange(of: l_faceUpCards, initial: false )
-     // { _,_ in onParameterChange() }
+      // .onChange(of: l_faceUpCards, initial: false )
+      // { _,_ in onParameterChange() }
       Section(header: Text("Double Diag")) {
         HStack {
           Text("One Diag")
@@ -131,12 +123,12 @@ let onExit: ([String])->()
         .frame(maxWidth: .infinity)
       }
       //.onChange(of: l_doubleDiag, initial: false)
-     // { _,_ in onParameterChange() }
+      // { _,_ in onParameterChange() }
       Section(header: Text("Color Palette")) {
         Picker("Color Palette", selection: $l_currentScheme) {
           ForEach(AppColors.allSchemes.indices,id:\.self) { idx in
-            Text(AppColors.allSchemes[idx].name)
-              .tag(idx + 1)
+            Text("\(AppColors.allSchemes[idx].name)")
+              .tag(idx)
           }
         }
         .pickerStyle(SegmentedPickerStyle())
@@ -146,10 +138,10 @@ let onExit: ([String])->()
       //{ _,_ in onParameterChange() }
       
       Section(header: Text("Topics")) {
-        NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, schemes: AppColors.allSchemes, 
-          gs:gs,
-          currentScheme: $l_currentScheme,
-          selectedTopics: $l_selectedTopics))
+        NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, 
+            schemes: AppColors.allSchemes,gs:gs,
+      currentScheme: $l_currentScheme,
+      selectedTopics: $l_selectedTopics))
         {
           Text("Choose Topics")
             .padding()
@@ -194,27 +186,22 @@ let onExit: ([String])->()
     .navigationBarItems(
       leading: Button("Cancel") {
         // dont touch anything
-          print("//GameSettingsScreen Cancel Pressed topics: \(selectedTopics)")
+        print("//GameSettingsScreen Cancel Pressed topics: \(selectedTopics)")
         self.presentationMode.wrappedValue.dismiss()
       },
       trailing: Button("Done") {
         print("//GameSettingsScreen Done Pressed ")
-        
         onDonePressed()
-//        dumpAppStorage()
-//        gameBoard.dumpGameBoard()
-//        chmgr.dumpTopics()
-        
         self.presentationMode.wrappedValue.dismiss()
       }
     )
     //}
   }
   private func onDonePressed() {
-    // copy every change into appsettings
-    doubleDiag = l_doubleDiag
-    difficultyLevel = l_difficultyLevel
-    startInCorners = l_startInCorners
+    // copy every change into gameState
+    gs.doublediag = l_doubleDiag
+    gs.difficultylevel = l_difficultyLevel
+    gs.startincorners = l_startInCorners
     selectedTopics = l_selectedTopics //selectedTopics +
     gs.faceup = l_faceUpCards
     gs.boardsize = l_boardSize
@@ -223,8 +210,35 @@ let onExit: ([String])->()
     chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
   }
 }
+
+struct GameSettingsScreen :
+  View {
+  @Bindable var chmgr: ChaMan
+  @Bindable var gs: GameState
+  let onExit: ([String])->()
   
-  
+  var body: some View {
+    NavigationView  {
+      GameSettingsView(
+        chmgr: chmgr,
+        gs:gs,
+        onExit: onExit
+      )
+    }
+  }
+}
+//#Preview("Tester") {
+  //  let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+  //  GameSettingsScreen(chmgr: ChaMan(playData: PlayData.mock),
+  //                     gs: GameBoard(size: starting_size,
+  //                                          topics: Array(MockTopics.mockTopics.prefix(starting_size)),  challenges:Challenge.mockChallenges)
+  //                         ,
+  //                                              ourTopics: t) {  strings in
+  //    print("GameSettingsExited with \(t)")
+  //  }
+//}
+
+
 //  private func replaceTopic(at index: Int) {
 //    guard !tappedIndices.contains(index), !availableTopics.isEmpty else { return }
 //    let newTopic = availableTopics.removeFirst()
@@ -232,15 +246,15 @@ let onExit: ([String])->()
 //    l_selectedTopics[index] = newTopic
 //    tappedIndices.insert(index)
 //  }
-  
-  //  private func selectAdditionalTopic(_ topic: String) {
-  //    if selectedAdditionalTopics.contains(topic) {
-  //      selectedAdditionalTopics.remove(topic)
-  //    } else if selectedAdditionalTopics.count < boardSize {
-  //      selectedAdditionalTopics.insert(topic)
-  //    }
-  //  }
-  
+
+//  private func selectAdditionalTopic(_ topic: String) {
+//    if selectedAdditionalTopics.contains(topic) {
+//      selectedAdditionalTopics.remove(topic)
+//    } else if selectedAdditionalTopics.count < boardSize {
+//      selectedAdditionalTopics.insert(topic)
+//    }
+//  }
+
 //  private func refreshTopics() {
 //    let randomTopics = ourTopics.shuffled()
 //    l_selectedTopics = Array(randomTopics.prefix(gameBoard.boardsize - 2))
@@ -249,38 +263,3 @@ let onExit: ([String])->()
 //    replacedTopics.removeAll()
 //    selectedAdditionalTopics.removeAll()
 //  }
-
-struct GameSettingsScreen :
-  View {
-  @Bindable var chmgr: ChaMan
-  @Bindable var gs: GameState
-  let onExit: ([String])->()
-  
-  @AppStorage("startInCorners") private var startInCorners = false
-
-  @AppStorage("doubleDiag") private var doubleDiag = false
-  @AppStorage("difficultyLevel") private var difficultyLevel = 1
-  
-  var body: some View {
-    NavigationView  {
-      GameSettingsView(
-        chmgr: chmgr,
-        gs:gs,
-        startInCorners: $startInCorners,
-        doubleDiag: $doubleDiag,
-        difficultyLevel: $difficultyLevel,
-        onExit: onExit
-      )
-    }
-  }
-}
-#Preview("Tester") {
-//  let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-//  GameSettingsScreen(chmgr: ChaMan(playData: PlayData.mock),
-//                     gs: GameBoard(size: starting_size,
-//                                          topics: Array(MockTopics.mockTopics.prefix(starting_size)),  challenges:Challenge.mockChallenges)
-//                         ,
-//                                              ourTopics: t) {  strings in
-//    print("GameSettingsExited with \(t)")
-//  }
-}

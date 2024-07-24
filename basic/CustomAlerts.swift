@@ -215,7 +215,7 @@ fileprivate struct HintAlert: View {
                 .foregroundColor(.primary)
                 .padding(.top)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
+                //.frame(maxWidth: .infinity, alignment: .center)
             
             Text(message)
                 .font(.body)
@@ -262,8 +262,10 @@ fileprivate struct HintAlert: View {
 fileprivate struct  GimmeeAlert: View {
     let title: String
     let message: String
-    let buttonTitle: String
-    let onButtonTapped: () -> Void
+    let button1Title: String
+  let button2Title: String
+    let onButton1Tapped: () -> Void
+  let onButton2Tapped: () -> Void
     let animation: Animation
     
     @State private var rotationAngle: Double = 0
@@ -286,26 +288,49 @@ fileprivate struct  GimmeeAlert: View {
             Divider()
                 .background(Color.primary)
                 .padding([.leading, .trailing])
+          HStack {
+            Button(action: {
+              withAnimation(animation) {
+                onButton1Tapped()
+              }
+            }) {
+              Text(button1Title)
+                .font(.headline)
+                .foregroundColor(.primary)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 20)
+                .background(Color.clear)
+                .cornerRadius(8)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.primary, lineWidth: 1)
+                )
+                .padding(.bottom, 20) // Added padding below the button
+            }
             
             Button(action: {
-                withAnimation(animation) {
-                    onButtonTapped()
-                }
+              withAnimation(animation) {
+                onButton2Tapped()
+              }
             }) {
-                Text(buttonTitle)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 20)
-                    .background(Color.clear)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.primary, lineWidth: 1)
-                    )
-                    .padding(.bottom, 20) // Added padding below the button
+              Text(button2Title)
+                .font(.headline)
+                .foregroundColor(.primary)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 20)
+                .background(Color.clear)
+                .cornerRadius(8)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.primary, lineWidth: 1)
+                )
+                .padding(.bottom, 20) // Added padding below the button
             }
+          }
         }
+      
+      
+      
         .background(FrostedBackgroundView())
         .cornerRadius(16)
         .rotationEffect(.degrees(rotationAngle))
@@ -501,8 +526,10 @@ fileprivate struct GimmeeAlertModifier: ViewModifier {
   @Binding var isPresented: Bool
   let title: String
   let message: String
-  let buttonTitle: String
-  let onButtonTapped: () -> Void
+  let button1Title: String
+  let button2Title: String
+  let onButton1Tapped: () -> Void
+  let onButton2Tapped: () -> Void
   let animation: Animation
   
   func body(content: Content) -> some View {
@@ -514,12 +541,19 @@ fileprivate struct GimmeeAlertModifier: ViewModifier {
               GimmeeAlert(
                   title: title,
                   message: message,
-                  buttonTitle: buttonTitle,
-                  onButtonTapped: {
+                  button1Title: button1Title, 
+                  button2Title: button2Title,
+                  onButton1Tapped: {
                       withAnimation(animation.speed(0.75)) { // Slower dismissal
                           isPresented = false
                       }
-                      onButtonTapped()
+                      onButton1Tapped()
+                  },
+                  onButton2Tapped: {
+                      withAnimation(animation.speed(0.75)) { // Slower dismissal
+                          isPresented = false
+                      }
+                      onButton2Tapped()
                   },
                   animation: animation
               )
@@ -546,8 +580,8 @@ extension View {
     self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))
   }
     
-    func gimmeeAlert(isPresented: Binding<Bool>, title: String, message: String, buttonTitle: String, onButtonTapped: @escaping () -> Void, animation: Animation) -> some View {
-        self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))
+    func gimmeeAlert(isPresented: Binding<Bool>, title: String, message: String, button1Title: String, button2Title: String,onButton1Tapped: @escaping () -> Void, onButton2Tapped: @escaping () -> Void,animation: Animation) -> some View {
+      self.modifier(GimmeeAlertModifier(isPresented: isPresented, title: title, message: message, button1Title: button1Title, button2Title: button2Title, onButton1Tapped: onButton1Tapped, onButton2Tapped: onButton2Tapped,animation: animation))
   }
   func gimmeeAllAlert(isPresented: Binding<Bool>, title: String, message: String, buttonTitle: String, onButtonTapped: @escaping () -> Void, animation: Animation) -> some View {
       self.modifier(HintAlertModifier(isPresented: isPresented, title: title, message: message, buttonTitle: buttonTitle, onButtonTapped: onButtonTapped, animation: animation))

@@ -12,7 +12,7 @@ import UniformTypeIdentifiers
 struct TopicColorizerView: View {
   @Environment(\.presentationMode) var presentationMode
   @Binding var topics: [String]
-  @Binding var selectedSchemeIndex: Int // Binding to reflect changes back to TopicsChooserScreen
+  @Binding var selectedSchemeIndex: ColorSchemeName // Binding to reflect changes back to TopicsChooserScreen
   let schemes: [ColorScheme]
   
   var body: some View {
@@ -31,7 +31,7 @@ struct TopicColorizerView: View {
       
       Picker("Color Schemes", selection: $selectedSchemeIndex) {
         ForEach(0..<schemes.count, id: \.self) { index in
-          Text(schemes[index].name)
+          Text("\(schemes[index].name)")
         }
       }
       .pickerStyle(SegmentedPickerStyle())
@@ -40,7 +40,7 @@ struct TopicColorizerView: View {
       ScrollView {
         LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]) {
           ForEach(0..<12, id: \.self) { index in
-            let colorInfo = schemes[selectedSchemeIndex].mappedColors[index]
+            let colorInfo = schemes[selectedSchemeIndex.rawValue].mappedColors[index]
             if index < topics.count {
               let topic = topics[index]
               Text(topic)
@@ -68,7 +68,7 @@ struct TopicColorizerView: View {
 }
 
  #Preview("ArrangerView") {
-    @Previewable @State  var selectedSchemeIndex = 0
+   @Previewable @State  var selectedSchemeIndex:ColorSchemeName = .autumn
     TopicColorizerView(topics: .constant(["Topic 1", "Topic 2", "Topic 3"]), selectedSchemeIndex: $selectedSchemeIndex, schemes: AppColors.allSchemes )
 
   
@@ -76,7 +76,7 @@ struct TopicColorizerView: View {
 
 /// Drop delegate for handling drag and drop of topics.
 struct TopicDropDelegate: DropDelegate {
-  let topic: (id: UUID, name: String, schemeIndex: Int)
+  let topic: (id: UUID, name: String, schemeIndex: ColorSchemeName)
   @Binding var topics: [String]
   let fromIndex: Int
   

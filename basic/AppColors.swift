@@ -12,16 +12,24 @@ import SwiftUI
 typealias ColorSpec  = (backname:String, forename:String, backrgb:(Double, Double, Double), forergb:(Double, Double, Double))
 
 
+enum ColorSchemeName: Int,Codable  {
+  case bleak = 0
+  case winter
+  case spring
+  case summer
+  case autumn
+}
+
 class
 AppColors  {
 
-  static func colorForTopicIndex(index:Int,gb:GameState) -> (Color, Color, UUID) {
-    return   allSchemes[gb.currentscheme].mappedColors[index]
+  static func colorForTopicIndex(index:ColorSchemeName,gb:GameState) -> (Color, Color, UUID) {
+    return   allSchemes[gb.currentscheme.rawValue].mappedColors[index.rawValue]
   }
 
   // Define the color schemes
   static let spring =
-  ColorScheme(name: "Spring", colors: [
+  ColorScheme(name: .spring, colors: [
     ("Spring Green", "Dark Green", (144, 238, 144), (0, 100, 0)),
     ("Light Yellow", "Dark Yellow", (255, 255, 224), (255, 215, 0)),
     ("Light Pink", "Hot Pink", (255, 182, 193), (255, 105, 180)),
@@ -36,7 +44,7 @@ AppColors  {
     ("Sky Blue", "Royal Blue", (135, 206, 235), (0, 0, 205))
   ])
   static let summer =
-  ColorScheme(name: "Summer", colors: [
+  ColorScheme(name: .summer, colors: [
     ("Sky Blue", "Midnight Blue", (135, 206, 235), (25, 25, 112)),
     ("Sand", "Saddle Brown", (194, 178, 128), (139, 69, 19)),
     ("Ocean", "Navy", (28, 107, 160), (0, 34, 64)),
@@ -51,7 +59,7 @@ AppColors  {
     ("Pineapple", "Dark Orange", (255, 223, 0), (255, 140, 0))
   ])
   static let autumn =
-  ColorScheme(name: "Autumn", colors: [
+  ColorScheme(name:.autumn, colors: [
     ("Burnt Orange", "Dark Orange", (204, 85, 0), (255, 140, 0)),
     ("Golden Yellow", "Dark Goldenrod", (255, 223, 0), (184, 134, 11)),
     ("Crimson Red", "Dark Red", (220, 20, 60), (139, 0, 0)),
@@ -67,7 +75,7 @@ AppColors  {
   ])
   
   static  let winter =
-  ColorScheme(name: "Winter", colors: [
+  ColorScheme(name: .winter, colors: [
     ("Ice Blue", "Dark Blue", (176, 224, 230), (0, 0, 139)),
     ("Snow", "Dark Red", (255, 250, 250), (139, 0, 0)),
     ("Midnight Blue", "Alice Blue", (25, 25, 112), (240, 248, 255)),
@@ -82,7 +90,7 @@ AppColors  {
     ("Holly", "White", (0, 128, 0), (255, 255, 255))
   ])
   static  let bleak =
-  ColorScheme(name: "Bleak", colors: [
+  ColorScheme(name: .bleak, colors: [
     ("Black", "White", (0,0,0), (255,255,255)),
     ("Black", "White", (0,0,0), (255,255,255)),
     ("Black", "White", (0,0,0), (255,255,255)),
@@ -103,12 +111,12 @@ AppColors  {
 }
 
   class  ColorScheme {
-    internal init(name:String,colors:[ColorSpec]) {
+    internal init(name:ColorSchemeName,colors:[ColorSpec]) {
       self.name = name
       self.colors = colors
     }
     
-    let name: String
+    let name: ColorSchemeName
     let colors: [ColorSpec]
     var _mappedColors : [(Color, Color, UUID)]? = nil
     /// Maps the colors to SwiftUI Color objects and calculates contrasting text colors.

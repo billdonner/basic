@@ -152,28 +152,7 @@ class ChaMan {
         // Return the cached value
         return _allTopics!
     }
-    
-    // Method to invalidate the allChallenges cache
-    func invalidateAllChallengesCache() {
-        _allChallenges = nil
-    }
-    
-    // Method to invalidate the cache
-    func invalidateAllTopicsCache() {
-        _allTopics = nil
-    }
-  func bumpWrongcount(topic:String){
-    if var t =  tinfo[topic] {
-      t.wrongcount += 1
-     tinfo[topic] = t
-    }
-  }
-  func bumpRightcount(topic:String){
-    if var t =  tinfo[topic] {
-      t.rightcount += 1
-     tinfo[topic] = t
-    }
-  }
+
     // Allocate N challenges nearly evenly from specified topics, taking from any topic if needed
     func allocateChallenges(forTopics topics: [String], count n: Int) -> AllocationResult {
         var allocatedChallengeIndices: [Int] = []
@@ -372,12 +351,10 @@ class ChaMan {
       let challenge = everyChallenge[index]
       let topic = challenge.topic // Assuming `Challenge` has a `topic` property
 
-      // Mark the old challenge as abandoned
-    //****  stati[index] = .abandoned
 
       // Find a new challenge to replace the old one
       if var topicInfo = tinfo[topic] {
-          if let newChallengeIndex = topicInfo.ch.first(where: { stati[$0] == .inReserve }) {
+          if let newChallengeIndex = topicInfo.ch.last(where: { stati[$0] == .inReserve }) {
             let newChallenge = everyChallenge[newChallengeIndex]
             // swap the actual challenges
             everyChallenge[index] = newChallenge
@@ -406,7 +383,6 @@ class ChaMan {
       let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
       return urls[0].appendingPathComponent("challengeStatuses.json")
   }
-
 
   // Save the challenge statuses to a file
   func saveChallengeStatuses(_ statuses: [ChallengeStatus]) {
@@ -454,10 +430,7 @@ class ChaMan {
       return true
   }
 }
-
-
 extension ChaMan {
-
   func loadAllData  (gs:GameState) {
     do {
       if  let gb =  GameState.loadGameState() {
@@ -629,16 +602,28 @@ extension ChaMan {
     //if let playData = playData {
     self.stati = [ChallengeStatus](repeating:ChallengeStatus.inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
   }
- 
-
-  // get challenge at index
-//  func getChallenge(row: Int,col:Int) -> Challenge? {
-//    let index = row*starting_size+col
-//    let chs = everyChallenge
-//    guard index >= 0 && index < chs.count else { return nil }
-//    return chs[index]
-//  }
   
+  // Method to invalidate the allChallenges cache
+  func invalidateAllChallengesCache() {
+      _allChallenges = nil
+  }
+  
+  // Method to invalidate the cache
+  func invalidateAllTopicsCache() {
+      _allTopics = nil
+  }
+func bumpWrongcount(topic:String){
+  if var t =  tinfo[topic] {
+    t.wrongcount += 1
+   tinfo[topic] = t
+  }
+}
+func bumpRightcount(topic:String){
+  if var t =  tinfo[topic] {
+    t.rightcount += 1
+   tinfo[topic] = t
+  }
+}
 
   // Helper functions to get counts
   func allocatedChallengesCount() -> Int {
