@@ -12,7 +12,7 @@ struct GameScreen: View {
   @Binding  var topics: [String]
   @Binding var size:Int
   let onTapGesture: (_ row:Int, _ col:Int ) -> Void
-  
+  @State private var firstMove = true
   @State private var startAfresh = true
   @State private var showCantStartAlert = false
   @State private var showSettings = false
@@ -54,36 +54,37 @@ struct GameScreen: View {
                  bodyMessage: bodyMsg, buttonTitle: "OK"){
       onYouWin()
     }
-   .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
-                 bodyMessage: bodyMsg, buttonTitle: "OK"){
-     onYouLose()
-   }
-   .onChange(of:gs.cellstate) {
-     //print("//GameScreen onChangeof(CellState) to \(gs.cellstate)")
-     onChangeOfCellState()
-   }
-   .onChange(of:gs.boardsize) {
-     print("//GameScreen onChangeof(Size) to \(gs.boardsize)")
-     onBoardSizeChange ()
-   }
-   .sheet(isPresented: $showSettings){
-     GameSettingsScreen(chmgr: chmgr, gs: gs,
-                        onExit: {t in
-       print("//GameSettingsScreen onExit closure topics:\(t) ")
-       gs.topicsinplay = t //was
-       //  onGameSettingsExit (t)
-     })
-   }
-   .fullScreenCover(isPresented: $showingHelp ){
-     HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
-   }
-   .sheet(isPresented: $showAllocatorView) {
-     AllocatorView(chmgr: chmgr, gs: gs)
-       .presentationDetents([.fraction(0.25)])
-   }
-   .onDisappear {
-     print("Yikes the GameScreen is Disappearing!")
-   }
+                 .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
+                               bodyMessage: bodyMsg, buttonTitle: "OK"){
+                   onYouLose()
+                 }
+                               .onChange(of:gs.cellstate) {
+                                 //print("//GameScreen onChangeof(CellState) to \(gs.cellstate)")
+                                 onChangeOfCellState()
+                               }
+                               .onChange(of:gs.boardsize) {
+                                 print("//GameScreen onChangeof(Size) to \(gs.boardsize)")
+                                 onBoardSizeChange ()
+                               }
+                               .sheet(isPresented: $showSettings){
+                                 GameSettingsScreen(chmgr: chmgr, gs: gs,
+                                                    onExit: {t in
+                                   print("//GameSettingsScreen onExit closure topics:\(t) ")
+                                   gs.topicsinplay = t //was
+                                   //  onGameSettingsExit (t)
+                                 })
+                               }
+                               .fullScreenCover(isPresented: $showingHelp ){
+                                 HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
+                               }
+                               .sheet(isPresented: $showAllocatorView) {
+                                 AllocatorView(chmgr: chmgr, gs: gs)
+                                   .presentationDetents([.fraction(0.25)])
+                               }
+                               .onDisappear {
+                                 print("Yikes the GameScreen is Disappearing!")
+                               }
+    
   }
   
   var mainGridVeew: some View {
@@ -196,9 +197,9 @@ extension GameScreen /* actions */ {
     print("//GameScreen EndGamePressed")
     endGame(status:.justAbandoned)
   }
-
+  
   func onBoardSizeChange() {
-//
+    //
   }
   
   func onChangeOfCellState() {
@@ -224,6 +225,8 @@ extension GameScreen /* actions */ {
     if !ok {
       print("Failed to allocate \(gs.boardsize*gs.boardsize) challenges for topic \(topics.joined(separator: ","))")
       print("Consider changing the topics in setting and trying again ...")
+    } else {
+      firstMove = true
     }
     return ok
   }
@@ -237,7 +240,7 @@ private extension GameScreen {
                       challenge:Challenge,
                       status:ChallengeOutcomes,
                       cellSize: CGFloat) -> some View {
-    let colormix = colorForTopic(challenge.topic, gb: gs)
+    let colormix = colorForTopic(challenge.topic, gs: gs)
     return VStack {
       Text(//hideCellContent ||hideCellContent ||
         ( !gs.faceup) ? " " : challenge.question )
@@ -252,10 +255,21 @@ private extension GameScreen {
     }
     // for some unknown reason, the tap surface area is bigger if placed outside the VStack
     .onTapGesture {
+      var  tap = false
       if  gs.gamestate == .playingNow &&
             gs.cellstate[row][col] == .unplayed {
-        onTapGesture(row,col)
+        if gs.startincorners&&firstMove{
+          tap = row==0&&col==0  ||
+          row==0 && col == gs.boardsize-1 ||
+          row==gs.boardsize-1 && col==0 ||
+          row==gs.boardsize-1 && col == gs.boardsize - 1
+        }
+        else {
+          tap = true
+        }
       }
+      if tap {     onTapGesture(row,col)
+        }
     }
   }// make one cell
   

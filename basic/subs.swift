@@ -28,15 +28,15 @@ extension String {
     }
 }
 
- func indexOfTopic(_ topic:String,gb:GameState) -> Int? {
-  for (index,t) in gb.topicsinplay.enumerated()  {
+ func indexOfTopic(_ topic:String,gs:GameState) -> Int? {
+  for (index,t) in gs.topicsinplay.enumerated()  {
   if t == topic { return index}
   }
   return nil
 }
-  func colorForTopic(_ topic:String,gb:GameState) ->   (Color, Color, UUID) {
-      if let index = indexOfTopic(topic,gb:gb) {
-        return AppColors.colorForTopicIndex(index:ColorSchemeName(rawValue: index) ?? .bleak ,gb:gb)
+  func colorForTopic(_ topic:String,gs:GameState) ->   (Color, Color, UUID) {
+      if let index = indexOfTopic(topic,gs:gs) {
+        return AppColors.colorForTopicIndex(index:(ColorSchemeName(rawValue: index) ?? .bleak).rawValue ,gs:gs)
       } else {
         return (Color.white, Color.black, UUID())
       }

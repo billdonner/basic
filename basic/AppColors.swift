@@ -23,8 +23,8 @@ enum ColorSchemeName: Int,Codable  {
 class
 AppColors  {
 
-  static func colorForTopicIndex(index:ColorSchemeName,gb:GameState) -> (Color, Color, UUID) {
-    return   allSchemes[gb.currentscheme.rawValue].mappedColors[index.rawValue]
+  static func colorForTopicIndex(index:Int,gs:GameState) -> (Color, Color, UUID) {
+    return   allSchemes[gs.currentscheme.rawValue].mappedColors[index]
   }
 
   // Define the color schemes

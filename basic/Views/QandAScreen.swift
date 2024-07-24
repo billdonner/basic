@@ -5,7 +5,7 @@ struct QandAScreen: View {
   let col: Int
   @Binding var isPresentingDetailView: Bool
   @Bindable  var chmgr:ChaMan //
-  @Bindable var gb: GameState  //
+  @Bindable var gs: GameState  //
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   
   @State private var gimmeeAlert = false
@@ -24,11 +24,11 @@ struct QandAScreen: View {
   var body: some View {
     GeometryReader { geometry in
       // let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
-      let ch = gb.board[row][col]
+      let ch = gs.board[row][col]
       ZStack {
         VStack {
           QandATopBarView(
-            gs: gb, topic: ch.topic, hint: ch.hint,
+            gs: gs, topic: ch.topic, hint: ch.hint,
             elapsedTime:elapsedTime,
             handlePass: handlePass,
             toggleHint: toggleHint
@@ -61,7 +61,10 @@ struct QandAScreen: View {
         
         .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question \nwith another from the same topic, \nif possible", message: "I will charge you one gimmee", button1Title: "OK", button2Title: "Cancel",onButton1Tapped: {
           handleGimmee(row:row,col:col)
-          handleDismissal(toRoot:false)
+          let color = colorForTopic(ch.topic, gs: gs)
+          gs.replacedcount += 1
+          //dismiss()
+          //handleDismissal(toRoot:false)
         }, onButton2Tapped: {
           print("Gimmee cancelled")
         },
@@ -102,7 +105,7 @@ struct QandAScreen: View {
   
   var markCorrectButton: some View {
     Button(action: {
-      manuallyMarkCorrect(gb.board[row][col])
+      manuallyMarkCorrect(gs.board[row][col])
     }) {
       Image(systemName: "checkmark.circle")
         .font(.title)
@@ -115,7 +118,7 @@ struct QandAScreen: View {
   
   var markIncorrectButton: some View {
     Button(action: {
-      manuallyMarkIncorrect(gb.board[row][col])
+      manuallyMarkIncorrect(gs.board[row][col])
     }) {
       Image(systemName: "xmark.circle")
         .font(.title)
@@ -136,8 +139,8 @@ struct QandAScreen: View {
         .background(Color.purple)
         .cornerRadius(10)
     }
-    .disabled(gb.gimmees<1)
-    .opacity(gb.gimmees<1 ? 0.5:1)
+    .disabled(gs.gimmees<1)
+    .opacity(gs.gimmees<1 ? 0.5:1)
 
   }
   
@@ -152,8 +155,8 @@ struct QandAScreen: View {
         .background(Color.purple)
         .cornerRadius(10)
     }
-    .disabled(gb.gimmees<1)
-    .opacity(gb.gimmees<1 ? 0.5:1)
+    .disabled(gs.gimmees<1)
+    .opacity(gs.gimmees<1 ? 0.5:1)
   }
   func questionAndAnswersSectionVue(geometry: GeometryProxy) -> some View {
     VStack(spacing: 15) {
@@ -169,9 +172,9 @@ struct QandAScreen: View {
   func questionSectionVue(geometry: GeometryProxy) -> some View {
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
-    let topicColor =   colorForTopic(gb.board[row][col].topic,gb:gb).0
+    let topicColor =   colorForTopic(gs.board[row][col].topic,gs:gs).0
     
-    return Text(gb.board[row][col].question)
+    return Text(gs.board[row][col].question)
       .font(.headline)
       .padding(.horizontal)
       .background(RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.2))) // Use topic color for background
@@ -181,7 +184,7 @@ struct QandAScreen: View {
   }
   
   func answerButtonsVue(geometry: GeometryProxy) -> some View {
-    let answers = gb.board[row][col].answers
+    let answers = gs.board[row][col].answers
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
     
@@ -252,7 +255,7 @@ struct QandAScreen: View {
                 answerCorrect == true ? Color.green : Color.red
               } else if answerCorrect == true {
                 Color.red
-              } else if showCorrectAnswer && answer == gb.board[row][col].correct {
+              } else if showCorrectAnswer && answer == gs.board[row][col].correct {
                 Color.green
               } else if animateBackToBlue {
                 Color.blue
@@ -267,10 +270,10 @@ struct QandAScreen: View {
         .cornerRadius(15)  // Make the buttons rounded rectangles
         .minimumScaleFactor(0.5)  // Adjust font size to fit
         .lineLimit(8)
-        .rotationEffect(showCorrectAnswer && answer == gb.board[row][col].correct ? .degrees(360) : .degrees(0))
+        .rotationEffect(showCorrectAnswer && answer == gs.board[row][col].correct ? .degrees(360) : .degrees(0))
         .overlay(
           RoundedRectangle(cornerRadius: 15)  // Match the corner radius
-            .stroke(showBorders && answer == selectedAnswer && !answerCorrect ? Color.red : showBorders && answer == gb.board[row][col].correct && answerCorrect == false ? Color.green : Color.clear, lineWidth: 5)
+            .stroke(showBorders && answer == selectedAnswer && !answerCorrect ? Color.red : showBorders && answer == gs.board[row][col].correct && answerCorrect == false ? Color.green : Color.clear, lineWidth: 5)
         )
         .animation(.easeInOut(duration: showCorrectAnswer ? 1.0 : 0.5), value: showCorrectAnswer)
         .animation(.easeInOut(duration: answerGiven ? 1.0 : 0.5), value: animateBackToBlue)
@@ -300,13 +303,13 @@ extension QandAScreen {
   }
   
   func stopTimer() {
-    gb.totaltime += elapsedTime
+    gs.totaltime += elapsedTime
     timer?.invalidate()
     timer = nil
   }
   
   func toggleHint() {
-    if gb.board[row][col].hint.count > 1  { // guard against short hints
+    if gs.board[row][col].hint.count > 1  { // guard against short hints
       showHint.toggle()
     }
   }
@@ -314,12 +317,15 @@ extension QandAScreen {
 extension QandAScreen { /* actions */
   
   func handleGimmee(row:Int,col:Int) {
-    let idx = row*gb.boardsize + col
+    let idx = row*gs.boardsize + col
     let result = chmgr.replaceChallenge(at:idx)
     switch result {
     case .success(let index):
-      gb.gimmees -= 1
-      gb.board[row][col] = chmgr.everyChallenge[index[0]]
+      gs.gimmees -= 1
+      let challenge = chmgr.everyChallenge[index[0]]
+      gs.board[row][col] = challenge
+  
+      
      print("Gimmee realloation successful")
   
     case .error(let error):
@@ -337,11 +343,11 @@ extension QandAScreen { /* actions */
     answerGiven = true
     animateBackToBlue = true
     showBorders = true
-    gb.cellstate[row][col] = .playedCorrectly
-    gb.rightcount += 1
-    gb.saveGameState()
+    gs.cellstate[row][col] = .playedCorrectly
+    gs.rightcount += 1
+    gs.saveGameState()
     chmgr.bumpRightcount(topic: ch.topic)
-    chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col,
+    chmgr.setStatus(for: gs.board[row][col], index: row*gs.boardsize + col,
                     status: .playedCorrectly)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       animateBackToBlue = false
@@ -355,18 +361,18 @@ extension QandAScreen { /* actions */
     answerGiven = true
     showCorrectAnswer = false
     showBorders = true
-    gb.cellstate[row][col] = .playedIncorrectly
-    gb.wrongcount += 1
-    gb.saveGameState()
+    gs.cellstate[row][col] = .playedIncorrectly
+    gs.wrongcount += 1
+    gs.saveGameState()
     chmgr.bumpWrongcount(topic: ch.topic)
-    chmgr.setStatus(for: gb.board[row][col], index: row*gb.boardsize + col, status: .playedIncorrectly)
+    chmgr.setStatus(for: gs.board[row][col], index: row*gs.boardsize + col, status: .playedIncorrectly)
     stopTimer()
   }
   
 
   
   func handleAnswerSelection(answer: String) {
-    let ch = gb.board[row][col]
+    let ch = gs.board[row][col]
     selectedAnswer = answer
     answerCorrect = (answer == ch.correct)
     answerGiven = true
@@ -385,42 +391,10 @@ extension QandAScreen { /* actions */
 
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gb: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   
 }
-
-/*
- 
- 
- 
- if answerCorrect == false {
-   showCorrectAnswer = true
-   gb.cellstate[row][col] = .playedIncorrectly
-   gb.wrongcount += 1
-   gb.saveGameBoard()
-   chmgr.bumpWrongcount(topic: ch.topic)
-   chmgr.setStatus(for: ch, index: row*gb.boardsize + col, status: .playedIncorrectly)
-   DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-     showCorrectAnswer = false
-     showBorders = true
-   }
- }
- else {
-   animateBackToBlue = true
-
-   gb.cellstate[row][col] = .playedCorrectly
-   gb.rightcount += 1
-   gb.saveGameBoard()
-   chmgr.bumpRightcount(topic: ch.topic)
-   chmgr.setStatus(for: ch, index: row*gb.boardsize + col,status: .playedCorrectly)
-   DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-     animateBackToBlue = false
-     showBorders = true
-   }
- }
- stopTimer()
- */

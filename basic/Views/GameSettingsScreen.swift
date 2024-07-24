@@ -134,12 +134,13 @@ fileprivate struct GameSettingsView: View {
         .pickerStyle(SegmentedPickerStyle())
         .background(colorPaletteBackground.clipShape(RoundedRectangle(cornerRadius: 10)))
       }
-      //.onChange(of: l_colorPalette, initial: false)
-      //{ _,_ in onParameterChange() }
+      .onChange(of: l_currentScheme, initial: false)      {
+        print("Scheme changed to \(l_currentScheme)")
+      }
       
       Section(header: Text("Topics")) {
         NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, 
-            schemes: AppColors.allSchemes,gs:gs,
+                                                        schemes: AppColors.allSchemes,gs:gs, chmgr: chmgr,
       currentScheme: $l_currentScheme,
       selectedTopics: $l_selectedTopics))
         {
@@ -208,6 +209,7 @@ fileprivate struct GameSettingsView: View {
     gs.topicsinplay = l_selectedTopics // //*****2
     gs.currentscheme = l_currentScheme
     chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
+    gs.saveGameState()
   }
 }
 
@@ -227,39 +229,3 @@ struct GameSettingsScreen :
     }
   }
 }
-//#Preview("Tester") {
-  //  let t  = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-  //  GameSettingsScreen(chmgr: ChaMan(playData: PlayData.mock),
-  //                     gs: GameBoard(size: starting_size,
-  //                                          topics: Array(MockTopics.mockTopics.prefix(starting_size)),  challenges:Challenge.mockChallenges)
-  //                         ,
-  //                                              ourTopics: t) {  strings in
-  //    print("GameSettingsExited with \(t)")
-  //  }
-//}
-
-
-//  private func replaceTopic(at index: Int) {
-//    guard !tappedIndices.contains(index), !availableTopics.isEmpty else { return }
-//    let newTopic = availableTopics.removeFirst()
-//    replacedTopics[index] = l_selectedTopics[index]
-//    l_selectedTopics[index] = newTopic
-//    tappedIndices.insert(index)
-//  }
-
-//  private func selectAdditionalTopic(_ topic: String) {
-//    if selectedAdditionalTopics.contains(topic) {
-//      selectedAdditionalTopics.remove(topic)
-//    } else if selectedAdditionalTopics.count < boardSize {
-//      selectedAdditionalTopics.insert(topic)
-//    }
-//  }
-
-//  private func refreshTopics() {
-//    let randomTopics = ourTopics.shuffled()
-//    l_selectedTopics = Array(randomTopics.prefix(gameBoard.boardsize - 2))
-//    availableTopics = Array(randomTopics.dropFirst(gameBoard.boardsize - 2))
-//    tappedIndices.removeAll()
-//    replacedTopics.removeAll()
-//    selectedAdditionalTopics.removeAll()
-//  }

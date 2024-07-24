@@ -11,6 +11,7 @@ struct TopicsChooserScreen: View {
   let allTopics: [String]
   let schemes: [ColorScheme]
   let gs: GameState
+  let chmgr: ChaMan
   @Binding var currentScheme: ColorSchemeName
   @Binding var selectedTopics: [String]
   
@@ -25,7 +26,7 @@ struct TopicsChooserScreen: View {
           .font(.subheadline)
         
         HStack {
-          NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $currentScheme, boardSize: gs.boardsize)) {
+          NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $currentScheme, chmgr: chmgr, boardSize: gs.boardsize)) {
             Text("Select Topics")
           }
           

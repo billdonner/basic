@@ -11,7 +11,7 @@ import SwiftUI
     @Binding var selectedTopics: [String]
     @Binding var selectedSchemeIndex: ColorSchemeName
    
-
+   let chmgr: ChaMan
     let boardSize: Int
     @State private var searchText = ""
     @State private var rerolledTopics: [String: String] = [:]  // Dictionary to keep track of rerolled topics
@@ -61,8 +61,9 @@ import SwiftUI
                                 selectedTopics.removeAll { $0 == topic }
                             }
                         }) {
+                          let count = chmgr.freeChallengesCount(for: topic)
                             HStack {
-                                Text(topic)
+                                Text(topic+"\(count)")
                                 Spacer()
                                 Image(systemName: "checkmark")
                                     .foregroundColor(.green)
@@ -112,6 +113,6 @@ import SwiftUI
   @Previewable @State var selectedTopics:[String] = Array(MockTopics.mockTopics.prefix(6-2))
   @Previewable @State var selectedSchemeIndex: ColorSchemeName = .autumn
   
-  TopicSelectorView(allTopics: MockTopics.mockTopics, selectedTopics: $selectedTopics , selectedSchemeIndex: $selectedSchemeIndex,boardSize: 6)
+  TopicSelectorView(allTopics: MockTopics.mockTopics, selectedTopics: $selectedTopics , selectedSchemeIndex: $selectedSchemeIndex, chmgr: ChaMan(playData: PlayData.mock),boardSize: 6)
 }
 

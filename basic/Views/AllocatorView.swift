@@ -92,7 +92,7 @@ fileprivate struct TopicCountsView: View {
       counts
     }
     .font(.caption)
-    .background(colorForTopic(topic.name,gb:gs).0)
+    .background(colorForTopic(topic.name,gs:gs).0)
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
   }
