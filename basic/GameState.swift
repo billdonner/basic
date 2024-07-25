@@ -54,8 +54,9 @@ class GameState :  Codable {
   }
   
   init(size: Int, topics: [String], challenges: [Challenge]) {
-    self.boardsize = size
+    
     self.topicsinplay = topics //*****4
+    self.boardsize = size
     self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
     self.challengeindices = Array(repeating: Array(repeating: -1, count: size), count: size)
@@ -77,11 +78,12 @@ class GameState :  Codable {
 }
 
 extension GameState {
-  func setupForNewGame (chmgr:ChaMan) -> Bool {
+  func setupForNewGame (boardsize:Int, chmgr:ChaMan) -> Bool {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
     self.playcount += 1
-    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: self.boardsize), count:  self.boardsize)
+    self.boardsize = boardsize ///////////////
+    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count:  boardsize), count:   boardsize)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
     // give player a few gimmees depending on boardsize
     self.gimmees += boardsize - 1

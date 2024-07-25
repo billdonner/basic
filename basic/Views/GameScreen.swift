@@ -12,6 +12,8 @@ struct GameScreen: View {
   @Binding  var topics: [String]
   @Binding var size:Int
   let onTapGesture: (_ row:Int, _ col:Int ) -> Bool
+  
+  
   @State private var firstMove = true
   @State private var startAfresh = true
   @State private var showCantStartAlert = false
@@ -54,11 +56,11 @@ struct GameScreen: View {
                  bodyMessage: bodyMsg, buttonTitle: "OK"){
       onYouWin()
     }
-                 .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
+    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
                                bodyMessage: bodyMsg, buttonTitle: "OK"){
                    onYouLose()
                  }
-                               .onChange(of:gs.cellstate) {
+    .onChange(of:gs.cellstate) {
                                  //print("//GameScreen onChangeof(CellState) to \(gs.cellstate)")
                                  onChangeOfCellState()
                                }
@@ -113,7 +115,7 @@ struct GameScreen: View {
         //Start Game
         Button(action: {
           withAnimation {
-            let ok =  onStartGame()
+            let ok =  onStartGame(boardsize: gs.boardsize)
             if !ok {
               showCantStartAlert = true
             }
@@ -199,7 +201,7 @@ extension GameScreen /* actions */ {
   }
   
   func onBoardSizeChange() {
-    //
+   
   }
   
   func onChangeOfCellState() {
@@ -216,10 +218,10 @@ extension GameScreen /* actions */ {
   func onDump() {
     chmgr.dumpTopics()
   }
-  func onStartGame() -> Bool {
-    print("//GameScreen onStartGame before  topics: \(gs.topicsinplay) size:\(gs.boardsize)")
+  func onStartGame(boardsize:Int ) -> Bool {
+    print("//GameScreen onStartGame before  topics: \(gs.topicsinplay) size:\( boardsize)")
     // chmgr.dumpTopics()
-    let ok = gs.setupForNewGame(chmgr: chmgr )
+    let ok = gs.setupForNewGame(boardsize:boardsize,chmgr: chmgr )
     print("//GameScreen onStartGame after")
     // chmgr.dumpTopics()
     if !ok {

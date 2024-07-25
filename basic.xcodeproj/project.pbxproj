@@ -66,6 +66,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				AllocatorView.swift,
+				ChallengeInfoScreen.swift,
 				ContentView.swift,
 				FreeportSettingsScreen.swift,
 				GameScreen.swift,

@@ -6,7 +6,8 @@
 //
 
 import SwiftUI
-
+let playDataFileName = "playdata.json"
+let starting_size = 3 // Example size, can be 3 to 6
 class OrientationLockedViewController: UIViewController {
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait

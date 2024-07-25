@@ -7,7 +7,7 @@ struct QandAScreen: View {
   @Bindable  var chmgr:ChaMan //
   @Bindable var gs: GameState  //
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
-  
+  @State private var showInfo = false
   @State private var gimmeeAlert = false
   @State private var gimmeeAllAlert = false
   @State private var selectedAnswer: String? = nil  // State to track selected answer
@@ -58,7 +58,9 @@ struct QandAScreen: View {
         .answeredAlert(isPresented: $answerGiven, title: ch.correct, message: ch.explanation ?? "xxx", buttonTitle: "OK", onButtonTapped: {
           handleDismissal(toRoot:true)
         })
-        
+        .sheet(isPresented: $showInfo){
+          ChallengeInfoScreen(challenge: ch)
+        }
         .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question \nwith another from the same topic, \nif possible", message: "I will charge you one gimmee", button1Title: "OK", button2Title: "Cancel",onButton1Tapped: {
           handleGimmee(row:row,col:col)
          // let color = colorForTopic(ch.topic, gs: gs)
@@ -141,6 +143,19 @@ struct QandAScreen: View {
     }
     .disabled(gs.gimmees<1)
     .opacity(gs.gimmees<1 ? 0.5:1)
+
+  }
+  var infoButton: some View {
+    Button(action: {
+      showInfo = true
+    }) {
+      Image(systemName: "info")
+        .font(.title)
+        .foregroundColor(.white)
+        .frame(width: 50, height: 50)
+        .background(Color.purple)
+        .cornerRadius(10)
+    }
 
   }
   

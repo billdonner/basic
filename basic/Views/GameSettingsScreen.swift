@@ -22,14 +22,14 @@ fileprivate struct GameSettingsView: View {
     _l_topicsinplay = State(initialValue: chosenTopics)
     _availableTopics = State(initialValue: remainingTopics)
     l_faceUpCards = gs.faceup
-    l_boardSize = gs.boardsize
+    l_boardsize = gs.boardsize
     l_doubleDiag = gs.doublediag
     l_currentScheme = gs.currentscheme.rawValue
     l_difficultyLevel = gs.difficultylevel
     l_startInCorners = gs.startincorners
   }
   let ourTopics: [String]
-  @State private var  l_boardSize: Int
+  @State private var  l_boardsize: Int
   @State private var  l_startInCorners: Bool
   @State private var  l_faceUpCards: Bool
   @State private var  l_doubleDiag: Bool
@@ -69,7 +69,7 @@ fileprivate struct GameSettingsView: View {
   var body: some View {
     Form {
       Section(header: Text("Board Size")) {
-        Picker("Board Size", selection: $l_boardSize) {
+        Picker("Board Size", selection: $l_boardsize) {
           Text("3x3").tag(3)
           Text("4x4").tag(4)
           Text("5x5").tag(5)
@@ -210,7 +210,10 @@ fileprivate struct GameSettingsView: View {
     gs.difficultylevel = l_difficultyLevel
     gs.startincorners = l_startInCorners 
     gs.faceup = l_faceUpCards
-    gs.boardsize = l_boardSize
+    gs.boardsize = l_boardsize
+    gs.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: l_boardsize), count: l_boardsize)
+    gs.cellstate = Array(repeating: Array(repeating: .unplayed, count: l_boardsize), count: l_boardsize)
+    gs.challengeindices = Array(repeating: Array(repeating: -1, count: l_boardsize), count: l_boardsize)
     gs.topicsinplay = l_topicsinplay // //*****2
     gs.currentscheme = ColorSchemeName(rawValue:l_currentScheme) ?? .bleak
     chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
