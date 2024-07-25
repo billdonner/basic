@@ -7,11 +7,13 @@
 import SwiftUI
 /// A view for selecting topics from the full list.
  struct TopicSelectorView: View {
+   //don't touch any of gamestate in here so we can back it all out if the user cancels out at any level
+   
     let allTopics: [String]
     @Binding var selectedTopics: [String]
-    @Binding var selectedSchemeIndex: ColorSchemeName
+    @Binding var selectedSchemeIndex: Int//ColorSchemeName
    
-   let chmgr: ChaMan
+    let chmgr: ChaMan
     let boardSize: Int
     @State private var searchText = ""
     @State private var rerolledTopics: [String: String] = [:]  // Dictionary to keep track of rerolled topics
@@ -111,7 +113,7 @@ import SwiftUI
 #Preview ("TopicSelectorView"){
  
   @Previewable @State var selectedTopics:[String] = Array(MockTopics.mockTopics.prefix(6-2))
-  @Previewable @State var selectedSchemeIndex: ColorSchemeName = .autumn
+  @Previewable @State var selectedSchemeIndex:Int = 3// ColorSchemeName = .autumn
   
   TopicSelectorView(allTopics: MockTopics.mockTopics, selectedTopics: $selectedTopics , selectedSchemeIndex: $selectedSchemeIndex, chmgr: ChaMan(playData: PlayData.mock),boardSize: 6)
 }

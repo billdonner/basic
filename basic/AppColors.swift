@@ -14,10 +14,10 @@ typealias ColorSpec  = (backname:String, forename:String, backrgb:(Double, Doubl
 
 enum ColorSchemeName: Int,Codable  {
   case bleak = 0
-  case winter
-  case spring
-  case summer
-  case autumn
+  case winter = 1
+  case spring = 2
+  case summer = 3
+  case autumn = 4
 }
 
 class
@@ -106,7 +106,7 @@ AppColors  {
     ("Black", "White", (0,0,0), (255,255,255)),
     ("Black", "White", (0,0,0), (255,255,255))
   ])
-  static let allSchemes = [winter,spring,summer,autumn,bleak]
+  static let allSchemes = [bleak,winter,spring,summer,autumn]
   
 }
 

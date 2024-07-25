@@ -1,5 +1,7 @@
 import SwiftUI
-
+func removeElements<T: Equatable>(from array: [T], elementsToRemove: [T]) -> [T] {
+    return array.filter { !elementsToRemove.contains($0) }
+}
 fileprivate struct GameSettingsView: View {
   
   let onExit: ([String])->()
@@ -12,29 +14,30 @@ fileprivate struct GameSettingsView: View {
     self.gs = gs
     self.chmgr = chmgr
     self.ourTopics =    chmgr.playData.allTopics
-    let randomTopics = ourTopics.shuffled()
-    let chosenTopics = Array(randomTopics.prefix(gs.boardsize  - 1))
-    let remainingTopics = Array(randomTopics.dropFirst(gs.boardsize - 2))
-    _selectedTopics = State(initialValue: chosenTopics)
+//    let randomTopics = ourTopics.shuffled()
+//    let chosenTopics = Array(randomTopics.prefix(gs.boardsize  - 2))
+//    let remainingTopics = Array(randomTopics.dropFirst(gs.boardsize - 2))
+    let chosenTopics = gs.topicsinplay
+    let remainingTopics = removeElements(from:chmgr.playData.allTopics,elementsToRemove:chosenTopics)
+    _l_topicsinplay = State(initialValue: chosenTopics)
     _availableTopics = State(initialValue: remainingTopics)
     l_faceUpCards = gs.faceup
     l_boardSize = gs.boardsize
     l_doubleDiag = gs.doublediag
-    l_currentScheme = gs.currentscheme
+    l_currentScheme = gs.currentscheme.rawValue
     l_difficultyLevel = gs.difficultylevel
     l_startInCorners = gs.startincorners
-    l_selectedTopics = chosenTopics
   }
   let ourTopics: [String]
   @State private var  l_boardSize: Int
   @State private var  l_startInCorners: Bool
   @State private var  l_faceUpCards: Bool
   @State private var  l_doubleDiag: Bool
-  @State private var  l_currentScheme: ColorSchemeName
+  @State private var  l_currentScheme: Int//ColorSchemeName
   @State private var  l_difficultyLevel: Int
-  @State private var  l_selectedTopics: [String]
+  @State private var  l_topicsinplay: [String]
   
-  @State var selectedTopics: [String]
+ // @State var selectedTopics: [String]
   @State var availableTopics: [String]
   @State var tappedIndices: Set<Int> = []
   @State var replacedTopics: [Int: String] = [:]
@@ -46,13 +49,13 @@ fileprivate struct GameSettingsView: View {
   
   var colorPaletteBackground: LinearGradient {
     switch l_currentScheme {
-    case .winter:
+    case 1://.winter:
       return LinearGradient(gradient: Gradient(colors: [Color.green, Color.yellow]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case .spring:
+    case 2://.spring:
       return LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case .summer:
+    case 3://.summer:
       return LinearGradient(gradient: Gradient(colors: [Color.brown, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case .autumn:
+    case 4://.autumn:
       return LinearGradient(gradient: Gradient(colors: [Color.blue, Color.cyan]), startPoint: .topLeading, endPoint: .bottomTrailing)
     default:
       return LinearGradient(gradient: Gradient(colors: [Color.gray, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -126,7 +129,7 @@ fileprivate struct GameSettingsView: View {
       // { _,_ in onParameterChange() }
       Section(header: Text("Color Palette")) {
         Picker("Color Palette", selection: $l_currentScheme) {
-          ForEach(AppColors.allSchemes.indices,id:\.self) { idx in
+          ForEach(AppColors.allSchemes.indices.sorted(),id:\.self) { idx in
             Text("\(AppColors.allSchemes[idx].name)")
               .tag(idx)
           }
@@ -139,10 +142,14 @@ fileprivate struct GameSettingsView: View {
       }
       
       Section(header: Text("Topics")) {
-        NavigationLink(destination: TopicsChooserScreen(allTopics: chmgr.everyTopicName, 
-                                                        schemes: AppColors.allSchemes,gs:gs, chmgr: chmgr,
-      currentScheme: $l_currentScheme,
-      selectedTopics: $l_selectedTopics))
+        NavigationLink(destination: TopicsChooserScreen(
+              allTopics:chmgr.everyTopicName,
+              schemes: AppColors.allSchemes,
+              boardsize: gs.boardsize,
+              topicsinplay: gs.topicsinplay, 
+              chmgr: chmgr,
+              currentScheme: $l_currentScheme,
+              selectedTopics: $l_topicsinplay))
         {
           Text("Choose Topics")
             .padding()
@@ -151,7 +158,6 @@ fileprivate struct GameSettingsView: View {
       }
       .onAppear {
         if firstOnAppear {
-          //selectedTopics = getRandomTopics(boardSize - 1, from: chmgr.allTopics)
           firstOnAppear = false
           chmgr.checkTopicConsistency("GameSettings onAppear")
         }
@@ -167,8 +173,8 @@ fileprivate struct GameSettingsView: View {
             )
             Spacer()
           }
-          .onChange(of:selectedTopics,initial:true ) { old,newer in
-            print("Game With Topics:",selectedTopics.joined(separator: ","))
+          .onChange(of:l_topicsinplay,initial:true ) { old,newer in
+            print("Game With Topics:",l_topicsinplay.joined(separator: ","))
           }
           
           Button(action: { showSettings.toggle() }) {
@@ -181,13 +187,13 @@ fileprivate struct GameSettingsView: View {
       FreeportSettingsScreen(gs: gs, chmgr: chmgr)
     }
     .onDisappear {
-      onExit(selectedTopics) // do whatever
+      onExit(l_topicsinplay) // do whatever
     }
     .navigationBarTitle("Game Settings", displayMode: .inline)
     .navigationBarItems(
       leading: Button("Cancel") {
         // dont touch anything
-        print("//GameSettingsScreen Cancel Pressed topics: \(selectedTopics)")
+        print("//GameSettingsScreen Cancel Pressed topics were: \(l_topicsinplay)")
         self.presentationMode.wrappedValue.dismiss()
       },
       trailing: Button("Done") {
@@ -202,12 +208,11 @@ fileprivate struct GameSettingsView: View {
     // copy every change into gameState
     gs.doublediag = l_doubleDiag
     gs.difficultylevel = l_difficultyLevel
-    gs.startincorners = l_startInCorners
-    selectedTopics = l_selectedTopics //selectedTopics +
+    gs.startincorners = l_startInCorners 
     gs.faceup = l_faceUpCards
     gs.boardsize = l_boardSize
-    gs.topicsinplay = l_selectedTopics // //*****2
-    gs.currentscheme = l_currentScheme
+    gs.topicsinplay = l_topicsinplay // //*****2
+    gs.currentscheme = ColorSchemeName(rawValue:l_currentScheme) ?? .bleak
     chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
     gs.saveGameState()
   }

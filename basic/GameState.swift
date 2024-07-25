@@ -120,7 +120,7 @@ extension GameState {
     }
     gamestate = .playingNow
     saveGameState()
-    print("END OF SETUPFORNEWGAME")
+   // print("END OF SETUPFORNEWGAME")
     //chmgr.dumpTopics()
     return true
   }
@@ -143,9 +143,8 @@ extension GameState {
     // dealloc at indices first before resetting
     let allocationResult = chmgr.deallocAt(challenge_indexes)
     switch allocationResult {
-      
-    case .success(_):
-      print("dealloc succeeded")
+    case .success(_): break
+     // print("dealloc succeeded")
     case .error(let err):
       print("dealloc failed \(err)")
     }

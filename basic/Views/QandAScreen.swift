@@ -61,7 +61,7 @@ struct QandAScreen: View {
         
         .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question \nwith another from the same topic, \nif possible", message: "I will charge you one gimmee", button1Title: "OK", button2Title: "Cancel",onButton1Tapped: {
           handleGimmee(row:row,col:col)
-          let color = colorForTopic(ch.topic, gs: gs)
+         // let color = colorForTopic(ch.topic, gs: gs)
           gs.replacedcount += 1
           //dismiss()
           //handleDismissal(toRoot:false)

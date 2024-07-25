@@ -87,12 +87,12 @@ fileprivate struct TopicCountsView: View {
     HStack {
       RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
         .frame(width: 24, height: 24)
+        .background(colorForTopic(topic.name,gs:gs).0)
       Text(topic.name)
       Spacer()
       counts
     }
     .font(.caption)
-    .background(colorForTopic(topic.name,gs:gs).0)
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
   }

@@ -11,7 +11,7 @@ struct GameScreen: View {
   @Bindable var chmgr: ChaMan
   @Binding  var topics: [String]
   @Binding var size:Int
-  let onTapGesture: (_ row:Int, _ col:Int ) -> Void
+  let onTapGesture: (_ row:Int, _ col:Int ) -> Bool
   @State private var firstMove = true
   @State private var startAfresh = true
   @State private var showCantStartAlert = false
@@ -138,7 +138,7 @@ struct GameScreen: View {
           // withAnimation {
           onEndGamePressed()  //should estore consistency
           chmgr.checkTopicConsistency("GameScreen EndGamePressed")
-          print("//GameScreen return from onEndGamePressed")
+        //  print("//GameScreen return from onEndGamePressed")
           //   }
         }) {
           Text("End Game")
@@ -268,8 +268,10 @@ private extension GameScreen {
           tap = true
         }
       }
-      if tap {     onTapGesture(row,col)
+      if tap {  firstMove =    onTapGesture(row,col)
+    
         }
+  
     }
   }// make one cell
   
@@ -297,6 +299,7 @@ private extension GameScreen {
         topics: .constant(["Actors", "Animals", "Cars"]), size:.constant(s),
         onTapGesture: { row,col in
           print("Tapped cell with challenge \(row) \(col)")
+          return false
         }
       )
       .previewLayout(.fixed(width: 300, height: 300))

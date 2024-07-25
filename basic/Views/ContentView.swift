@@ -18,6 +18,7 @@ struct ContentView:View {
       //tap behavior
       isPresentingDetailView = true
       chal = IdentifiablePoint(row:row,col:col)
+      return false
     }
     .onAppear {
       if gs.veryfirstgame {
