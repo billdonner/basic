@@ -91,6 +91,7 @@ extension GameState {
     let result:AllocationResult = chmgr.allocateChallenges(forTopics: topicsinplay, count: boardsize * boardsize)
     switch result {
     case .success(let x):
+      assert(x.count == boardsize*boardsize)
       print("Success:\(x.count)")
       allocatedChallengeIndices = x
       //continue after the error path

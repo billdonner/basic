@@ -1,5 +1,5 @@
 #  Basic Recofig For Qanda
-- version 0.2.4 change boardsize freely
+- version 0.2.4 change boardsize freely,shuffled order of answers, challenge info button
 - version 0.2.3 color palette selection works
 - version 0.2.2 running but topics editing still wierd
 - version 0.2.1 can utilize gimmees , removed gimmee any

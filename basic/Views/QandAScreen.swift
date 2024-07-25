@@ -86,6 +86,7 @@ struct QandAScreen: View {
       markCorrectButton
       markIncorrectButton
       gimmeeButton
+      infoButton
      // gimmeeAllButton  // New button for "Gimmee All"
     }
     .padding(.bottom)
@@ -149,11 +150,11 @@ struct QandAScreen: View {
     Button(action: {
       showInfo = true
     }) {
-      Image(systemName: "info")
+      Image(systemName: "info.circle")
         .font(.title)
         .foregroundColor(.white)
         .frame(width: 50, height: 50)
-        .background(Color.purple)
+        .background(Color.blue)
         .cornerRadius(10)
     }
 
@@ -199,7 +200,7 @@ struct QandAScreen: View {
   }
   
   func answerButtonsVue(geometry: GeometryProxy) -> some View {
-    let answers = gs.board[row][col].answers
+    let answers = gs.board[row][col].answers.shuffled() // mix it up
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
     

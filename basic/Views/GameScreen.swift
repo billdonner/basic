@@ -271,7 +271,6 @@ private extension GameScreen {
         }
       }
       if tap {  firstMove =    onTapGesture(row,col)
-    
         }
   
     }

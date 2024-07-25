@@ -447,6 +447,7 @@ extension ChaMan {
         gs.totaltime = gb.totaltime
         gs.gamestate = gb.gamestate
         gs.topicsinplay = gb.topicsinplay
+        gs.challengeindices = gb.challengeindices //!!!
       }
       try self.loadPlayData(from: playDataFileName)
       

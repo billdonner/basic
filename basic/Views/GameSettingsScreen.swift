@@ -50,13 +50,13 @@ fileprivate struct GameSettingsView: View {
   var colorPaletteBackground: LinearGradient {
     switch l_currentScheme {
     case 1://.winter:
-      return LinearGradient(gradient: Gradient(colors: [Color.green, Color.yellow]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case 2://.spring:
-      return LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case 3://.summer:
-      return LinearGradient(gradient: Gradient(colors: [Color.brown, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
-    case 4://.autumn:
       return LinearGradient(gradient: Gradient(colors: [Color.blue, Color.cyan]), startPoint: .topLeading, endPoint: .bottomTrailing)
+    case 2://.spring:
+      return LinearGradient(gradient: Gradient(colors: [Color.green, Color.yellow]), startPoint: .topLeading, endPoint: .bottomTrailing)
+    case 3://.summer:
+      return LinearGradient(gradient: Gradient(colors: [Color.green, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
+    case 4://.autumn:
+      return LinearGradient(gradient: Gradient(colors: [Color.brown, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
     default:
       return LinearGradient(gradient: Gradient(colors: [Color.gray, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
     }
@@ -114,17 +114,17 @@ fileprivate struct GameSettingsView: View {
       }
       // .onChange(of: l_faceUpCards, initial: false )
       // { _,_ in onParameterChange() }
-      Section(header: Text("Double Diag")) {
-        HStack {
-          Text("One Diag")
-          Spacer()
-          Toggle("", isOn: $l_doubleDiag)
-            .labelsHidden()
-          Spacer()
-          Text("Both Diags")
-        }
-        .frame(maxWidth: .infinity)
-      }
+//      Section(header: Text("Double Diag")) {
+//        HStack {
+//          Text("One Diag")
+//          Spacer()
+//          Toggle("", isOn: $l_doubleDiag)
+//            .labelsHidden()
+//          Spacer()
+//          Text("Both Diags")
+//        }
+//        .frame(maxWidth: .infinity)
+//      }
       //.onChange(of: l_doubleDiag, initial: false)
       // { _,_ in onParameterChange() }
       Section(header: Text("Color Palette")) {
