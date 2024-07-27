@@ -69,7 +69,7 @@ struct GameScreen: View {
                                  onBoardSizeChange ()
                                }
                                .sheet(isPresented: $showSettings){
-                                 GameSettingsScreen(chmgr: chmgr, gs: gs,
+                                 SettingsScreen(chmgr: chmgr, gs: gs,
                                                     onExit: {t in
                                    print("//GameSettingsScreen onExit closure topics:\(t) ")
                                    gs.topicsinplay = t //was
@@ -91,6 +91,7 @@ struct GameScreen: View {
   
   var mainGridVeew: some View {
     GeometryReader { geometry in
+      let _ = print("gs.boardsize \(gs.boardsize) gs.board.count \(gs.board.count) ")
       let totalSpacing = spacing * CGFloat(gs.boardsize - 1)
       let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
       let cellSize = (axisSize / CGFloat(gs.boardsize)) * shrinkFactor  // Apply shrink factor
@@ -293,7 +294,7 @@ private extension GameScreen {
 // Preview Provider for SwiftUI preview
 #Preview ("GameScreen") {
   Group {
-    ForEach([3, 4, 5, 6], id: \.self) { s in
+    ForEach([3, 4, 5, 6,7,8], id: \.self) { s in
       GameScreen(
         gs:GameState(size: 1, topics:["Fun"], challenges: [Challenge.complexMock]),
         chmgr: ChaMan(playData: PlayData.mock),

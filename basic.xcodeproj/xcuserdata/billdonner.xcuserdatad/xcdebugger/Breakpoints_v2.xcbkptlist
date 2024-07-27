@@ -382,8 +382,8 @@
             filePath = "basic/Views/QandAScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "25"
-            endingLineNumber = "25"
+            startingLineNumber = "30"
+            endingLineNumber = "30"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -398,10 +398,10 @@
             filePath = "basic/Views/QandAScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "321"
-            endingLineNumber = "321"
-            landmarkName = "stopTimer()"
-            landmarkType = "7">
+            startingLineNumber = "333"
+            endingLineNumber = "333"
+            landmarkName = "QandAScreen"
+            landmarkType = "21">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -414,8 +414,8 @@
             filePath = "basic/Views/GameScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "178"
-            endingLineNumber = "178"
+            startingLineNumber = "179"
+            endingLineNumber = "179"
             landmarkName = "onAppearAction()"
             landmarkType = "7">
          </BreakpointContent>
@@ -542,8 +542,8 @@
             filePath = "basic/Views/GameScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "223"
-            endingLineNumber = "223"
+            startingLineNumber = "224"
+            endingLineNumber = "224"
             landmarkName = "onStartGame(boardsize:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -558,10 +558,10 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "278"
-            endingLineNumber = "278"
-            landmarkName = "deallocAt(_:)"
-            landmarkType = "7">
+            startingLineNumber = "256"
+            endingLineNumber = "256"
+            landmarkName = "ChaMan"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -654,8 +654,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "555"
-            endingLineNumber = "555"
+            startingLineNumber = "598"
+            endingLineNumber = "598"
             landmarkName = "loadPlayData(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -670,8 +670,8 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "592"
-            endingLineNumber = "592"
+            startingLineNumber = "635"
+            endingLineNumber = "635"
             landmarkName = "resetChallengeStatuses(at:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -734,10 +734,40 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "327"
-            endingLineNumber = "327"
-            landmarkName = "deallocAt(_:)"
-            landmarkType = "7">
+            startingLineNumber = "305"
+            endingLineNumber = "305"
+            landmarkName = "ChaMan"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "6A02ABBE-66F0-4CB7-BA3B-7FA6BEB53927 - a2f48b4239078f5d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "basic.ChaMan.deallocAt(Swift.Array&lt;Swift.Int&gt;) -&gt; basic.AllocationResult"
+                  moduleName = "basic.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/billdonner/Documents/basic/basic/ChaMan.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "308"
+                  endingLineNumber = "308">
+               </Location>
+               <Location
+                  uuid = "6A02ABBE-66F0-4CB7-BA3B-7FA6BEB53927 - a2f48b4239078f5d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "basic.ChaMan.deallocAt(Swift.Array&lt;Swift.Int&gt;) -&gt; basic.AllocationResult"
+                  moduleName = "basic.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/billdonner/Documents/basic/basic/ChaMan.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "308"
+                  endingLineNumber = "308">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -750,10 +780,10 @@
             filePath = "basic/ChaMan.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "293"
-            endingLineNumber = "293"
-            landmarkName = "deallocAt(_:)"
-            landmarkType = "7">
+            startingLineNumber = "271"
+            endingLineNumber = "271"
+            landmarkName = "ChaMan"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -846,8 +876,8 @@
             filePath = "basic/Views/QandAScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "65"
-            endingLineNumber = "65"
+            startingLineNumber = "75"
+            endingLineNumber = "75"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -862,8 +892,8 @@
             filePath = "basic/Views/QandAScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "336"
-            endingLineNumber = "336"
+            startingLineNumber = "348"
+            endingLineNumber = "348"
             landmarkName = "handleGimmee(row:col:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -878,8 +908,8 @@
             filePath = "basic/Views/GameSettingsScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "219"
-            endingLineNumber = "219"
+            startingLineNumber = "221"
+            endingLineNumber = "221"
             landmarkName = "onDonePressed()"
             landmarkType = "7">
          </BreakpointContent>
@@ -894,8 +924,8 @@
             filePath = "basic/Views/GameSettingsScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "145"
-            endingLineNumber = "145"
+            startingLineNumber = "147"
+            endingLineNumber = "147"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -910,8 +940,8 @@
             filePath = "basic/Views/GameSettingsScreen.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "141"
-            endingLineNumber = "141"
+            startingLineNumber = "143"
+            endingLineNumber = "143"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -961,6 +991,38 @@
             startingLineNumber = "124"
             endingLineNumber = "124"
             landmarkName = "setupForNewGame(boardsize:chmgr:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B845BB4A-32DA-4437-A1C0-F18175B50C1C"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "basic/Views/QandATopBarView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "62"
+            endingLineNumber = "62"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0258B126-1305-4E5D-8CCA-5466D74701AB"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "basic/Views/QandAScreen.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "400"
+            endingLineNumber = "400"
+            landmarkName = "handleAnswerSelection(answer:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

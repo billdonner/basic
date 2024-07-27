@@ -8,7 +8,7 @@
 import SwiftUI
 private struct zz:View {
   let showchars:String
-let gs: GameState
+  let gs: GameState
   var body: some View{
     VStack {
       HStack {

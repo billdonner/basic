@@ -3,9 +3,26 @@ struct QandATopBarView: View {
   let gs:GameState
     let topic: String
     let hint:String
-    let elapsedTime: TimeInterval
     let handlePass: () -> Void
-    let toggleHint: () -> Void
+  let toggleHint: () -> Void
+   
+  @State private var timer: Timer? = nil  // Timer to track elapsed time
+  @Binding var elapsedTime: TimeInterval   // Elapsed time in seconds
+  
+  @Binding var killTimer: Bool
+   
+  func startTimer() {
+    elapsedTime = 0
+    timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+      elapsedTime += 1
+    }
+  }
+
+  public func stopTimer() {
+    gs.totaltime += elapsedTime
+    timer?.invalidate()
+    timer = nil
+  }
   
   var formattedElapsedTime: String {
     let minutes = Int(elapsedTime) / 60
@@ -33,12 +50,17 @@ struct QandATopBarView: View {
             }
         }
         .padding(.top)
-//        .onAppear {
-//          print ("//QandATopBarView onAppear")
-//        }
-//        .onDisappear {
-//          print ("//QandATopBarView onDisAppear")
-//        }
+        .onAppear {
+          print ("//QandATopBarView onAppear")
+          startTimer()
+        }
+        .onDisappear {
+          print ("//QandATopBarView onDisAppear")
+          stopTimer()
+        }
+        .onChange(of: killTimer) { oldValue, newValue in
+          stopTimer()
+        }
     }
     
     var passButton: some View {
@@ -82,13 +104,13 @@ struct QandATopBarView: View {
     }
 }
 
-#Preview {
-    QandATopBarView(
-      gs: GameState(size:1,topics:["foo"],challenges:[Challenge.complexMock]),
-      topic: "American History",
-      hint: "What can we say about history?",
-      elapsedTime: 23984923.0,
-        handlePass: {},
-        toggleHint: {}
-    )
-}
+//#Preview {
+//    QandATopBarView(
+//      gs: GameState(size:1,topics:["foo"],challenges:[Challenge.complexMock]),
+//      topic: "American History",
+//      hint: "What can we say about history?",
+//      elapsedTime: 23984923.0,
+//        handlePass: {},
+//        toggleHint: {}
+//    )
+//}

@@ -2,7 +2,7 @@ import SwiftUI
 func removeElements<T: Equatable>(from array: [T], elementsToRemove: [T]) -> [T] {
     return array.filter { !elementsToRemove.contains($0) }
 }
-fileprivate struct GameSettingsView: View {
+fileprivate struct SettingsView: View {
   
   let onExit: ([String])->()
   @Bindable var chmgr:ChaMan
@@ -74,6 +74,8 @@ fileprivate struct GameSettingsView: View {
           Text("4x4").tag(4)
           Text("5x5").tag(5)
           Text("6x6").tag(6)
+          Text("7x7").tag(7)
+          Text("8x8").tag(8)
         }
         .pickerStyle(SegmentedPickerStyle())
       }
@@ -221,7 +223,7 @@ fileprivate struct GameSettingsView: View {
   }
 }
 
-struct GameSettingsScreen :
+struct SettingsScreen :
   View {
   @Bindable var chmgr: ChaMan
   @Bindable var gs: GameState
@@ -229,7 +231,7 @@ struct GameSettingsScreen :
   
   var body: some View {
     NavigationView  {
-      GameSettingsView(
+      SettingsView(
         chmgr: chmgr,
         gs:gs,
         onExit: onExit
