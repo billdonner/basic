@@ -96,7 +96,6 @@ class ChaMan {
     case playedCorrectly   // 2
     case playedIncorrectly // 3
     case abandoned         // 4
-    
   }
 
 

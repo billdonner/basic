@@ -4,6 +4,7 @@ import SwiftUI
 struct QandAScreen: View {
   let row: Int
   let col: Int
+  let st: ChaMan.ChallengeStatus?
   @Binding var isPresentingDetailView: Bool
   @Bindable  var chmgr:ChaMan //
   @Bindable var gs: GameState  //
@@ -24,13 +25,21 @@ struct QandAScreen: View {
   @State private var killTimer:Bool = false // set true to get the timer to stop
   @State private var elapsedTime: TimeInterval = 0
   @State private var questionedWasAnswered: Bool = false
- 
+//  enum ChallengeStatus : Int, Codable  {
+//    case inReserve         // 0
+//    case allocated         // 1
+//    case playedCorrectly   // 2
+//    case playedIncorrectly // 3
+//    case abandoned         // 4
+//  }
   
   var body: some View {
     GeometryReader { geometry in
       // let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
       let ch = gs.board[row][col]
-      ZStack {
+    //  switch st {
+   //   case .allocated:
+        ZStack {
         VStack {
           QandATopBarView(
             gs: gs, topic: ch.topic, hint: ch.hint,
@@ -38,7 +47,7 @@ struct QandAScreen: View {
             toggleHint:  toggleHint,
             elapsedTime: $elapsedTime,
             killTimer: $killTimer)
-         
+          
           questionAndAnswersSectionVue(geometry: geometry)
           Spacer()
           bottomButtons
@@ -50,17 +59,17 @@ struct QandAScreen: View {
         .padding(.bottom, 30)
         // .frame(width: geometry.size.width) // Center the content with padding
         .onAppear {
-//          print("//QandAScreen onAppear");
-//          startTimer()
+          //          print("//QandAScreen onAppear");
+          //          startTimer()
         }
         .onDisappear(perform: {
-//          print("//QandAScreen onDisappear");
-//          stopTimer()
+          //          print("//QandAScreen onDisappear");
+          //          stopTimer()
         }
         )
         
-        .hintAlert(isPresented: $showHint, title: "Here's Your Hint", message: ch.hint, 
-          buttonTitle: "Dismiss", onButtonTapped: {
+        .hintAlert(isPresented: $showHint, title: "Here's Your Hint", message: ch.hint,
+                   buttonTitle: "Dismiss", onButtonTapped: {
           handleDismissal(toRoot:false)
         }, animation: .spring())
         
@@ -73,20 +82,26 @@ struct QandAScreen: View {
         }
         .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question \nwith another from the same topic, \nif possible", message: "I will charge you one gimmee", button1Title: "OK", button2Title: "Cancel",onButton1Tapped: {
           handleGimmee(row:row,col:col)
-         // let color = colorForTopic(ch.topic, gs: gs)
+          // let color = colorForTopic(ch.topic, gs: gs)
           gs.replacedcount += 1
           //dismiss()
           //handleDismissal(toRoot:false)
         }, onButton2Tapped: {
           print("Gimmee cancelled")
         },
-          animation: .spring())
+                     animation: .spring())
         
         .gimmeeAllAlert(isPresented: $gimmeeAllAlert, title: "I will replace this Question \nwith another from any topic", message: "I will charge you one gimmee", buttonTitle: "OK", onButtonTapped: {
           handleGimmee(row:row,col:col)
           handleDismissal(toRoot:false)
         }, animation: .spring())
       }
+     // case .playedIncorrectly, .playedCorrectly:
+     //   Color.blue
+  
+    //default: Color.red
+   // }
+   
     }
   }
   
@@ -295,12 +310,12 @@ struct QandAScreen: View {
             }
           }
         )
-        .cornerRadius(15)  // Make the buttons rounded rectangles
+        .cornerRadius(5)  // Make the buttons rounded rectangles
         .minimumScaleFactor(0.5)  // Adjust font size to fit
         .lineLimit(8)
         .rotationEffect(showCorrectAnswer && answer == gs.board[row][col].correct ? .degrees(360) : .degrees(0))
         .overlay(
-          RoundedRectangle(cornerRadius: 15)  // Match the corner radius
+          RoundedRectangle(cornerRadius: 5)  // Match the corner radius
             .stroke(showBorders && answer == selectedAnswer && !answerCorrect ? Color.red : showBorders && answer == gs.board[row][col].correct && answerCorrect == false ? Color.green : Color.clear, lineWidth: 5)
         )
         .animation(.easeInOut(duration: showCorrectAnswer ? 1.0 : 0.5), value: showCorrectAnswer)
@@ -420,10 +435,10 @@ extension QandAScreen { /* actions */
 
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0, st: ChaMan.ChallengeStatus.allocated,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   
 }
 #Preview {
-  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0, st:ChaMan.ChallengeStatus.playedCorrectly,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   
 }

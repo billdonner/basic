@@ -13,6 +13,7 @@ struct GameScreen: View {
   @Binding var size:Int
   let onTapGesture: (_ row:Int, _ col:Int ) -> Bool
   
+ // @AppStorage("border") private var border = 3.0
   
   @State private var firstMove = true
   @State private var startAfresh = true
@@ -256,13 +257,19 @@ private extension GameScreen {
       .frame(width: cellSize, height: cellSize)
       .background(colormix.0)
       .foregroundColor(colormix.1)
-      .border(status.borderColor , width: 8)
+      .border(status.borderColor , width: CGFloat(11-gs.boardsize)) //3=8,8=3
       .cornerRadius(8)
       .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
     }
     // for some unknown reason, the tap surface area is bigger if placed outside the VStack
     .onTapGesture {
       var  tap = false
+      if  gs.gamestate == .playingNow &&
+           ( gs.cellstate[row][col] == .playedCorrectly ||
+             gs.cellstate[row][col] == .playedIncorrectly)  {
+      
+        
+      }
       if  gs.gamestate == .playingNow &&
             gs.cellstate[row][col] == .unplayed {
         if gs.startincorners&&firstMove{

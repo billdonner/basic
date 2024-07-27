@@ -8,9 +8,16 @@ enum StateOfPlay : Int, Codable {
 }
 
 struct IdentifiablePoint: Identifiable {
+  internal init(row: Int, col: Int, status: ChaMan.ChallengeStatus? = nil) {
+    self.row = row
+    self.col = col
+    self.status = status
+  }
+  
   let id = UUID()
   let row: Int
   let col: Int
+  let status: ChaMan.ChallengeStatus?
 }
 
 
