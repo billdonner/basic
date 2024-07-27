@@ -39,19 +39,19 @@ struct ScoreBarView: View {
           if !isPossibleWinningPath(in:gs.cellstate) {
             "❌"
           } else {
-            "moves: \(numberOfPossibleMoves(in: gs.cellstate))"
+            "possibles: \(numberOfPossibleMoves(in: gs.cellstate))"
           }
         }
         zz(showchars: showchars,gs:gs)
       }
       
         if gs.gamestate == .playingNow {
-          Text ("game in progress...").foregroundStyle(.blue.opacity(0.5))
+          Text ("game in progress...").foregroundStyle(.blue )
         } else {
-          Text ("you can start a new game now ").foregroundStyle(.green.opacity(0.5))
+          Text ("you can start a new game now ").foregroundStyle(.green )
           if gs.startincorners {
             Text("you've got to start in a corner")
-              .font(.footnote).opacity(0.5)
+              .font(.footnote).foregroundStyle(.green )
           }
         }
       }

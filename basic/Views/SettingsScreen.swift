@@ -4,13 +4,14 @@ func removeElements<T: Equatable>(from array: [T], elementsToRemove: [T]) -> [T]
 }
 fileprivate struct SettingsView: View {
   
-  let onExit: ([String])->()
+ // let onExit: ([String])->()
   @Bindable var chmgr:ChaMan
   @Bindable var gs:GameState
   
-  internal init(chmgr:ChaMan,gs:GameState,
-                onExit:@escaping ([String])->()) {
-    self.onExit = onExit
+  internal init(chmgr:ChaMan,gs:GameState)//,
+                //onExit:@escaping ([String])->())
+  {
+   // self.onExit = onExit
     self.gs = gs
     self.chmgr = chmgr
     self.ourTopics =    chmgr.playData.allTopics
@@ -188,9 +189,9 @@ fileprivate struct SettingsView: View {
     .sheet(isPresented:$showSettings){
       FreeportSettingsScreen(gs: gs, chmgr: chmgr)
     }
-    .onDisappear {
-      onExit(l_topicsinplay) // do whatever
-    }
+//    .onDisappear {
+//      onExit(l_topicsinplay) // do whatever
+//    }
     .navigationBarTitle("Game Settings", displayMode: .inline)
     .navigationBarItems(
       leading: Button("Cancel") {
@@ -227,14 +228,14 @@ struct SettingsScreen :
   View {
   @Bindable var chmgr: ChaMan
   @Bindable var gs: GameState
-  let onExit: ([String])->()
+ // let onExit: ([String])->()
   
   var body: some View {
     NavigationView  {
       SettingsView(
         chmgr: chmgr,
-        gs:gs,
-        onExit: onExit
+        gs:gs//,
+       // onExit: onExit
       )
     }
   }

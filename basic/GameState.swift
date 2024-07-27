@@ -52,7 +52,9 @@ class GameState :  Codable {
     case _doublediag = "doublediag"
     case _difficultylevel = "difficultylevel"
   }
-  
+  func basicTopics()->[BasicTopic] {
+    return topicsinplay.map {BasicTopic(name: $0)}
+  }
   init(size: Int, topics: [String], challenges: [Challenge]) {
     
     self.topicsinplay = topics //*****4
@@ -93,7 +95,7 @@ extension GameState {
     case .success(let x):
       assert(x.count == boardsize*boardsize)
       print("Success:\(x.count)")
-      allocatedChallengeIndices = x
+      allocatedChallengeIndices = x.shuffled()
       //continue after the error path
       
     case .error(let err):

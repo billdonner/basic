@@ -37,6 +37,7 @@ struct GameScreen: View {
   
   var body: some View {
     VStack {
+      Text("QandA \(AppVersionProvider.appVersion()) by Freeport Software").font(.caption2)
       topButtonsVeew // down below
         .padding(.horizontal)
       ScoreBarView(gs: gs)
@@ -69,12 +70,12 @@ struct GameScreen: View {
                                  onBoardSizeChange ()
                                }
                                .sheet(isPresented: $showSettings){
-                                 SettingsScreen(chmgr: chmgr, gs: gs,
-                                                    onExit: {t in
-                                   print("//GameSettingsScreen onExit closure topics:\(t) ")
-                                   gs.topicsinplay = t //was
-                                   //  onGameSettingsExit (t)
-                                 })
+                               SettingsScreen(chmgr: chmgr, gs: gs)//,
+//                                                    onExit: {t in
+//                                   print("//GameSettingsScreen onExit closure topics:\(t) ")
+//                                   gs.topicsinplay = t //was
+//                                   //  onGameSettingsExit (t)
+                                 //})
                                }
                                .fullScreenCover(isPresented: $showingHelp ){
                                  HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)

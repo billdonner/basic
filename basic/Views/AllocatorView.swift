@@ -25,9 +25,17 @@ struct AllocatorView: View {
       let playData = chmgr.playData
       ScrollView {
         VStack(spacing: 4) {
+    
+          ForEach(gs.basicTopics(), id: \.name) { topic in
+            if chmgr.allocatedChallengesCount(for: topic.name) > 0 {
+              TopicCountsView(topic: topic.name,chmgr: chmgr, gs: gs )
+            }
+          }
+        }
+        VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) > 0 {
-              TopicCountsView(topic: topic,chmgr: chmgr, gs: gs )
+              TopicCountsView(topic: topic.name,chmgr: chmgr, gs: gs )
             }
           }
         }
@@ -35,7 +43,7 @@ struct AllocatorView: View {
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) <=  0 {
-              TopicCountsView(topic: topic,chmgr: chmgr,gs: gs)
+              TopicCountsView(topic: topic.name,chmgr: chmgr,gs: gs)
             }
           }
         }
@@ -43,12 +51,6 @@ struct AllocatorView: View {
     }
     .background(backgroundColor)
     .padding()
-//    .onAppear {
-//      print("//AllocatorView onAppear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)")
-//    }
-//    .onDisappear {
-//      print("//AllocatorView onDisappear size:\(gameBoard.boardsize) topics:\(gameBoard.topicsinplay)") 
-//    }
   }
   
   // Computed properties for background and text colors
@@ -71,24 +73,24 @@ struct AllocatorView_Previews: PreviewProvider {
 }
 
 fileprivate struct TopicCountsView: View {
-  let topic: BasicTopic
+  let topic: String
   let chmgr: ChaMan
   let gs: GameState
   
   var counts: some View {
-    Text("\(chmgr.allocatedChallengesCount(for: topic.name)) - "
-         + "\(chmgr.freeChallengesCount(for: topic.name)) - "
-         + "\(chmgr.abandonedChallengesCount(for: topic.name)) - "
-         + "\(chmgr.correctChallengesCount(for: topic.name)) - "
-         + "\(chmgr.incorrectChallengesCount(for: topic.name))"
+    Text("\(chmgr.allocatedChallengesCount(for: topic )) - "
+         + "\(chmgr.freeChallengesCount(for: topic )) - "
+         + "\(chmgr.abandonedChallengesCount(for: topic )) - "
+         + "\(chmgr.correctChallengesCount(for: topic )) - "
+         + "\(chmgr.incorrectChallengesCount(for: topic ))"
     )
   }
   var body: some View {
     HStack {
       RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
         .frame(width: 24, height: 24)
-        .background(colorForTopic(topic.name,gs:gs).0)
-      Text(topic.name)
+        .background(colorForTopic(topic ,gs:gs).0)
+      Text(topic )
       Spacer()
       counts
     }

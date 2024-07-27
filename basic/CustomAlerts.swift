@@ -479,7 +479,7 @@ fileprivate struct AnsweredAlertModifier: ViewModifier {
                   message: message,
                   buttonTitle: buttonTitle,
                   onButtonTapped: {
-                      withAnimation(.easeInOut(duration: 1.25)) { // Slowed down by 1.25x
+                    withAnimation(.easeInOut(duration: 0.75)) { // Slowed down by 1.25x
                           isPresented = false
                       }
                       onButtonTapped()

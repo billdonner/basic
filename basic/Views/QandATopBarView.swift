@@ -43,7 +43,7 @@ struct QandATopBarView: View {
             VStack {
                 Text(topic)
                     .font(.headline)
-                    .lineLimit(2,reservesSpace: true)
+                    .lineLimit(2)//,reservesSpace: true)
                     .foregroundColor(.primary)
                 elapsedTimeView
                 additionalInfoView

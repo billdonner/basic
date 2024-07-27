@@ -19,7 +19,7 @@ struct IdentifiablePoint: Identifiable {
 
 
 struct BasicTopic: Codable {
-    public init(name: String, subject: String, pic: String, notes: String, subtopics: [String]) {
+    public init(name: String, subject: String="", pic: String="", notes: String="", subtopics: [String]=[]) {
         self.name = name
         self.subject = subject
         self.pic = pic
