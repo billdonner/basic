@@ -99,10 +99,13 @@ struct GameScreen: View {
         ForEach(0..<gs.boardsize, id: \.self) { row in
           HStack(spacing: spacing) {
             ForEach(0..<gs.boardsize, id: \.self) { col in
-              makeOneCellVue(row:row,col:col,
-                             challenge:gs.board[row][col],
-                             status:gs.cellstate[row][col],
-                             cellSize: cellSize)
+              // i keep getting row and col out of bounds, so clamp it
+              if row < gs.boardsize  && col < gs.boardsize   {  
+                makeOneCellVue(row:row,col:col,
+                               challenge:gs.board[row][col],
+                               status:gs.cellstate[row][col],
+                               cellSize: cellSize)
+              }
             }
           }
         }
