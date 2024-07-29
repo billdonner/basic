@@ -25,13 +25,13 @@ struct AllocatorView: View {
       let playData = chmgr.playData
       ScrollView {
         VStack(spacing: 4) {
-    
           ForEach(gs.basicTopics(), id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) > 0 {
               TopicCountsView(topic: topic.name,chmgr: chmgr, gs: gs )
             }
           }
         }
+        Divider()
         VStack(spacing: 4) {
           ForEach(playData.topicData.topics, id: \.name) { topic in
             if chmgr.allocatedChallengesCount(for: topic.name) > 0 {
@@ -87,9 +87,9 @@ fileprivate struct TopicCountsView: View {
   }
   var body: some View {
     HStack {
-      RoundedRectangle(cornerSize: CGSize(width: 5.0, height: 5.0))
+      RoundedRectangle(cornerSize: CGSize(width: 15.0, height: 5.0))
         .frame(width: 24, height: 24)
-        .background(colorForTopic(topic ,gs:gs).0)
+        .foregroundStyle(colorForTopic(topic ,gs:gs).0)
       Text(topic )
       Spacer()
       counts

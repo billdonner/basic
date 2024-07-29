@@ -6,6 +6,10 @@
 //
 
 import SwiftUI
+
+var isIpad: Bool {
+  UIDevice.current.systemName == "iPadOS"
+}
 extension String {
     /// Pads or truncates the string to the specified length.
     ///
@@ -36,7 +40,9 @@ extension String {
 }
   func colorForTopic(_ topic:String,gs:GameState) ->   (Color, Color, UUID) {
       if let index = indexOfTopic(topic,gs:gs) {
-        return AppColors.colorForTopicIndex(index:(ColorSchemeName(rawValue: index) ?? .bleak).rawValue ,gs:gs)
+        //use as into into the selected appcolors sheme
+        //let scheme = AppColors.allSchemes[gs.currentscheme.rawValue]
+        return AppColors.colorForTopicIndex(index:index,gs:gs)
       } else {
         return (Color.white, Color.black, UUID())
       }

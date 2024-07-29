@@ -69,9 +69,7 @@ struct TopicColorizerView: View {
 
  #Preview("ArrangerView") {
    @Previewable @State  var selectedSchemeIndex:Int = 3//.autumn
-    TopicColorizerView(topics: .constant(["Topic 1", "Topic 2", "Topic 3"]), selectedSchemeIndex: $selectedSchemeIndex, schemes: AppColors.allSchemes )
-
-  
+    TopicColorizerView(topics: .constant(["Topic 1", "Topic 2", "Topic 3"]), selectedSchemeIndex: $selectedSchemeIndex, schemes: AppColors.allSchemes ) 
 }
 
 /// Drop delegate for handling drag and drop of topics.

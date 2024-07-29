@@ -13,7 +13,7 @@ struct GameScreen: View {
   @Binding var size:Int
   let onTapGesture: (_ row:Int, _ col:Int ) -> Bool
   
- // @AppStorage("border") private var border = 3.0
+  // @AppStorage("border") private var border = 3.0
   
   @State private var firstMove = true
   @State private var startAfresh = true
@@ -24,9 +24,7 @@ struct GameScreen: View {
   @State private var showLoseAlert = false
   @State private var showAllocatorView = false
   
-  private let spacing: CGFloat = 5
-  // Adding a shrink factor to slightly reduce the cell size
-  private let shrinkFactor: CGFloat = 0.9
+  
   
   
   var bodyMsg: String {
@@ -43,7 +41,9 @@ struct GameScreen: View {
         .padding(.horizontal)
       ScoreBarView(gs: gs)
       if gs.boardsize > 1 {
-        mainGridVeew
+        VStack(alignment: .center){
+          mainGridVeew//.border(Color.red)
+        }
       }
       else {
         loadingVeew
@@ -58,12 +58,11 @@ struct GameScreen: View {
                  bodyMessage: bodyMsg, buttonTitle: "OK"){
       onYouWin()
     }
-    .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
+                 .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
                                bodyMessage: bodyMsg, buttonTitle: "OK"){
                    onYouLose()
                  }
-    .onChange(of:gs.cellstate) {
-                                 //print("//GameScreen onChangeof(CellState) to \(gs.cellstate)")
+                               .onChange(of:gs.cellstate) {
                                  onChangeOfCellState()
                                }
                                .onChange(of:gs.boardsize) {
@@ -71,12 +70,7 @@ struct GameScreen: View {
                                  onBoardSizeChange ()
                                }
                                .sheet(isPresented: $showSettings){
-                               SettingsScreen(chmgr: chmgr, gs: gs)//,
-//                                                    onExit: {t in
-//                                   print("//GameSettingsScreen onExit closure topics:\(t) ")
-//                                   gs.topicsinplay = t //was
-//                                   //  onGameSettingsExit (t)
-                                 //})
+                                 SettingsScreen(chmgr: chmgr, gs: gs)
                                }
                                .fullScreenCover(isPresented: $showingHelp ){
                                  HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
@@ -88,31 +82,40 @@ struct GameScreen: View {
                                .onDisappear {
                                  print("Yikes the GameScreen is Disappearing!")
                                }
-    
   }
   
   var mainGridVeew: some View {
-    GeometryReader { geometry in
-      let _ = print("gs.boardsize \(gs.boardsize) gs.board.count \(gs.board.count) ")
-      let totalSpacing = spacing * CGFloat(gs.boardsize - 1)
+    let spacing: CGFloat = 5.0 * (isIpad ? 1.8 : 1.0)
+    // Adding a shrink factor to slightly reduce the cell size
+   // let shrinkFactor: CGFloat = 0.95
+    return   GeometryReader { geometry in
+      let _ = print("gs.boardsize \(gs.boardsize) gs.board.count \(gs.board.count) geometry.size.width \(geometry.size.width) geometry.size.height \(geometry.size.height)")
+      //PUT SOME SPACE ON BOTH SIDES//
+      let totalSpacing = spacing * CGFloat(gs.boardsize + 1)
       let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
-      let cellSize = (axisSize / CGFloat(gs.boardsize)) * shrinkFactor  // Apply shrink factor
+      let cellSize = (axisSize / CGFloat(gs.boardsize)) //* shrinkFactor  // Apply shrink factor
       VStack(alignment:.center, spacing: spacing) {
         ForEach(0..<gs.boardsize, id: \.self) { row in
-          HStack(spacing: spacing) {
+          HStack(spacing:0) {
+            Spacer(minLength:spacing/2)
             ForEach(0..<gs.boardsize, id: \.self) { col in
               // i keep getting row and col out of bounds, so clamp it
-              if row < gs.boardsize  && col < gs.boardsize   {  
+              if row < gs.boardsize  && col < gs.boardsize   {
                 makeOneCellVue(row:row,col:col,
                                challenge:gs.board[row][col],
                                status:gs.cellstate[row][col],
                                cellSize: cellSize)
+                //.border(.blue)
+              }else {
+                Color.clear
+                  .frame(width: cellSize, height: cellSize)
               }
+              Spacer(minLength:spacing/2)
             }
+           // Spacer(minLength:spacing/2)
           }
         }
       }
-      .padding()
     }
   }
   var topButtonsVeew : some View{
@@ -146,7 +149,7 @@ struct GameScreen: View {
           // withAnimation {
           onEndGamePressed()  //should estore consistency
           chmgr.checkTopicConsistency("GameScreen EndGamePressed")
-        //  print("//GameScreen return from onEndGamePressed")
+          //  print("//GameScreen return from onEndGamePressed")
           //   }
         }) {
           Text("End Game")
@@ -207,7 +210,7 @@ extension GameScreen /* actions */ {
   }
   
   func onBoardSizeChange() {
-   
+    
   }
   
   func onChangeOfCellState() {
@@ -249,7 +252,7 @@ private extension GameScreen {
                       status:ChallengeOutcomes,
                       cellSize: CGFloat) -> some View {
     let colormix = colorForTopic(challenge.topic, gs: gs)
-    return VStack {
+    return VStack(alignment:.center, spacing:0) {
       Text(//hideCellContent ||hideCellContent ||
         ( !gs.faceup) ? " " : challenge.question )
       .font(.caption)
@@ -257,7 +260,7 @@ private extension GameScreen {
       .frame(width: cellSize, height: cellSize)
       .background(colormix.0)
       .foregroundColor(colormix.1)
-      .border(status.borderColor , width: CGFloat(11-gs.boardsize)) //3=8,8=3
+      .border(status.borderColor , width: CGFloat(11-gs.boardsize)*(isIpad ? 3.0:1.0)) //3=8,8=3
       .cornerRadius(8)
       .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
     }
@@ -265,9 +268,9 @@ private extension GameScreen {
     .onTapGesture {
       var  tap = false
       if  gs.gamestate == .playingNow &&
-           ( gs.cellstate[row][col] == .playedCorrectly ||
-             gs.cellstate[row][col] == .playedIncorrectly)  {
-      
+            ( gs.cellstate[row][col] == .playedCorrectly ||
+              gs.cellstate[row][col] == .playedIncorrectly)  {
+        
         
       }
       if  gs.gamestate == .playingNow &&
@@ -283,8 +286,8 @@ private extension GameScreen {
         }
       }
       if tap {  firstMove =    onTapGesture(row,col)
-        }
-  
+      }
+      
     }
   }// make one cell
   
