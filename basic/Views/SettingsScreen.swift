@@ -140,9 +140,9 @@ fileprivate struct SettingsView: View {
         .pickerStyle(SegmentedPickerStyle())
         .background(colorPaletteBackground.clipShape(RoundedRectangle(cornerRadius: 10)))
       }
-      .onChange(of: l_currentScheme, initial: false)      {
-        print("Scheme changed to \(l_currentScheme)")
-      }
+//      .onChange(of: l_currentScheme, initial: false)      {
+//        print("Scheme changed to \(l_currentScheme)")
+//      }
       
       Section(header: Text("Topics")) {
         NavigationLink(destination: TopicsChooserScreen(

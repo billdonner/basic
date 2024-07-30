@@ -133,7 +133,7 @@ struct GameScreen: View {
     // Adding a shrink factor to slightly reduce the cell size
    // let shrinkFactor: CGFloat = 0.95
     return   GeometryReader { geometry in
-      let _ = print("gs.boardsize \(gs.boardsize) gs.board.count \(gs.board.count) geometry.size.width \(geometry.size.width) geometry.size.height \(geometry.size.height)")
+    //  let _ = print("gs.boardsize \(gs.boardsize) gs.board.count \(gs.board.count) geometry.size.width \(geometry.size.width) geometry.size.height \(geometry.size.height)")
       //PUT SOME SPACE ON BOTH SIDES//
       let totalSpacing = spacing * CGFloat(gs.boardsize + 1)
       let axisSize = min(geometry.size.width, geometry.size.height) - totalSpacing
