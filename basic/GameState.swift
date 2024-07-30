@@ -192,6 +192,21 @@ extension GameState {
     return (unplayedChallenges,unplayedInts)
   }
   
+  func indexOfTopic(_ topic:String ) -> Int? {
+   for (index,t) in self.topicsinplay.enumerated()  {
+   if t == topic { return index}
+   }
+   return nil
+ }
+   func colorForTopic(_ topic:String) ->   (Color, Color, UUID) {
+       if let index = indexOfTopic(topic ) {
+         //use as into into the selected appcolors sheme
+         //let scheme = AppColors.allSchemes[gs.currentscheme.rawValue]
+         return AppColors.colorForTopicIndex(index:index,gs:self)
+       } else {
+         return (Color.white, Color.black, UUID())
+       }
+     }
   static  func minTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
     case 3: return 2

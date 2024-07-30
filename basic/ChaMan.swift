@@ -11,16 +11,28 @@ enum ChallengeError: Error {
   case notfound
 }
 struct TopicInfo : Codable {
-      let topicname: String
+      let name: String
       var alloccount: Int
       var freecount: Int
       var replacedcount: Int
       var rightcount: Int
       var wrongcount: Int
-      var ch: [Int] // indexes into stati
+      var challengeIndices: [Int] // indexes into stati
   }
 
 extension TopicInfo {
+  func getChallengesAndStatuses
+  (chmgr:ChaMan)-> ([Challenge],[ChaMan.ChallengeStatus]) {
+    var challenges:[Challenge] = []
+    var statuses:[ChaMan.ChallengeStatus] = []
+    for challengeIdx in challengeIndices {
+      challenges.append (chmgr.everyChallenge[challengeIdx])
+      statuses.append (chmgr.stati[challengeIdx])
+    }
+    
+    return (challenges,statuses)
+  }
+  
   // Get the file path for storing challenge statuses
   static func getTopicInfoFilePath() -> URL {
       let fileManager = FileManager.default
@@ -146,7 +158,7 @@ class ChaMan {
   fileprivate func fixup(_ topic: String, _ topicIndexes: inout [String : [Int]], _ allocatedIndexes: Array<Int>.SubSequence) {
     // Update tinfo to keep it in sync
     if var topicInfo = tinfo[topic] {
-      topicInfo.ch = topicIndexes[topic] ?? []
+      topicInfo.challengeIndices = topicIndexes[topic] ?? []
       topicInfo.freecount -= allocatedIndexes.count
       topicInfo.alloccount += allocatedIndexes.count
       tinfo[topic] = topicInfo
@@ -165,7 +177,7 @@ class ChaMan {
         // Populate the dictionary with indexes for each specified topic
         for topic in topics {
             if let topicInfo = tinfo[topic] {
-                topicIndexes[topic] = topicInfo.ch
+                topicIndexes[topic] = topicInfo.challengeIndices
             } else {
                 return .error(.invalidTopics([topic]))
             }
@@ -221,7 +233,7 @@ class ChaMan {
         if allocatedChallengeIndices.count < n {
             for (topic, info) in tinfo {
                 if !topics.contains(topic) { // Skip specified topics since they have already been considered
-                   let nindexes = info.ch
+                   let nindexes = info.challengeIndices
                     if !nindexes.isEmpty {
                       let indexes = nindexes.shuffled()
                         let remainingToAllocate = n - allocatedChallengeIndices.count
@@ -352,9 +364,9 @@ class ChaMan {
           if var topicInfo = tinfo[topic] {
               // Remove indexes from topicInfo.ch and move them to the end
               for index in indexes {
-                  if let pos = topicInfo.ch.firstIndex(of: index) {
-                      topicInfo.ch.remove(at: pos)
-                      topicInfo.ch.append(index) // Move to the end
+                  if let pos = topicInfo.challengeIndices.firstIndex(of: index) {
+                      topicInfo.challengeIndices.remove(at: pos)
+                      topicInfo.challengeIndices.append(index) // Move to the end
                   }
               }
               topicInfo.freecount += indexes.count
@@ -391,7 +403,7 @@ class ChaMan {
 
       // Find a new challenge to replace the old one
       if var topicInfo = tinfo[topic] {
-          if let newChallengeIndex = topicInfo.ch.last(where: { stati[$0] == .inReserve }) {
+          if let newChallengeIndex = topicInfo.challengeIndices.last(where: { stati[$0] == .inReserve }) {
             let newChallenge = everyChallenge[newChallengeIndex]
             // swap the actual challenges
             everyChallenge[index] = newChallenge
@@ -457,7 +469,7 @@ extension ChaMan {
   func verifySync() -> Bool {
       for (topicName, topicInfo) in tinfo {
           var calculatedFreeCount = 0
-          for index in topicInfo.ch {
+          for index in topicInfo.challengeIndices {
               if index >= stati.count || index >= everyChallenge.count {
                   print("Index out of bounds in topic \(topicName)")
                   return false
@@ -579,7 +591,7 @@ extension ChaMan {
       else {
         if !first {
           // new topic, first push out one block
-          let ti = TopicInfo(topicname: lastTopic, alloccount: allocCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
+          let ti = TopicInfo(name: lastTopic, alloccount: allocCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, challengeIndices: accumulated)
           tinfo[lastTopic] = ti
         }
         // then reset for next topic
@@ -592,7 +604,7 @@ extension ChaMan {
     }
     
     accumulated.append(lastidx)
-    let ti = TopicInfo(topicname: lastTopic, alloccount: allocCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, ch: accumulated)
+    let ti = TopicInfo(name: lastTopic, alloccount: allocCountByTopic[lastTopic] ?? 0, freecount: freeCountByTopic[lastTopic] ?? 0, replacedcount: 0, rightcount: 0, wrongcount: 0, challengeIndices: accumulated)
     tinfo[lastTopic] = ti
     print("Loaded PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
   }

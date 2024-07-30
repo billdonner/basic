@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
+struct Tdi:Identifiable {
+  let name: String
+  let id = UUID()
+}
 struct TopicIndexView: View {
     let gs: GameState
+  let chmgr: ChaMan
     @Environment(\.colorScheme) var colorScheme // System light/dark
     @State var succ = false
+  @State var topicDetailInfo : Tdi? = nil
 
     private let columns = [
         GridItem(.flexible(), alignment: .leading),
@@ -25,7 +31,7 @@ struct TopicIndexView: View {
                         HStack {
                             RoundedRectangle(cornerSize: CGSize(width: 10.0, height: 3.0))
                                 .frame(width: 15, height: 15)
-                                .foregroundStyle(colorForTopic(topic.name, gs: gs).0)
+                                .foregroundStyle(gs.colorForTopic(topic.name).0)
                           Text(truncatedText(topic.name, count: isIpad ? 40 : 10))
                                 .font(.caption2) // Smaller font
                                 .foregroundColor(textColor)
@@ -34,14 +40,18 @@ struct TopicIndexView: View {
                         .padding(.horizontal, 4)
                         .background(Color(white: 0.9))
                         .cornerRadius(8)
+                        .onTapGesture {
+                          topicDetailInfo = Tdi(name: topic.name)
+                        }
                     }
                 }
                 .padding(4)
               
                 .background(Color.black.opacity(0.1)) // Dark gray outer background
-              
               .cornerRadius(10)
-            }
+        }.sheet(item:$topicDetailInfo) {tdi in
+          TopicDetailsView(topic:tdi.name,gs:gs, chmgr: chmgr)
+        }
       
         .padding()
     }
@@ -69,6 +79,8 @@ struct TopicIndexView: View {
 struct TopicIndexView_Previews: PreviewProvider {
   static var previews: some View {
     TopicIndexView(
-                  gs: GameState(size: 3, topics:Array(MockTopics.mockTopics.prefix(12)), challenges: Challenge.mockChallenges))
+      gs: GameState(size: 3, topics:Array(MockTopics.mockTopics.prefix(12)),
+                    challenges: Challenge.mockChallenges),
+      chmgr: ChaMan(playData:  PlayData.mock))
   }
 }

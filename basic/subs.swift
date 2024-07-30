@@ -32,21 +32,7 @@ extension String {
     }
 }
 
- func indexOfTopic(_ topic:String,gs:GameState) -> Int? {
-  for (index,t) in gs.topicsinplay.enumerated()  {
-  if t == topic { return index}
-  }
-  return nil
-}
-  func colorForTopic(_ topic:String,gs:GameState) ->   (Color, Color, UUID) {
-      if let index = indexOfTopic(topic,gs:gs) {
-        //use as into into the selected appcolors sheme
-        //let scheme = AppColors.allSchemes[gs.currentscheme.rawValue]
-        return AppColors.colorForTopicIndex(index:index,gs:gs)
-      } else {
-        return (Color.white, Color.black, UUID())
-      }
-    } 
+
 
 func formatTimeInterval(_ interval: TimeInterval) -> String {
     let seconds = Int(interval) % 60

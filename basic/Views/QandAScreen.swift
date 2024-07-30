@@ -179,7 +179,7 @@ struct QandAScreen: View {
   func questionSectionVue(geometry: GeometryProxy) -> some View {
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
-    let topicColor =   colorForTopic(gs.board[row][col].topic,gs:gs).0
+    let topicColor =   gs.colorForTopic(gs.board[row][col].topic).0
     
     return Text(gs.board[row][col].question)
       .font(.headline)
