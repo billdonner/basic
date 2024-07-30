@@ -256,5 +256,20 @@ extension GameState {
         return nil
       }
     }
+  
+  func isCornerCell(row:Int,col:Int ) -> Bool {
+    return row==0&&col==0  ||
+    row==0 && col == self.boardsize-1 ||
+    row==self.boardsize-1 && col==0 ||
+    row==self.boardsize-1 && col == self.boardsize - 1
+  }
+  
+ func isAlreadyPlayed(row:Int,col:Int ) -> (Bool) {
+    return ( self.cellstate[row][col] == .playedCorrectly ||
+             self.cellstate[row][col] == .playedIncorrectly)
+  }
     
+  func cellBorderSize() -> CGFloat {
+    return CGFloat(11-self.boardsize)*(isIpad ? 3.0:1.0)
+    }
   }

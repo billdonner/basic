@@ -1,5 +1,5 @@
 #  Basic Recofig For Qanda
-
+- version 0.2.7 
 - version 0.2.6 randomize layout,fixed settings bug,adjust borderwidth based on boardsize,changed colors
 - version 0.2.5 move timer in scorebarview,larger boards,remove dubltap,randomize answers,question not repeaed till topic used 
 - version 0.2.4 change boardsize freely,shuffled order of answers, challenge info button

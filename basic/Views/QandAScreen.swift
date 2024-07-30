@@ -14,8 +14,6 @@ struct QandAScreen: View {
   @State private var gimmeeAllAlert = false
   @State private var selectedAnswer: String? = nil  // State to track selected answer
   @State private var answerCorrect: Bool = false   // State to track if the selected answer is correct
-//  @State private var timer: Timer? = nil  // Timer to track elapsed time
-//  @State private var elapsedTime: TimeInterval = 0  // Elapsed time in seconds
   @State private var showCorrectAnswer: Bool = false  // State to show correct answer temporarily
   @State private var showBorders: Bool = false  // State to show borders after animation
   @State private var showHint: Bool = false  // State to show/hide hint
@@ -25,20 +23,10 @@ struct QandAScreen: View {
   @State private var killTimer:Bool = false // set true to get the timer to stop
   @State private var elapsedTime: TimeInterval = 0
   @State private var questionedWasAnswered: Bool = false
-//  enum ChallengeStatus : Int, Codable  {
-//    case inReserve         // 0
-//    case allocated         // 1
-//    case playedCorrectly   // 2
-//    case playedIncorrectly // 3
-//    case abandoned         // 4
-//  }
   
   var body: some View {
     GeometryReader { geometry in
-      // let _ = print("//QandAScreen Geometry reader \(geometry.size.width)w x \(geometry.size.height)h")
       let ch = gs.board[row][col]
-    //  switch st {
-   //   case .allocated:
         ZStack {
         VStack {
           QandATopBarView(
@@ -57,17 +45,7 @@ struct QandAScreen: View {
         .shadow(radius: 10)
         .padding(.horizontal, 10)
         .padding(.bottom, 30)
-        // .frame(width: geometry.size.width) // Center the content with padding
-        .onAppear {
-          //          print("//QandAScreen onAppear");
-          //          startTimer()
-        }
-        .onDisappear(perform: {
-          //          print("//QandAScreen onDisappear");
-          //          stopTimer()
-        }
-        )
-        
+      
         .hintAlert(isPresented: $showHint, title: "Here's Your Hint", message: ch.hint,
                    buttonTitle: "Dismiss", onButtonTapped: {
           handleDismissal(toRoot:false)
@@ -96,12 +74,6 @@ struct QandAScreen: View {
           handleDismissal(toRoot:false)
         }, animation: .spring())
       }
-     // case .playedIncorrectly, .playedCorrectly:
-     //   Color.blue
-  
-    //default: Color.red
-   // }
-   
     }
   }
   
@@ -117,7 +89,6 @@ struct QandAScreen: View {
     .padding(.bottom)
     .frame(height: 60)
   }
-  
   var passButton: some View {
     Button(action: {
       handlePass()
@@ -130,7 +101,6 @@ struct QandAScreen: View {
         .cornerRadius(10)
     }
   }
-  
   var markCorrectButton: some View {
     Button(action: {
       manuallyMarkCorrect(gs.board[row][col])
@@ -143,7 +113,6 @@ struct QandAScreen: View {
         .cornerRadius(10)
     }
   }
-  
   var markIncorrectButton: some View {
     Button(action: {
       manuallyMarkIncorrect(gs.board[row][col])
@@ -182,9 +151,7 @@ struct QandAScreen: View {
         .background(Color.blue)
         .cornerRadius(10)
     }
-
   }
-  
   var gimmeeAllButton: some View {
     Button(action: {
       gimmeeAllAlert = true
@@ -206,7 +173,6 @@ struct QandAScreen: View {
     }
     .padding(.horizontal)
     .padding(.bottom)
-    
     .frame(maxWidth: max(0, geometry.size.width), maxHeight: max(0, geometry.size.height * 0.8))
   }
   
@@ -338,18 +304,6 @@ extension QandAScreen {
       showHint=false //  showHintAlert = false
     }
   }
-//  func startTimer() {
-//    elapsedTime = 0
-//    timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-//      elapsedTime += 1
-//    }
-//  }
-//  
-//  func stopTimer() {
-//    gs.totaltime += elapsedTime
-//    timer?.invalidate()
-//    timer = nil
-//  }
   
   func toggleHint() {
     if gs.board[row][col].hint.count > 1  { // guard against short hints
@@ -396,7 +350,6 @@ extension QandAScreen { /* actions */
     }
    killTimer=true
   }
-  
   func manuallyMarkIncorrect(_ ch:Challenge) {
     answerCorrect = false
     answerGiven = true
@@ -409,7 +362,6 @@ extension QandAScreen { /* actions */
     chmgr.setStatus(for: gs.board[row][col], index: row*gs.boardsize + col, status: .playedIncorrectly)
     killTimer=true
   }
-   
   func handleAnswerSelection(answer: String) {
     if !questionedWasAnswered { // only allow one answer
       let ch = gs.board[row][col]
@@ -425,14 +377,11 @@ extension QandAScreen { /* actions */
     } else {
       print("dubl tap \(answer)")
     }
-
   }
-  
   func handlePass() {
    killTimer=true
     dismiss()
   }
-
 }
 #Preview {
   QandAScreen(row: 0, col: 0, st: ChaMan.ChallengeStatus.allocated,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))

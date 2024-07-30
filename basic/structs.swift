@@ -101,7 +101,9 @@ struct PlayData: Codable {
 
 
 enum ChallengeOutcomes: Codable {
-  case playedCorrectly, playedIncorrectly, unplayed
+  case playedCorrectly
+  case playedIncorrectly
+  case unplayed
   
   var borderColor: Color {
     switch self {

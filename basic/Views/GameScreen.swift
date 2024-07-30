@@ -42,7 +42,7 @@ struct GameScreen: View {
       ScoreBarView(gs: gs)
       if gs.boardsize > 1 {
         VStack(alignment: .center){
-          mainGridVeew//.border(Color.red)
+          mainGridVeew()//.border(Color.red)
         }
       }
       else {
@@ -84,7 +84,51 @@ struct GameScreen: View {
                                }
   }
   
-  var mainGridVeew: some View {
+  func mainGridVeew() -> some View {
+  func makeOneCellVue(row:Int,
+                      col:Int ,
+                      challenge:Challenge,
+                      status:ChallengeOutcomes,
+                      cellSize: CGFloat) -> some View {
+    let colormix = colorForTopic(challenge.topic, gs: gs)
+    return VStack(alignment:.center, spacing:0) {
+      Text(//hideCellContent ||hideCellContent ||
+        ( !gs.faceup) ? " " : challenge.question )
+      .font(.caption)
+      .padding(10)
+      .frame(width: cellSize, height: cellSize)
+      .background(colormix.0)
+      .foregroundColor(colormix.1)
+      .border(status.borderColor , width: gs.cellBorderSize()) //3=8,8=3
+      .cornerRadius(8)
+      .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
+    }
+    // for some unknown reason, the tap surface area is bigger if placed outside the VStack
+    .onTapGesture {
+      var  tap = false
+      /* if already played do nothing for now
+           if unplayed*/
+      if  gs.gamestate == .playingNow { // is the game on
+        if    gs.isAlreadyPlayed(row:row,col:col)  {
+          print("debug (((((((((((((()))))))))))))")
+          // coming
+        } else
+        if  gs.cellstate[row][col] == .unplayed {
+          // if we've got to start in corner on firstMove
+          if gs.startincorners&&firstMove{
+            tap =  gs.isCornerCell(row: row,col: col)
+          }
+          else {
+            tap = true
+          }
+        }
+      } // actually playing the game
+      
+      if tap {
+        firstMove =    onTapGesture(row,col)
+      }
+    }
+  }// make one cell
     let spacing: CGFloat = 5.0 * (isIpad ? 1.8 : 1.0)
     // Adding a shrink factor to slightly reduce the cell size
    // let shrinkFactor: CGFloat = 0.95
@@ -245,51 +289,52 @@ extension GameScreen /* actions */ {
     gs.teardownAfterGame(state: status, chmgr: chmgr)
   }
 }
-private extension GameScreen {
-  func makeOneCellVue(row:Int,
-                      col:Int ,
-                      challenge:Challenge,
-                      status:ChallengeOutcomes,
-                      cellSize: CGFloat) -> some View {
-    let colormix = colorForTopic(challenge.topic, gs: gs)
-    return VStack(alignment:.center, spacing:0) {
-      Text(//hideCellContent ||hideCellContent ||
-        ( !gs.faceup) ? " " : challenge.question )
-      .font(.caption)
-      .padding(10)
-      .frame(width: cellSize, height: cellSize)
-      .background(colormix.0)
-      .foregroundColor(colormix.1)
-      .border(status.borderColor , width: CGFloat(11-gs.boardsize)*(isIpad ? 3.0:1.0)) //3=8,8=3
-      .cornerRadius(8)
-      .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
-    }
-    // for some unknown reason, the tap surface area is bigger if placed outside the VStack
-    .onTapGesture {
-      var  tap = false
-      if  gs.gamestate == .playingNow &&
-            ( gs.cellstate[row][col] == .playedCorrectly ||
-              gs.cellstate[row][col] == .playedIncorrectly)  {
-        
-        
-      }
-      if  gs.gamestate == .playingNow &&
-            gs.cellstate[row][col] == .unplayed {
-        if gs.startincorners&&firstMove{
-          tap = row==0&&col==0  ||
-          row==0 && col == gs.boardsize-1 ||
-          row==gs.boardsize-1 && col==0 ||
-          row==gs.boardsize-1 && col == gs.boardsize - 1
-        }
-        else {
-          tap = true
-        }
-      }
-      if tap {  firstMove =    onTapGesture(row,col)
-      }
-      
-    }
-  }// make one cell
+extension GameScreen {
+//  
+//  func makeOneCellVue(row:Int,
+//                      col:Int ,
+//                      challenge:Challenge,
+//                      status:ChallengeOutcomes,
+//                      cellSize: CGFloat) -> some View {
+//    let colormix = colorForTopic(challenge.topic, gs: gs)
+//    return VStack(alignment:.center, spacing:0) {
+//      Text(//hideCellContent ||hideCellContent ||
+//        ( !gs.faceup) ? " " : challenge.question )
+//      .font(.caption)
+//      .padding(10)
+//      .frame(width: cellSize, height: cellSize)
+//      .background(colormix.0)
+//      .foregroundColor(colormix.1)
+//      .border(status.borderColor , width: gs.cellBorderSize()) //3=8,8=3
+//      .cornerRadius(8)
+//      .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
+//    }
+//    // for some unknown reason, the tap surface area is bigger if placed outside the VStack
+//    .onTapGesture {
+//      var  tap = false
+//      /* if already played do nothing for now
+//           if unplayed*/
+//      if  gs.gamestate == .playingNow { // is the game on
+//        if    gs.isAlreadyPlayed(row:row,col:col)  {
+//          print("debug (((((((((((((()))))))))))))")
+//          // coming
+//        } else
+//        if  gs.cellstate[row][col] == .unplayed {
+//          // if we've got to start in corner on firstMove
+//          if gs.startincorners&&firstMove{
+//            tap =  gs.isCornerCell(row: row,col: col)
+//          }
+//          else {
+//            tap = true
+//          }
+//        }
+//      } // actually playing the game
+//      
+//      if tap {
+//        firstMove =    onTapGesture(row,col)
+//      }
+//    }
+//  }// make one cell
   
   
   var loadingVeew: some View {
