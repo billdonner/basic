@@ -36,6 +36,7 @@ struct FreeportSettingsScreen: View {
   @State var selectedLevel:Int = 1
   @State var showOnBoarding = false
   @State var showReset = false
+  @State var showDebug = false
   @State private var isSelectedArray = [Bool](repeating: false, count: 26)
   var body: some View {
     ZStack {
@@ -65,6 +66,10 @@ struct FreeportSettingsScreen: View {
               Text("Replay OnBoarding")
             }.padding(.vertical)
             
+            Button(action:{ showDebug.toggle() }) {
+              Text("Show Debug")
+            }.padding(.vertical)
+            
             Button(action:{ //showReset.toggle()
                     let _ = gs.resetBoardReturningUnplayed()
                      chmgr.totalresetofAllChallengeStatuses(gs: gs)
@@ -77,6 +82,9 @@ struct FreeportSettingsScreen: View {
         }
         .fullScreenCover(isPresented: $showOnBoarding) {
           OnboardingScreen(isPresented: $showOnBoarding)
+        }
+        .fullScreenCover(isPresented: $showDebug) {
+          AllocatorView(chmgr:chmgr,gs:gs)
         }
         
         Spacer()
@@ -92,4 +100,5 @@ struct FreeportSettingsScreen: View {
                                                 challenges:Challenge.mockChallenges)  
                           , chmgr: ChaMan(playData: PlayData.mock))
 }
+
 
