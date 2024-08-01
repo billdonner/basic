@@ -23,17 +23,17 @@ class OrientationLockedViewController: UIViewController {
 struct ChallengeGameApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   
-  @State var chaMan = ChaMan(playData: PlayData.mock )
-  @State var gameBoard = GameState(size: starting_size,
+  @State var chmgr = ChaMan(playData: PlayData.mock )
+  @State var gs = GameState(size: starting_size,
                                    topics:[],// Array(MockTopics.mockTopics.prefix(starting_size)),
                                    challenges:Challenge.mockChallenges)
 
   var body: some Scene {
     WindowGroup {
-      ContentView(gs: gameBoard,chmgr: chaMan)
+      ContentView(gs: gs,chmgr: chmgr)
         .onAppear {
           // Ensure the orientation lock is applied
-          
+          assert(gs.checkVsChaMan(chmgr: chmgr))
            // chaMan.checkAllTopicConsistency("App init")
                       AppDelegate.lockOrientation(.portrait)
                   }

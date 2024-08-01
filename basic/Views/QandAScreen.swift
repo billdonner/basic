@@ -103,7 +103,9 @@ struct QandAScreen: View {
   }
   var markCorrectButton: some View {
     Button(action: {
+      chmgr.checkAllTopicConsistency("mark correct before")
       manuallyMarkCorrect(gs.board[row][col])
+      chmgr.checkAllTopicConsistency("mark correct after")
       assert(gs.checkVsChaMan(chmgr: chmgr))
     }) {
       Image(systemName: "checkmark.circle")
@@ -116,7 +118,9 @@ struct QandAScreen: View {
   }
   var markIncorrectButton: some View {
     Button(action: {
-      manuallyMarkIncorrect(gs.board[row][col])
+      chmgr.checkAllTopicConsistency("mark incorrect before")
+      manuallyMarkIncorrect(gs.board[row][col]) 
+        chmgr.checkAllTopicConsistency("mark incorrect after")
       assert(gs.checkVsChaMan(chmgr: chmgr))
     }) {
       Image(systemName: "xmark.circle")
@@ -344,8 +348,7 @@ extension QandAScreen { /* actions */
     gs.rightcount += 1
     gs.saveGameState()
     chmgr.bumpRightcount(topic: ch.topic)
-    chmgr.setStatus(for: gs.board[row][col], index: row*gs.boardsize + col,
-                    status: .playedCorrectly)
+    chmgr.stati[gs.challengeindices[row][col]] = .playedCorrectly  // ****
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       animateBackToBlue = false
       
@@ -361,7 +364,7 @@ extension QandAScreen { /* actions */
     gs.wrongcount += 1
     gs.saveGameState()
     chmgr.bumpWrongcount(topic: ch.topic)
-    chmgr.setStatus(for: gs.board[row][col], index: row*gs.boardsize + col, status: .playedIncorrectly)
+    chmgr.stati[gs.challengeindices[row][col]] = .playedIncorrectly  // ****
     killTimer=true
   }
   func handleAnswerSelection(answer: String) {

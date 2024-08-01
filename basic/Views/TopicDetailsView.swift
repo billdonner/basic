@@ -8,6 +8,8 @@
 import SwiftUI
 func isPlayed(_ status:ChaMan.ChallengeStatus) -> Bool {
   switch status {
+//  case .allocated:
+//    return true
     case .playedCorrectly:
       return true
   case .playedIncorrectly:

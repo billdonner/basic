@@ -152,6 +152,7 @@ extension GameScreen /* actions */ {
     } else {
       print("//GameScreen OnAppear Warmstart size:\(gs.boardsize) topics: \(topics)")
     }
+    chmgr.checkAllTopicConsistency("gamescreen on appear")
   }
   
   func onCantStartNewGameAction() {
@@ -202,9 +203,11 @@ extension GameScreen /* actions */ {
     } else {
       firstMove = true
     }
+    chmgr.checkAllTopicConsistency("on start game")
     return ok
   }
   func endGame(status:StateOfPlay){
+    chmgr.checkAllTopicConsistency("end game")
     gs.teardownAfterGame(state: status, chmgr: chmgr)
   }
 
