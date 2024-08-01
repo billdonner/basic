@@ -11,69 +11,60 @@ struct Tdi:Identifiable {
   let id = UUID()
 }
 struct TopicIndexView: View {
-    let gs: GameState
+  let gs: GameState
   let chmgr: ChaMan
-    @Environment(\.colorScheme) var colorScheme // System light/dark
-    @State var succ = false
+  @Environment(\.colorScheme) var colorScheme // System light/dark
+  @State var succ = false
   @State var topicDetailInfo : Tdi? = nil
-
-    private let columns = [
-        GridItem(.flexible(), alignment: .leading),
-        GridItem(.flexible(), alignment: .leading),
-        GridItem(.flexible(), alignment: .leading)
-    ]
-    
-    var body: some View {
-        VStack {
-         
-                LazyVGrid(columns: columns, spacing: 4) {
-                    ForEach(gs.basicTopics(), id: \.name) { topic in
-                        HStack {
-                            RoundedRectangle(cornerSize: CGSize(width: 10.0, height: 3.0))
-                                .frame(width: 15, height: 15)
-                                .foregroundStyle(gs.colorForTopic(topic.name).0)
-                          Text(truncatedText(topic.name, count: isIpad ? 40 : 10))
-                                .font(.caption2) // Smaller font
-                                .foregroundColor(textColor)
-                        }
-                        .padding(.vertical, 0)
-                        .padding(.horizontal, 4)
-                        .background(Color(white: 0.9))
-                        .cornerRadius(8)
-                        .onTapGesture {
-                          topicDetailInfo = Tdi(name: topic.name)
-                        }
-                    }
-                }
-                .padding(4)
-              
-                .background(Color.black.opacity(0.1)) // Dark gray outer background
-              .cornerRadius(10)
-        }.sheet(item:$topicDetailInfo) {tdi in
-          TopicDetailsView(topic:tdi.name,gs:gs, chmgr: chmgr)
+  
+  private let columns = [
+    GridItem(.flexible(), alignment: .leading),
+    GridItem(.flexible(), alignment: .leading),
+    GridItem(.flexible(), alignment: .leading)
+  ]
+  
+  var body: some View {
+    VStack {
+      LazyVGrid(columns: columns, spacing: 4) {
+        ForEach(gs.basicTopics(), id: \.name) { topic in
+          HStack {
+            RoundedRectangle(cornerSize: CGSize(width: 10.0, height: 3.0))
+              .frame(width: 15, height: 15)
+              .foregroundStyle(gs.colorForTopic(topic.name).0)
+            Text(truncatedText(topic.name, count: isIpad ? 40 : 10))
+              .font(.caption2) // Smaller font
+              .foregroundColor(textColor)
+          }
+          .padding(.vertical, 0)
+          .padding(.horizontal, 4)
+          .background(Color(white: 0.9))
+          .cornerRadius(8)
+          .onTapGesture {
+            topicDetailInfo = Tdi(name: topic.name)
+          }
         }
+      }
+      .padding(4)
       
-        .padding()
+      .background(Color.black.opacity(0.1)) // Dark gray outer background
+      .cornerRadius(10)
+    }.sheet(item:$topicDetailInfo) {tdi in
+      TopicDetailsView(topic:tdi.name,gs:gs, chmgr: chmgr)
     }
     
-    // Computed properties for background and text colors
-    private var backgroundColor: Color {
-        colorScheme == .dark ? Color(white: 0.2) : Color(white: 0.96)
-    }
-    
-    private var textColor: Color {
-        colorScheme == .dark ? Color.white : Color.black
-    }
-    
-    // Function to truncate text to 30 characters
-    private func truncatedText(_ text: String,count: Int ) -> String {
-        if text.count > count {
-            let index = text.index(text.startIndex, offsetBy: count)
-            return String(text[..<index]) + "..."
-        } else {
-            return text
-        }
-    }
+    .padding()
+  }
+  
+  // Computed properties for background and text colors
+  private var backgroundColor: Color {
+    colorScheme == .dark ? Color(white: 0.2) : Color(white: 0.96)
+  }
+  
+  private var textColor: Color {
+    colorScheme == .dark ? Color.white : Color.black
+  }
+  
+  
 }
 // Assuming you have the ChaMan and colorSchemes to preview the view
 struct TopicIndexView_Previews: PreviewProvider {

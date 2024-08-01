@@ -30,6 +30,56 @@ class GameState :  Codable {
   var doublediag:Bool
   var difficultylevel:Int
   
+  func checkVsChaMan(chmgr:ChaMan) -> Bool {
+    if chmgr.correctChallengesCount() != rightcount {
+      print("*** correct challenges count is wrong")
+      return false
+    }
+    if chmgr.incorrectChallengesCount() != wrongcount {
+      print("*** incorrect challenges count is wrong")
+      
+      return false
+    }
+    // check everything on the board is consistent
+    
+    for row in  0 ..< boardsize  {
+      for col in 0 ..< boardsize  {
+    
+        let j = challengeindices[row][col]
+        if j != -1 {
+          let x:ChaMan.ChallengeStatus = chmgr.stati[j]
+          switch cellstate[row][col] {
+          case .playedCorrectly:
+            if x  != ChaMan.ChallengeStatus.playedCorrectly {
+              print("*** cellstate is wrong for \(row), \(col) playedCorrectly says \(x)")
+              return false
+            }
+          case .playedIncorrectly:
+            if x  != ChaMan.ChallengeStatus.playedIncorrectly{
+              print("*** cellstate is wrong for \(row), \(col) playedIncorrectly says \(x)")
+              return false
+            }
+          case .unplayed:
+            if x != ChaMan.ChallengeStatus.allocated {
+              print("*** cellstate is wrong for \(row), \(col) unplayed says \(x)")
+              return false
+            }
+            
+          }// switch
+          if x == ChaMan.ChallengeStatus.abandoned {
+            print("*** cellstate is wrong for \(row), \(col) abandoned says \(x)")
+            return false
+          }
+          if x == ChaMan.ChallengeStatus.inReserve {
+            print("*** cellstate is wrong for \(row), \(col) reserved says \(x)")
+            return false
+          }
+        }
+      }
+    }
+    return true
+  }
+  
   enum CodingKeys: String, CodingKey {
     case _board = "board"
     case _cellstate = "cellstate"
@@ -77,9 +127,7 @@ class GameState :  Codable {
     self.difficultylevel = 0
     self.startincorners = false
   }
-}
 
-extension GameState {
   func setupForNewGame (boardsize:Int, chmgr:ChaMan) -> Bool {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
@@ -233,12 +281,12 @@ extension GameState {
     
   static  func preselectedTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
-    case 3: return 1
-    case 4: return 1
-    case 5: return 2
-    case 6: return 3
-    case 7: return 4
-    case 8: return 5
+//    case 3: return 1
+//    case 4: return 1
+//    case 5: return 2
+//    case 6: return 3
+//    case 7: return 4
+//    case 8: return 5
     default: return 1
     }
   }

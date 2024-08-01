@@ -104,6 +104,7 @@ struct QandAScreen: View {
   var markCorrectButton: some View {
     Button(action: {
       manuallyMarkCorrect(gs.board[row][col])
+      assert(gs.checkVsChaMan(chmgr: chmgr))
     }) {
       Image(systemName: "checkmark.circle")
         .font(.title)
@@ -116,6 +117,7 @@ struct QandAScreen: View {
   var markIncorrectButton: some View {
     Button(action: {
       manuallyMarkIncorrect(gs.board[row][col])
+      assert(gs.checkVsChaMan(chmgr: chmgr))
     }) {
       Image(systemName: "xmark.circle")
         .font(.title)

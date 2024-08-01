@@ -31,7 +31,15 @@ extension String {
         }
     }
 }
-
+// Function to truncate text to 30 characters
+func truncatedText(_ text: String,count: Int ) -> String {
+    if text.count > count {
+        let index = text.index(text.startIndex, offsetBy: count)
+        return String(text[..<index]) + "..."
+    } else {
+        return text
+    }
+}
 
 
 func formatTimeInterval(_ interval: TimeInterval) -> String {

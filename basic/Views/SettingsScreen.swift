@@ -162,7 +162,7 @@ fileprivate struct SettingsView: View {
       .onAppear {
         if firstOnAppear {
           firstOnAppear = false
-          chmgr.checkTopicConsistency("GameSettings onAppear")
+          chmgr.checkAllTopicConsistency("GameSettings onAppear")
         }
       }
       
@@ -219,7 +219,7 @@ fileprivate struct SettingsView: View {
     gs.challengeindices = Array(repeating: Array(repeating: -1, count: l_boardsize), count: l_boardsize)
     gs.topicsinplay = l_topicsinplay // //*****2
     gs.currentscheme = ColorSchemeName(rawValue:l_currentScheme) ?? .bleak
-    chmgr.checkTopicConsistency("GameSettingScreen onDonePressed")
+    chmgr.checkAllTopicConsistency("GameSettingScreen onDonePressed")
     gs.saveGameState()
   }
 }

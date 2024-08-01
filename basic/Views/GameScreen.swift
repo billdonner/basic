@@ -20,7 +20,7 @@ struct GameScreen: View {
   @State private var showingHelp = false
   @State private var showWinAlert = false
   @State private var showLoseAlert = false
-  
+
   var bodyMsg: String {
     let t =  """
     That was game \(gs.playcount) of which you've won \(gs.woncount) and lost \(gs.lostcount) games
@@ -44,7 +44,7 @@ struct GameScreen: View {
           loadingVeew
         }
       }
-      
+
       .onChange(of:gs.cellstate) {
         onChangeOfCellState()
       }
@@ -87,6 +87,8 @@ struct GameScreen: View {
             if !ok {
               showCantStartAlert = true
             }
+            
+            chmgr.checkAllTopicConsistency("GameScreen StartGamePressed")
           }
         }) {
           Text("Start Game")
@@ -107,7 +109,7 @@ struct GameScreen: View {
         Button(action: {
           // withAnimation {
           onEndGamePressed()  //should estore consistency
-          chmgr.checkTopicConsistency("GameScreen EndGamePressed")
+          chmgr.checkAllTopicConsistency("GameScreen EndGamePressed")
           //  print("//GameScreen return from onEndGamePressed")
           //   }
         }) {

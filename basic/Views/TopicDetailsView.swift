@@ -6,7 +6,16 @@
 //
 
 import SwiftUI
-
+func isPlayed(_ status:ChaMan.ChallengeStatus) -> Bool {
+  switch status {
+    case .playedCorrectly:
+      return true
+  case .playedIncorrectly:
+    return true
+  default:
+    return false
+  }
+}
 struct TopicDetailsView: View {
   let topic:String
   let gs:GameState
@@ -22,11 +31,16 @@ struct TopicDetailsView: View {
       let tinfo = chmgr.tinfo[topic]
       if let tinfo = tinfo {
         let (chas,stas) = tinfo.getChallengesAndStatuses(chmgr: chmgr)
-        Text("\(x ?? -1 )   \(y)")
-        ForEach(0..<chas.count,id:\.self) { idx in
-          Text("idx: \(idx) -\(chas[idx].question) - \(stas[idx]) ")
-        }
+        Text("\(topic) #\(x ?? -1 ) ")
+        Text( "\(chas.count) challenges,\(y)")
         
+        List {
+          ForEach(0..<chas.count,id:\.self) { idx in
+            if isPlayed(stas[idx]) {
+              Text("\(truncatedText(chas[idx].question,count:40))- \(stas[idx]) ").font(.footnote)
+            }
+          }
+        }
         
         
         

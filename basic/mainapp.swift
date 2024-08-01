@@ -25,14 +25,16 @@ struct ChallengeGameApp: App {
   
   @State var chaMan = ChaMan(playData: PlayData.mock )
   @State var gameBoard = GameState(size: starting_size,
-                                   topics: [],//Array(MockTopics.mockTopics.prefix(starting_size)),
+                                   topics:[],// Array(MockTopics.mockTopics.prefix(starting_size)),
                                    challenges:Challenge.mockChallenges)
 
   var body: some Scene {
     WindowGroup {
-      ContentView(gs: gameBoard,chaMan: chaMan)
+      ContentView(gs: gameBoard,chmgr: chaMan)
         .onAppear {
           // Ensure the orientation lock is applied
+          
+           // chaMan.checkAllTopicConsistency("App init")
                       AppDelegate.lockOrientation(.portrait)
                   }
     }
