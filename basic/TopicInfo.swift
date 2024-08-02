@@ -37,6 +37,7 @@ struct TopicInfo : Codable {
   }
   // Save the topicInfo to a file
   static func saveTopicInfo (_ info:[String:TopicInfo]) {
+    
     let filePath = Self.getTopicInfoFilePath()
       do {
           let data = try JSONEncoder().encode(info)
@@ -67,4 +68,37 @@ struct TopicInfo : Codable {
         }
   
   }
+}
+
+extension ChaMan {
+  
+  func setupTopicInfo(){
+    // calculate free counts by topic
+    var freeCountByTopic: [String: Int] = [:]
+    var challengesByTopic: [String:[Int]] = [:]
+
+    // Iterate through all challenges and count free ones
+    for (index, challenge) in everyChallenge.enumerated() {
+      if stati[index] == .inReserve {
+        freeCountByTopic[challenge.topic, default: 0] += 1
+        challengesByTopic[challenge.topic, default: []] += [index]
+      } else  {
+        fatalError()
+      }
+    }
+    
+    // back thru all the topics
+    for topic in playData.topicData.topics {
+      let ti = TopicInfo(name: topic.name, alloccount:  0,
+                         freecount: freeCountByTopic[topic.name ] ?? 0,
+                         replacedcount:0,
+                         rightcount: 0,
+                         wrongcount: 0,
+                         challengeIndices: challengesByTopic[topic.name] ?? [])
+      tinfo[topic.name] = ti
+
+    }
+
+  }
+  
 }

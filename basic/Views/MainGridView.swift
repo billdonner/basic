@@ -10,6 +10,7 @@ import SwiftUI
 
 struct MainGridView : View {
   let gs:GameState
+  let chmgr:ChaMan
   @Binding var firstMove: Bool
   let onSingleTap: (Int,Int)->Bool
   
@@ -29,7 +30,7 @@ struct MainGridView : View {
             ForEach(0..<gs.boardsize, id: \.self) { col in
               // i keep getting row and col out of bounds, so clamp it
               if row < gs.boardsize  && col < gs.boardsize   {
-                SingleCellView(gs:gs,row:row,col:col,
+                SingleCellView(gs:gs,chmgr:chmgr,row:row,col:col,
                                challenge:gs.board[row][col],
                                status:gs.cellstate[row][col],
                                cellSize: cellSize, onSingleTap:  onSingleTap,firstMove:$firstMove)

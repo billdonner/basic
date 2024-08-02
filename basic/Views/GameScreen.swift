@@ -37,7 +37,8 @@ struct GameScreen: View {
         ScoreBarView(gs: gs)
         if gs.boardsize > 1 {
           VStack(alignment: .center){
-            MainGridView(gs: gs, firstMove: $firstMove, onSingleTap: onSingleTap)//.border(Color.red)
+            MainGridView(gs: gs, chmgr:chmgr,
+                         firstMove: $firstMove, onSingleTap: onSingleTap)//.border(Color.red)
           }
         }
         else {

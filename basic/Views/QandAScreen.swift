@@ -27,7 +27,7 @@ struct QandAScreen: View {
   var body: some View {
     GeometryReader { geometry in
       let ch = gs.board[row][col]
-        ZStack {
+      ZStack {
         VStack {
           QandATopBarView(
             gs: gs, topic: ch.topic, hint: ch.hint,
@@ -45,7 +45,7 @@ struct QandAScreen: View {
         .shadow(radius: 10)
         .padding(.horizontal, 10)
         .padding(.bottom, 30)
-      
+        
         .hintAlert(isPresented: $showHint, title: "Here's Your Hint", message: ch.hint,
                    buttonTitle: "Dismiss", onButtonTapped: {
           handleDismissal(toRoot:false)
@@ -84,7 +84,6 @@ struct QandAScreen: View {
       markIncorrectButton
       gimmeeButton
       infoButton
-     // gimmeeAllButton  // New button for "Gimmee All"
     }
     .padding(.bottom)
     .frame(height: 60)
@@ -103,10 +102,7 @@ struct QandAScreen: View {
   }
   var markCorrectButton: some View {
     Button(action: {
-      chmgr.checkAllTopicConsistency("mark correct before")
-      manuallyMarkCorrect(gs.board[row][col])
-      chmgr.checkAllTopicConsistency("mark correct after")
-      assert(gs.checkVsChaMan(chmgr: chmgr))
+      answeredCorrectly(gs.board[row][col],row:row,col:col)
     }) {
       Image(systemName: "checkmark.circle")
         .font(.title)
@@ -118,10 +114,7 @@ struct QandAScreen: View {
   }
   var markIncorrectButton: some View {
     Button(action: {
-      chmgr.checkAllTopicConsistency("mark incorrect before")
-      manuallyMarkIncorrect(gs.board[row][col]) 
-        chmgr.checkAllTopicConsistency("mark incorrect after")
-      assert(gs.checkVsChaMan(chmgr: chmgr))
+      answeredIncorrectly(gs.board[row][col],row:row,col:col)
     }) {
       Image(systemName: "xmark.circle")
         .font(.title)
@@ -144,7 +137,7 @@ struct QandAScreen: View {
     }
     .disabled(gs.gimmees<1)
     .opacity(gs.gimmees<1 ? 0.5:1)
-
+    
   }
   var infoButton: some View {
     Button(action: {
@@ -172,6 +165,8 @@ struct QandAScreen: View {
     .disabled(gs.gimmees<1)
     .opacity(gs.gimmees<1 ? 0.5:1)
   }
+}
+extension QandAScreen {
   func questionAndAnswersSectionVue(geometry: GeometryProxy) -> some View {
     VStack(spacing: 15) {
       questionSectionVue(geometry: geometry)
@@ -209,7 +204,7 @@ struct QandAScreen: View {
           ScrollView(.horizontal) {
             HStack(spacing: 15) {
               ForEach(answers, id: \.self) { answer in
-                answerButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight, taller: true)
+                answerButtonVue(answer: answer, row:row,col:col, buttonWidth: buttonWidth, buttonHeight: buttonHeight, taller: true)
               }
             }
             .padding(.horizontal)
@@ -225,10 +220,10 @@ struct QandAScreen: View {
     } else if answers.count == 3 {
       return AnyView(
         VStack(spacing: 15) {
-          answerButtonVue(answer: answers[0], buttonWidth: contentWidth / 2)
+          answerButtonVue(answer: answers[0],row:row,col:col, buttonWidth: contentWidth / 2)
           HStack {
-            answerButtonVue(answer: answers[1], buttonWidth: contentWidth / 2.5)
-            answerButtonVue(answer: answers[2], buttonWidth: contentWidth / 2.5)
+            answerButtonVue(answer: answers[1],row:row,col:col, buttonWidth: contentWidth / 2.5)
+            answerButtonVue(answer: answers[2],row:row,col:col, buttonWidth: contentWidth / 2.5)
           }
         }
           .padding(.horizontal)
@@ -239,13 +234,21 @@ struct QandAScreen: View {
       let buttonHeight = buttonWidth * 0.8 // Adjust height to fit more lines
       return AnyView(
         VStack(spacing: 15) {
-          ForEach(answers.chunked(into: 2), id: \.self) { row in
-            HStack {
-              ForEach(row, id: \.self) { answer in
-                answerButtonVue(answer: answer, buttonWidth: buttonWidth, buttonHeight: buttonHeight)
-              }
-            }
+          HStack {
+            answerButtonVue(answer: answers[0],row:row,col:col, buttonWidth: buttonWidth , buttonHeight:buttonHeight)
+            answerButtonVue(answer: answers[1],row:row,col:col, buttonWidth: buttonWidth , buttonHeight:buttonHeight)
           }
+          HStack {
+            answerButtonVue(answer: answers[2],row:row,col:col, buttonWidth: buttonWidth , buttonHeight:buttonHeight)
+            answerButtonVue(answer: answers[3],row:row,col:col, buttonWidth: buttonWidth , buttonHeight:buttonHeight)
+          }
+//          ForEach(answers.chunked(into: 2), id: \.self) { row in
+//            HStack {
+//              ForEach(row, id: \.self) { answer in
+//                answerButtonVue(answer: answer,row:row,col:col,buttonWidth:buttonWidth,buttonHeight:buttonHeight)
+//              }
+//            }
+//          }
         }
           .padding(.horizontal)
           .disabled(questionedWasAnswered)  // Disable all answer buttons after an answer is given
@@ -253,9 +256,9 @@ struct QandAScreen: View {
     }
   }
   
-  func answerButtonVue(answer: String, buttonWidth: CGFloat, buttonHeight: CGFloat? = nil, taller: Bool = false) -> some View {
+  func answerButtonVue(answer: String,row:Int,col:Int, buttonWidth: CGFloat, buttonHeight: CGFloat? = nil, taller: Bool = false) -> some View {
     Button(action: {
-      handleAnswerSelection(answer: answer)
+      handleAnswerSelection(answer: answer,row:row,col:col)
     })
     {
       Text(answer)
@@ -272,9 +275,7 @@ struct QandAScreen: View {
                 Color.red
               } else if showCorrectAnswer && answer == gs.board[row][col].correct {
                 Color.green
-              } else if animateBackToBlue {
-                Color.blue
-              } else {
+              }  else {
                 Color.blue
               }
             } else {
@@ -316,8 +317,6 @@ extension QandAScreen {
       showHint.toggle()
     }
   }
-}
-extension QandAScreen { /* actions */
   
   func handleGimmee(row:Int,col:Int) {
     let idx = row*gs.boardsize + col
@@ -327,47 +326,51 @@ extension QandAScreen { /* actions */
       gs.gimmees -= 1
       let challenge = chmgr.everyChallenge[index[0]]
       gs.board[row][col] = challenge
-     print("Gimmee realloation successful")
-  
+      print("Gimmee realloation successful")
+      
     case .error(let error):
-    print("Couldn't handle gimmee reallocation \(error)")
+      print("Couldn't handle gimmee reallocation \(error)")
     }
     killTimer = true
     dismiss()
   }
-  func handleGimmeeAll() {
-    killTimer = true
-    dismiss()
-  }
-  func manuallyMarkCorrect(_ ch:Challenge) {
+
+}
+  extension QandAScreen { /* actions */
+
+    func answeredCorrectly(_ ch:Challenge,row:Int,col:Int) {
+    chmgr.checkAllTopicConsistency("mark correct before")
+    assert(gs.checkVsChaMan(chmgr: chmgr))
     answerCorrect = true
     answerGiven = true
-    animateBackToBlue = true
     showBorders = true
+    
+    
     gs.cellstate[row][col] = .playedCorrectly
     gs.rightcount += 1
-    gs.saveGameState()
     chmgr.bumpRightcount(topic: ch.topic)
     chmgr.stati[gs.challengeindices[row][col]] = .playedCorrectly  // ****
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-      animateBackToBlue = false
-      
-    }
    killTimer=true
+    chmgr.save()
+    chmgr.checkAllTopicConsistency("mark correct after")
   }
-  func manuallyMarkIncorrect(_ ch:Challenge) {
+  func answeredIncorrectly(_ ch:Challenge,row:Int,col:Int) {
+    chmgr.checkAllTopicConsistency("mark incorrect before")
+    assert(gs.checkVsChaMan(chmgr: chmgr))
     answerCorrect = false
     answerGiven = true
     showCorrectAnswer = false
     showBorders = true
+    
     gs.cellstate[row][col] = .playedIncorrectly
     gs.wrongcount += 1
-    gs.saveGameState()
     chmgr.bumpWrongcount(topic: ch.topic)
     chmgr.stati[gs.challengeindices[row][col]] = .playedIncorrectly  // ****
     killTimer=true
+    chmgr.save()
+    chmgr.checkAllTopicConsistency("mark incorrect after")
   }
-  func handleAnswerSelection(answer: String) {
+  func handleAnswerSelection(answer: String,row:Int,col:Int) {
     if !questionedWasAnswered { // only allow one answer
       let ch = gs.board[row][col]
       selectedAnswer = answer
@@ -375,8 +378,8 @@ extension QandAScreen { /* actions */
       answerGiven = true
       
       switch answerCorrect {
-      case true: manuallyMarkCorrect(ch)
-      case false: manuallyMarkIncorrect(ch)
+      case true: answeredCorrectly(ch,row:row,col:col)
+      case false: answeredIncorrectly(ch,row:row,col:col)
       }
       questionedWasAnswered = true
     } else {

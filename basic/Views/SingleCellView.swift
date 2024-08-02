@@ -8,8 +8,15 @@
 
 import SwiftUI
 
+struct Sdi: Identifiable
+{
+  let row:Int
+  let col:Int
+  let id=UUID()
+}
 struct SingleCellView: View {
   let gs:GameState
+  let chmgr:ChaMan
   let row:Int
   let col:Int
   let challenge:Challenge
@@ -17,6 +24,7 @@ struct SingleCellView: View {
   let cellSize: CGFloat
   let onSingleTap: (_ row:Int, _ col:Int ) -> Bool
   @Binding var firstMove:Bool
+  @State var alreadyPlayed:Sdi?
   var body: some View {
     let colormix = gs.colorForTopic(challenge.topic)
     return VStack(alignment:.center, spacing:0) {
@@ -31,6 +39,9 @@ struct SingleCellView: View {
       .cornerRadius(8)
       .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
     }
+    .sheet(item: $alreadyPlayed) { goo in
+      AlreadyPlayedView(row: goo.row,col: goo.col,gs:gs,chmgr:chmgr)
+    }
     // for some unknown reason, the tap surface area is bigger if placed outside the VStack
     .onTapGesture {
       var  tap = false
@@ -39,6 +50,7 @@ struct SingleCellView: View {
       if  gs.gamestate == .playingNow { // is the game on
         if    gs.isAlreadyPlayed(row:row,col:col)  {
           print("debug (((((((((((((()))))))))))))")
+          alreadyPlayed = Sdi(row:row,col:col)
           // coming
         } else
         if  gs.cellstate[row][col] == .unplayed {

@@ -70,6 +70,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				AllocatorView.swift,
+				AlreadyPlayedView.swift,
 				ChallengeInfoScreen.swift,
 				ContentView.swift,
 				FreeportSettingsScreen.swift,
@@ -143,12 +144,12 @@
 				885CEB222C290C6000234C17 /* subs.swift */,
 				884548AF2C3C4B95009A725F /* mainapp.swift */,
 				884548B32C3D76E4009A725F /* Views */,
-				884548972C3B9AF6009A725F /* CustomAlerts.swift */,
-				885CEB1B2C29085700234C17 /* Guts.swift */,
 				885CEB0B2C28879000234C17 /* AppColors.swift */,
-				885CEB152C289DDC00234C17 /* GameState.swift */,
 				885CEB132C289D5300234C17 /* ChaMan.swift */,
 				88A5CDF62C5C346300157D36 /* ChaManExt.swift */,
+				884548972C3B9AF6009A725F /* CustomAlerts.swift */,
+				885CEB152C289DDC00234C17 /* GameState.swift */,
+				885CEB1B2C29085700234C17 /* Guts.swift */,
 				88A5CDF42C5AB85B00157D36 /* TopicInfo.swift */,
 				885CEB242C2A266100234C17 /* WinLose.swift */,
 				88F6F8D62C1A1E2500A50C31 /* Assets.xcassets */,
@@ -441,7 +442,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;
@@ -472,7 +473,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;

@@ -122,6 +122,10 @@ class ChaMan {
       
     }
   }
+func save() {
+    TopicInfo.saveTopicInfo(tinfo)
+    saveChallengeStatuses(stati)
+  }
   
   func allocateChallenges(forTopics topics: [String], count n: Int) -> AllocationResult {
     var allocatedChallengeIndices: [Int] = []
@@ -223,7 +227,7 @@ class ChaMan {
       stati[index] = .allocated
     }
     checkAllTopicConsistency("allocateChallenges end")
-    TopicInfo.saveTopicInfo(tinfo)
+    save()
     return .success(allocatedChallengeIndices)//.shuffled()) // see if this works
   }
   func deallocAt(_ indexes: [Int]) -> AllocationResult {
@@ -268,8 +272,6 @@ class ChaMan {
         }
         topicInfo.freecount += indexes.count
         topicInfo.alloccount -= indexes.count
-        
-        
         // Update tinfo to keep it in sync
         tinfo[topic] = topicInfo
         topicInfo.checkConsistency()
@@ -285,12 +287,11 @@ class ChaMan {
       }
     }
     
-    saveChallengeStatuses(stati)
-    TopicInfo.saveTopicInfo(tinfo)
+    save()
     checkAllTopicConsistency("deallc end")
     return .success([])
   }
-  // Replace a challenge at a specific index and update internal structures
+
   // Replace a challenge at a specific index and update internal structures
   func replaceChallenge(at index: Int) -> AllocationResult {
     guard index < everyChallenge.count else {
@@ -318,8 +319,7 @@ class ChaMan {
         topicInfo.replacedcount += 1
         topicInfo.freecount -= 1
         tinfo[topic] = topicInfo
-        TopicInfo.saveTopicInfo(tinfo)
-        saveChallengeStatuses(stati)
+        save()
         // Return the index of the we supplied
         checkAllTopicConsistency("replaceChallenge end")
         return .success([index])
@@ -362,6 +362,40 @@ class ChaMan {
 //    dumpTopics()
 //    TopicInfo.dumpTopicInfo(info: tinfo)
     print("Loaded \(self.stati.count) challenges from PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
+  }
+  
+  
+  func resetChallengeStatuses(at challengeIndices: [Int]) {
+    defer {
+      saveChallengeStatuses(stati)
+    }
+    for index in challengeIndices {
+      stati[index]  = ChallengeStatus.inReserve
+    }
+  }
+  
+  func totalresetofAllChallengeStatuses(gs:GameState) {
+    defer {
+      saveChallengeStatuses(stati)
+    }
+    //if let playData = playData {
+    self.stati = [ChallengeStatus](repeating:ChallengeStatus.inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
+  }
+  
+
+  func bumpWrongcount(topic:String){
+    if var t =  tinfo[topic] {
+      t.wrongcount += 1
+      tinfo[topic] = t
+    }
+    TopicInfo.saveTopicInfo(tinfo)
+  }
+  func bumpRightcount(topic:String){
+    if var t =  tinfo[topic] {
+      t.rightcount += 1
+      tinfo[topic] = t
+    }
+    TopicInfo.saveTopicInfo(tinfo)
   }
   
 }

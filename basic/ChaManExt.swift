@@ -66,38 +66,6 @@ extension ChaMan {
     checkAllTopicConsistency("chaman loaddata")
   }
 
-  
-  func resetChallengeStatuses(at challengeIndices: [Int]) {
-    defer {
-      saveChallengeStatuses(stati)
-    }
-    for index in challengeIndices {
-      stati[index]  = ChallengeStatus.inReserve
-    }
-  }
-  
-  func totalresetofAllChallengeStatuses(gs:GameState) {
-    defer {
-      saveChallengeStatuses(stati)
-    }
-    //if let playData = playData {
-    self.stati = [ChallengeStatus](repeating:ChallengeStatus.inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
-  }
-  
-
-  func bumpWrongcount(topic:String){
-    if var t =  tinfo[topic] {
-      t.wrongcount += 1
-      tinfo[topic] = t
-    }
-  }
-  func bumpRightcount(topic:String){
-    if var t =  tinfo[topic] {
-      t.rightcount += 1
-      tinfo[topic] = t
-    }
-  }
-  
   // Helper functions to get counts
   func allocatedChallengesCount() -> Int {
     return  stati.filter { $0 == .allocated }.count
@@ -149,7 +117,6 @@ extension ChaMan {
       print("Warning: Topic \(topicName) not found in tinfo.")
       return 0
     }
-    
     return topicInfo.alloccount
   }
   
@@ -234,83 +201,6 @@ extension ChaMan {
     }
     print("=============================")
   }
-  
 }
 
-extension ChaMan {
-  
 
-  func setupTopicInfo(){
-    
-    // calculate free counts by topic
-    var freeCountByTopic: [String: Int] = [:]
-    var challengesByTopic: [String:[Int]] = [:]
-
-    // Iterate through all challenges and count free ones
-    for (index, challenge) in everyChallenge.enumerated() {
-      if stati[index] == .inReserve {
-        freeCountByTopic[challenge.topic, default: 0] += 1
-        challengesByTopic[challenge.topic, default: []] += [index]
-      } else  {
-        fatalError()
-      }
-
-    }
-    
-    // back thru all the topics
-    for topic in playData.topicData.topics {
-      let ti = TopicInfo(name: topic.name, alloccount:  0,
-                         freecount: freeCountByTopic[topic.name ] ?? 0,
-                         replacedcount:0,
-                         rightcount: 0,
-                         wrongcount: 0,
-                         challengeIndices: challengesByTopic[topic.name] ?? [])
-      tinfo[topic.name] = ti
-
-    }
-    
-//    let sortedChallengesByTopic = playData.gameDatum.flatMap { $0.challenges }.sorted { $0.topic < $1.topic }
-//    var lastTopic = ""
-//    var lastidx = -1
-//    var first = true
-//    //var count = 0
-//    var accumulated:[Int] = []
-//    for (idx,challenge) in sortedChallengesByTopic.enumerated() {
-//
-//      if challenge.topic == lastTopic {
-//        // same topic must bump count
-//        //count += 1
-//        accumulated.append(idx)
-//      }
-//      else { // new topic
-//        if first==false { //normal path
-//          // new topic, first push out last block
-//          let ti = TopicInfo(name: lastTopic,
-//                             alloccount: allocCountByTopic[lastTopic] ?? 0,
-//                             freecount: freeCountByTopic[lastTopic] ?? 0,
-//                             replacedcount: replacedCountByTopic[lastTopic] ?? 0,
-//                             rightcount: 0, wrongcount: 0, challengeIndices: accumulated)
-//          tinfo[lastTopic] = ti
-//        }
-//        // then reset for next topic
-//        //count = 0
-//        accumulated = []
-//      }
-//
-//      lastTopic = challenge.topic
-//      lastidx = idx
-//      first = false
-//    }
-//    accumulated.append(lastidx)
-//
-//
-//    let ti = TopicInfo(name: lastTopic, alloccount: allocCountByTopic[lastTopic] ?? 0,
-//                       freecount: freeCountByTopic[lastTopic] ?? 0,
-//                       replacedcount:  replacedCountByTopic[lastTopic] ?? 0,
-//                       rightcount: 0, wrongcount: 0, challengeIndices: accumulated)
-//    tinfo[lastTopic] = ti
-    
-  }
-  
- 
-}
