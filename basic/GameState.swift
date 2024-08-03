@@ -10,8 +10,7 @@ import SwiftUI
 @Observable
 class GameState :  Codable {
   var board: [[Int]]  // Array of arrays to represent the game board with challenges
-  var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell
-  var challengeindices: [[Int]] //into the ChallengeStatuses
+  var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell 
   var boardsize: Int  // Size of the game board
   var topicsinplay: [String] // a subset of allTopics (which is constant and maintained in ChaMan)
   var gamestate: StateOfPlay = .initializingApp
@@ -48,7 +47,7 @@ class GameState :  Codable {
       for row in  0 ..< boardsize  {
         for col in 0 ..< boardsize  {
           
-          let j = challengeindices[row][col]
+          let j = board[row][col]
           if j != -1 {
             let x:ChaMan.ChallengeStatus = chmgr.stati[j]
             switch cellstate[row][col] {
@@ -87,18 +86,17 @@ class GameState :  Codable {
     case _board = "board"
     case _cellstate = "cellstate"
     case _boardsize = "boardsize"
-    case _gimmees = "gimmees"
+    case _topicsinplay = "topicsinplay"
     case _gamestate = "gamestate"
+    case _totaltime = "totaltime"
     case _playcount = "playcount"
     case _woncount = "woncount"
     case _lostcount = "lostcount"
     case _rightcount = "rightcount"
     case _wrongcount = "wrongcount"
     case _replacedcount = "replacedcount"
-    case _totaltime = "totaltime"
-    case _topicsinplay = "topicsinplay"
-    case _challengeindices = "challengeindices"
     case _faceup = "faceup"
+    case _gimmees = "gimmees"
     case _currentscheme = "currentscheme"
     case _veryfirstgame = "veryfirstgame"
     case _startincorners = "startincorners"
@@ -109,12 +107,10 @@ class GameState :  Codable {
     return topicsinplay.map {BasicTopic(name: $0)}
   }
   init(size: Int, topics: [String], challenges: [Challenge]) {
-    
     self.topicsinplay = topics //*****4
     self.boardsize = size
     self.board = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
-    self.challengeindices = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.gimmees = 0
     self.playcount = 0
     self.woncount = 0
@@ -169,16 +165,13 @@ class GameState :  Codable {
     for row in 0..<boardsize {
       for col in 0..<boardsize {
         let idxs = allocatedChallengeIndices[row * boardsize + col]
-        //        board[row][col] = chmgr.everyChallenge[idxs]
         board[row][col] = idxs
         cellstate[row][col] = .unplayed
-        challengeindices[row][col] = idxs
+        board[row][col] = idxs
       }
     }
     gamestate = .playingNow
-    saveGameState()
-    // print("END OF SETUPFORNEWGAME")
-    //chmgr.dumpTopics()
+    saveGameState() 
     return true
   }
   
@@ -190,7 +183,7 @@ class GameState :  Codable {
     for row in 0..<boardsize {
       for col in 0..<boardsize {
         if cellstate[row][col] == .unplayed {
-          let idx = challengeindices[row][col]
+          let idx = board[row][col]
           if idx != -1 { // hack or not?
             challenge_indexes.append(idx)
           }
@@ -209,14 +202,7 @@ class GameState :  Codable {
     saveGameState()
   }
   
-  func clearAllCells() {
-    for row in 0..<boardsize {
-      for col in 0..<boardsize {
-        cellstate[row][col] = .unplayed
-      }
-    }
-    saveGameState()
-  }
+
   func dumpGameBoard () {
     print("Dump of GameBoard")
     print("================")

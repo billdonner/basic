@@ -217,7 +217,7 @@ extension QandAScreen {
             .padding(.top, 10)
         }
           .frame(width: contentWidth) // Set width of the scrolling area
-         
+        
       )
     } else if answers.count == 3 {
       return AnyView(
@@ -244,13 +244,13 @@ extension QandAScreen {
             answerButtonVue(answer: answers[2],row:row,col:col, buttonWidth: buttonWidth , buttonHeight:buttonHeight)
             answerButtonVue(answer: answers[3],row:row,col:col, buttonWidth: buttonWidth , buttonHeight:buttonHeight)
           }
-//          ForEach(answers.chunked(into: 2), id: \.self) { row in
-//            HStack {
-//              ForEach(row, id: \.self) { answer in
-//                answerButtonVue(answer: answer,row:row,col:col,buttonWidth:buttonWidth,buttonHeight:buttonHeight)
-//              }
-//            }
-//          }
+          //          ForEach(answers.chunked(into: 2), id: \.self) { row in
+          //            HStack {
+          //              ForEach(row, id: \.self) { answer in
+          //                answerButtonVue(answer: answer,row:row,col:col,buttonWidth:buttonWidth,buttonHeight:buttonHeight)
+          //              }
+          //            }
+          //          }
         }
           .padding(.horizontal)
           .disabled(questionedWasAnswered)  // Disable all answer buttons after an answer is given
@@ -272,10 +272,9 @@ extension QandAScreen {
           return Color.blue
         }
       }
-        return Color.blue
-      }
-   return
-    Button(action: {
+      return Color.blue
+    }
+    return  Button(action: {
       handleAnswerSelection(answer: answer,row:row,col:col)
     })
     {
@@ -287,7 +286,7 @@ extension QandAScreen {
         .frame(width: buttonWidth, height: buttonHeight)
         .background(
           Group {
-      ff()
+            ff()
           }
         )
         .cornerRadius(5)  // Make the buttons rounded rectangles
@@ -332,7 +331,7 @@ extension QandAScreen {
     switch result {
     case .success(let index):
       gs.gimmees -= 1
-       gs.board[row][col] = index[0]
+      gs.board[row][col] = index[0]
       print("Gimmee realloation successful")
       
     case .error(let error):
@@ -341,11 +340,11 @@ extension QandAScreen {
     killTimer = true
     dismiss()
   }
-
+  
 }
-  extension QandAScreen { /* actions */
-
-    func answeredCorrectly(_ ch:Challenge,row:Int,col:Int) {
+extension QandAScreen { /* actions */
+  
+  func answeredCorrectly(_ ch:Challenge,row:Int,col:Int) {
     chmgr.checkAllTopicConsistency("mark correct before")
     assert(gs.checkVsChaMan(chmgr: chmgr))
     answerCorrect = true
@@ -356,9 +355,9 @@ extension QandAScreen {
     gs.cellstate[row][col] = .playedCorrectly
     gs.rightcount += 1
     chmgr.bumpRightcount(topic: ch.topic)
-    chmgr.stati[gs.challengeindices[row][col]] = .playedCorrectly  // ****
-   killTimer=true
-      gs.saveGameState()
+    chmgr.stati[gs.board[row][col]] = .playedCorrectly  // ****
+    killTimer=true
+    gs.saveGameState()
     chmgr.save()
     chmgr.checkAllTopicConsistency("mark correct after")
   }
@@ -373,7 +372,7 @@ extension QandAScreen {
     gs.cellstate[row][col] = .playedIncorrectly
     gs.wrongcount += 1
     chmgr.bumpWrongcount(topic: ch.topic)
-    chmgr.stati[gs.challengeindices[row][col]] = .playedIncorrectly  // ****
+    chmgr.stati[gs.board[row][col]] = .playedIncorrectly  // ****
     killTimer=true
     chmgr.save()
     gs.saveGameState()
@@ -396,7 +395,7 @@ extension QandAScreen {
     }
   }
   func handlePass() {
-   killTimer=true
+    killTimer=true
     dismiss()
   }
 }

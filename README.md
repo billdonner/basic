@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+- version 0.3.1 fixed allocation endzone accounting, can dismiss help
 - version 0.3.0, fixed restart problem, should run fine
 - version 0.2.9, tap on played cell,removed animation behind question screen,fixed crashes
 - version 0.2.8 new topicindex on bottom of main gamescreen

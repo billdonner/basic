@@ -112,17 +112,7 @@ class ChaMan {
   //THIS IS BROKEN AND MUST BE FIXED WE SHOULD NOT BE UPDATING TINFO TILL THE VERY END
  //TO SEE THIS PROBLEM JUST REDUCE TO NUMBER OF TOPICS OF 1 and try two 8x8s where the second has insufficient topics 
   
-  fileprivate func fixup(_ topic: String, _ topicIndexes: inout [String : [Int]], _ allocatedIndexes: Array<Int>.SubSequence) {
-    // Update tinfo to keep it in sync
-    if var topicInfo = tinfo[topic] {
-     // topicInfo.challengeIndices = topicIndexes[topic] ?? []
-      topicInfo.freecount -= allocatedIndexes.count
-      topicInfo.alloccount += allocatedIndexes.count
-      tinfo[topic] = topicInfo
-      topicInfo.checkConsistency()
-      
-    }
-  }
+
 func save() {
     TopicInfo.saveTopicInfo(tinfo)
     saveChallengeStatuses(stati)
@@ -131,6 +121,23 @@ func save() {
   func allocateChallenges(forTopics topics: [String], count n: Int) -> AllocationResult {
     var allocatedChallengeIndices: [Int] = []
     var topicIndexes: [String: [Int]] = [:]
+    var tinfobuffer: [String: TopicInfo] = tinfo 
+    
+ func fixup(_ topic: String, _ topicIndexes: inout [String : [Int]], _ allocatedIndexes: Array<Int>.SubSequence) {
+      // Update tinfo to keep it in sync
+      if var topicInfo = tinfo[topic] {
+       // topicInfo.challengeIndices = topicIndexes[topic] ?? []
+        topicInfo.freecount -= allocatedIndexes.count
+        topicInfo.alloccount += allocatedIndexes.count
+        //tinfo[topic] = topicInfo
+        tinfobuffer[topic] = topicInfo
+        topicInfo.checkConsistency()
+        
+      }
+    }
+    
+    
+    
     checkAllTopicConsistency("allocateChallenges start")
     // Defensive check for empty topics array
     guard !topics.isEmpty else {
@@ -222,11 +229,13 @@ func save() {
         }
       }
     }
-    print("----Allocated Challenge Indices: \(allocatedChallengeIndices)")
+
     // Update stati to reflect allocation
     for index in allocatedChallengeIndices {
       stati[index] = .allocated
     }
+    //if we got this far
+    tinfo = tinfobuffer
     checkAllTopicConsistency("allocateChallenges end")
     save()
     return .success(allocatedChallengeIndices)//.shuffled()) // see if this works
@@ -234,9 +243,10 @@ func save() {
   func deallocAt(_ indexes: [Int]) -> AllocationResult {
     var topicIndexes: [String: [Int]] = [:]
     var invalidIndexes: [Int] = []
+    var tinfobuffer: [String: TopicInfo] = tinfo 
     checkAllTopicConsistency("dealloc  start")
     
-    print("-----Deallocating Challenge Indices: \(indexes)")
+    //print("-----Deallocating Challenge Indices: \(indexes)")
     // Collect the indexes of the challenges to deallocate and group by topic
     for index in indexes {
       if index >= everyChallenge.count {
@@ -276,7 +286,8 @@ func save() {
         topicInfo.freecount += indexes.count
         topicInfo.alloccount -= indexes.count
         // Update tinfo to keep it in sync
-        tinfo[topic] = topicInfo
+        //tinfo[topic] = topicInfo
+        tinfobuffer[topic] = topicInfo
         topicInfo.checkConsistency()
       } else {
         return .error(.invalidTopics([topic]))
@@ -289,7 +300,7 @@ func save() {
         stati[index] = .inReserve // Set the status to inReserve
       }
     }
-    
+    tinfo = tinfobuffer
     save()
     checkAllTopicConsistency("deallc end")
     return .success([])
@@ -321,7 +332,7 @@ func save() {
         
         topicInfo.replacedcount += 1
         topicInfo.freecount -= 1
-        tinfo[topic] = topicInfo
+        tinfo[topic] = topicInfo 
         save()
         // Return the index of the we supplied
         checkAllTopicConsistency("replaceChallenge end")

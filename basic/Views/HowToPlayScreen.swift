@@ -13,7 +13,7 @@ struct HowToPlayScreen: View {
   @Binding var  isPresented: Bool
   var body: some View {
     TabView {
-      FrontMatter()
+      FrontMatter(isPresented: $isPresented)
         .tag(mkID())
       startInAnyCorner(isPresented: $isPresented)
         .tag(mkID())
@@ -63,12 +63,35 @@ struct HowToPlayScreen: View {
 
 
 struct FrontMatter :View{
+  @Binding var isPresented: Bool
   var body: some View {
-    ZStack{
+    ZStack {
       Color.black
-      Text("How to Play").font(.largeTitle).foregroundStyle(.white)
-    }.ignoresSafeArea()
+      VStack {
+        VStack {
+          Button(action:{
+            isPresented=false
+          })
+          { HStack  {
+            Spacer()
+            Image(systemName: "x.circle")
+                .font(.title)
+                .foregroundStyle(.white)
+            
+          }
+          }
+          
+        }
+        Spacer()
+        Text("How to Play").font(.largeTitle).foregroundStyle(.white)
+        Spacer()
+      }
+    }.ignoresSafeArea()// Hides the status bar in this view
   }
+  }
+
+#Preview {
+  FrontMatter(isPresented: .constant(true))
 }
 //struct MoreFrontMatter :View{
 //  var body: some View {

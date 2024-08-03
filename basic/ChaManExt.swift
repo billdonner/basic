@@ -46,7 +46,7 @@ extension ChaMan {
         
         gs.board = gb.board
         gs.cellstate = gb.cellstate
-        gs.challengeindices = gb.challengeindices //!!!
+       // gs.challengeindices = gb.challengeindices //!!!
         gs.boardsize = gb.boardsize
         gs.topicsinplay = gb.topicsinplay
         gs.gamestate = gb.gamestate

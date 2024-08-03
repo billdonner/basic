@@ -58,6 +58,7 @@ struct GameScreen: View {
       }
       .fullScreenCover(isPresented: $showingHelp ){
         HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
+          .statusBar(hidden: true) 
       }
       
       .onDisappear {
@@ -158,7 +159,6 @@ extension GameScreen /* actions */ {
   
   func onCantStartNewGameAction() {
     print("//GameScreen onCantStartNewGameAction")
-    gs.clearAllCells()
     showCantStartAlert = false
   }
   
