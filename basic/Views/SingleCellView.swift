@@ -19,13 +19,14 @@ struct SingleCellView: View {
   let chmgr:ChaMan
   let row:Int
   let col:Int
-  let challenge:Challenge
+  let chidx:Int
   let status:ChallengeOutcomes
   let cellSize: CGFloat
   let onSingleTap: (_ row:Int, _ col:Int ) -> Bool
   @Binding var firstMove:Bool
   @State var alreadyPlayed:Sdi?
-  var body: some View {
+  var body: some View { 
+    let challenge = chidx < 0 ? Challenge.amock : chmgr.everyChallenge[chidx]
     let colormix = gs.colorForTopic(challenge.topic)
     return VStack(alignment:.center, spacing:0) {
       Text(//hideCellContent ||hideCellContent ||

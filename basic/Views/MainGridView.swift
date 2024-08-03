@@ -29,13 +29,15 @@ struct MainGridView : View {
             Spacer(minLength:spacing/2)
             ForEach(0..<gs.boardsize, id: \.self) { col in
               // i keep getting row and col out of bounds, so clamp it
-              if row < gs.boardsize  && col < gs.boardsize   {
-                SingleCellView(gs:gs,chmgr:chmgr,row:row,col:col,
-                               challenge:gs.board[row][col],
-                               status:gs.cellstate[row][col],
-                               cellSize: cellSize, onSingleTap:  onSingleTap,firstMove:$firstMove)
-                //.border(.blue)
-              }else {
+              if row < gs.boardsize  && col < gs.boardsize
+               //&&  gs.board[row][col] >= 0
+              { // ensure its inbounds and allocated
+                  SingleCellView(gs:gs,chmgr:chmgr,row:row,col:col,
+                                 chidx:gs.board[row][col],
+                                 status:gs.cellstate[row][col],
+                                 cellSize: cellSize, onSingleTap:  onSingleTap,firstMove:$firstMove)
+                }
+               else {
                 Color.clear
                   .frame(width: cellSize, height: cellSize)
               }

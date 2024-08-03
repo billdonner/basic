@@ -26,7 +26,7 @@ struct QandAScreen: View {
   
   var body: some View {
     GeometryReader { geometry in
-      let ch = gs.board[row][col]
+      let ch = chmgr.everyChallenge[gs.board[row][col]]
       ZStack {
         VStack {
           QandATopBarView(
@@ -102,7 +102,7 @@ struct QandAScreen: View {
   }
   var markCorrectButton: some View {
     Button(action: {
-      answeredCorrectly(gs.board[row][col],row:row,col:col)
+      answeredCorrectly(chmgr.everyChallenge[gs.board[row][col]],row:row,col:col)
     }) {
       Image(systemName: "checkmark.circle")
         .font(.title)
@@ -114,7 +114,7 @@ struct QandAScreen: View {
   }
   var markIncorrectButton: some View {
     Button(action: {
-      answeredIncorrectly(gs.board[row][col],row:row,col:col)
+      answeredIncorrectly(chmgr.everyChallenge[gs.board[row][col]],row:row,col:col)
     }) {
       Image(systemName: "xmark.circle")
         .font(.title)
@@ -180,9 +180,10 @@ extension QandAScreen {
   func questionSectionVue(geometry: GeometryProxy) -> some View {
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
-    let topicColor =   gs.colorForTopic(gs.board[row][col].topic).0
+    let ch = chmgr.everyChallenge[gs.board[row][col]]
+    let topicColor =   gs.colorForTopic(ch.topic).0
     
-    return Text(gs.board[row][col].question)
+    return Text(ch.question)
       .font(.headline)
       .padding(.horizontal)
       .background(RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.2))) // Use topic color for background
@@ -192,7 +193,8 @@ extension QandAScreen {
   }
   
   func answerButtonsVue(geometry: GeometryProxy) -> some View {
-    let answers = gs.board[row][col].answers.shuffled() // mix it up
+    let answers = chmgr.everyChallenge[gs.board[row][col]]
+      .answers.shuffled() // mix it up
     let paddingWidth = geometry.size.width * 0.1
     let contentWidth = geometry.size.width - paddingWidth
     
@@ -257,10 +259,27 @@ extension QandAScreen {
   }
   
   func answerButtonVue(answer: String,row:Int,col:Int, buttonWidth: CGFloat, buttonHeight: CGFloat? = nil, taller: Bool = false) -> some View {
+    func ff()->some View {
+      let ch = chmgr.everyChallenge[gs.board[row][col]]
+      if answerGiven {
+        if answer == selectedAnswer {
+          return answerCorrect == true ? Color.green : Color.red
+        } else if answerCorrect == true {
+          return Color.red
+        } else if showCorrectAnswer && answer == ch.correct {
+          return Color.green
+        }  else {
+          return Color.blue
+        }
+      }
+        return Color.blue
+      }
+   return
     Button(action: {
       handleAnswerSelection(answer: answer,row:row,col:col)
     })
     {
+      let ch = chmgr.everyChallenge[gs.board[row][col]]
       Text(answer)
         .font(.body)
         .foregroundColor(.white)
@@ -268,28 +287,16 @@ extension QandAScreen {
         .frame(width: buttonWidth, height: buttonHeight)
         .background(
           Group {
-            if answerGiven {
-              if answer == selectedAnswer {
-                answerCorrect == true ? Color.green : Color.red
-              } else if answerCorrect == true {
-                Color.red
-              } else if showCorrectAnswer && answer == gs.board[row][col].correct {
-                Color.green
-              }  else {
-                Color.blue
-              }
-            } else {
-              Color.blue
-            }
+      ff()
           }
         )
         .cornerRadius(5)  // Make the buttons rounded rectangles
         .minimumScaleFactor(0.5)  // Adjust font size to fit
         .lineLimit(8)
-        .rotationEffect(showCorrectAnswer && answer == gs.board[row][col].correct ? .degrees(360) : .degrees(0))
+        .rotationEffect(showCorrectAnswer && answer == ch.correct ? .degrees(360) : .degrees(0))
         .overlay(
           RoundedRectangle(cornerRadius: 5)  // Match the corner radius
-            .stroke(showBorders && answer == selectedAnswer && !answerCorrect ? Color.red : showBorders && answer == gs.board[row][col].correct && answerCorrect == false ? Color.green : Color.clear, lineWidth: 5)
+            .stroke(showBorders && answer == selectedAnswer && !answerCorrect ? Color.red : showBorders && answer == ch.correct && answerCorrect == false ? Color.green : Color.clear, lineWidth: 5)
         )
         .animation(.easeInOut(duration: showCorrectAnswer ? 1.0 : 0.5), value: showCorrectAnswer)
         .animation(.easeInOut(duration: answerGiven ? 1.0 : 0.5), value: animateBackToBlue)
@@ -313,7 +320,8 @@ extension QandAScreen {
   }
   
   func toggleHint() {
-    if gs.board[row][col].hint.count > 1  { // guard against short hints
+    if chmgr.everyChallenge[gs.board[row][col]]
+      .hint.count > 1  { // guard against short hints
       showHint.toggle()
     }
   }
@@ -324,8 +332,7 @@ extension QandAScreen {
     switch result {
     case .success(let index):
       gs.gimmees -= 1
-      let challenge = chmgr.everyChallenge[index[0]]
-      gs.board[row][col] = challenge
+       gs.board[row][col] = index[0]
       print("Gimmee realloation successful")
       
     case .error(let error):
@@ -351,6 +358,7 @@ extension QandAScreen {
     chmgr.bumpRightcount(topic: ch.topic)
     chmgr.stati[gs.challengeindices[row][col]] = .playedCorrectly  // ****
    killTimer=true
+      gs.saveGameState()
     chmgr.save()
     chmgr.checkAllTopicConsistency("mark correct after")
   }
@@ -368,11 +376,12 @@ extension QandAScreen {
     chmgr.stati[gs.challengeindices[row][col]] = .playedIncorrectly  // ****
     killTimer=true
     chmgr.save()
+    gs.saveGameState()
     chmgr.checkAllTopicConsistency("mark incorrect after")
   }
   func handleAnswerSelection(answer: String,row:Int,col:Int) {
     if !questionedWasAnswered { // only allow one answer
-      let ch = gs.board[row][col]
+      let ch = chmgr.everyChallenge[gs.board[row][col]]
       selectedAnswer = answer
       answerCorrect = (answer == ch.correct)
       answerGiven = true

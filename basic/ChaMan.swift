@@ -109,7 +109,8 @@ class ChaMan {
   func invalidateAllTopicsCache() {
     _allTopics = nil
   }
-  // Allocate N challenges nearly evenly from specified topics, taking from any topic if needed
+  //THIS IS BROKEN AND MUST BE FIXED WE SHOULD NOT BE UPDATING TINFO TILL THE VERY END
+ //TO SEE THIS PROBLEM JUST REDUCE TO NUMBER OF TOPICS OF 1 and try two 8x8s where the second has insufficient topics 
   
   fileprivate func fixup(_ topic: String, _ topicIndexes: inout [String : [Int]], _ allocatedIndexes: Array<Int>.SubSequence) {
     // Update tinfo to keep it in sync
@@ -385,7 +386,8 @@ func save() {
 
   func bumpWrongcount(topic:String){
     if var t =  tinfo[topic] {
-      t.wrongcount += 1
+      t.wrongcount += 1 
+      t.alloccount -= 1
       tinfo[topic] = t
     }
     TopicInfo.saveTopicInfo(tinfo)
@@ -393,6 +395,7 @@ func save() {
   func bumpRightcount(topic:String){
     if var t =  tinfo[topic] {
       t.rightcount += 1
+      t.alloccount -= 1
       tinfo[topic] = t
     }
     TopicInfo.saveTopicInfo(tinfo)

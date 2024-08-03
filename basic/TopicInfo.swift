@@ -16,7 +16,7 @@ struct TopicInfo : Codable {
       var challengeIndices: [Int] // indexes into stati
 
   func checkConsistency() {
-    assert (alloccount + freecount + replacedcount == challengeIndices.count)
+    assert (alloccount + freecount + replacedcount + rightcount + wrongcount == challengeIndices.count)
   }
   func getChallengesAndStatuses (chmgr:ChaMan)-> ([Challenge],[ChaMan.ChallengeStatus]) {
     checkConsistency()

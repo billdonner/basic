@@ -9,7 +9,7 @@ import SwiftUI
 
 @Observable
 class GameState :  Codable {
-  var board: [[Challenge]]  // Array of arrays to represent the game board with challenges
+  var board: [[Int]]  // Array of arrays to represent the game board with challenges
   var cellstate: [[ChallengeOutcomes]]  // Array of arrays to represent the state of each cell
   var challengeindices: [[Int]] //into the ChallengeStatuses
   var boardsize: Int  // Size of the game board
@@ -31,12 +31,14 @@ class GameState :  Codable {
   var difficultylevel:Int
   
   func checkVsChaMan(chmgr:ChaMan) -> Bool {
-    if chmgr.correctChallengesCount() != rightcount {
-      print("*** correct challenges count is wrong")
+    let a=chmgr.correctChallengesCount()
+    if a != rightcount {
+      print("*** correct challenges count \(a) is wrong \(rightcount)")
       return false
     }
-    if chmgr.incorrectChallengesCount() != wrongcount {
-      print("*** incorrect challenges count is wrong")
+    let b = chmgr.incorrectChallengesCount()
+    if b != wrongcount {
+      print("*** incorrect challenges count \(b) is wrong \(wrongcount)")
       
       return false
     }
@@ -44,7 +46,7 @@ class GameState :  Codable {
     
     for row in  0 ..< boardsize  {
       for col in 0 ..< boardsize  {
-    
+        
         let j = challengeindices[row][col]
         if j != -1 {
           let x:ChaMan.ChallengeStatus = chmgr.stati[j]
@@ -109,7 +111,7 @@ class GameState :  Codable {
     
     self.topicsinplay = topics //*****4
     self.boardsize = size
-    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: size), count: size)
+    self.board = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
     self.challengeindices = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.gimmees = 0
@@ -127,13 +129,13 @@ class GameState :  Codable {
     self.difficultylevel = 0
     self.startincorners = false
   }
-
+  
   func setupForNewGame (boardsize:Int, chmgr:ChaMan) -> Bool {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
     self.playcount += 1
     self.boardsize = boardsize ///////////////
-    self.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count:  boardsize), count:   boardsize)
+    self.board = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
     // give player a few gimmees depending on boardsize
     self.gimmees += boardsize - 1
@@ -166,14 +168,15 @@ class GameState :  Codable {
     for row in 0..<boardsize {
       for col in 0..<boardsize {
         let idxs = allocatedChallengeIndices[row * boardsize + col]
-        board[row][col] = chmgr.everyChallenge[idxs]
+        //        board[row][col] = chmgr.everyChallenge[idxs]
+        board[row][col] = idxs
         cellstate[row][col] = .unplayed
         challengeindices[row][col] = idxs
       }
     }
     gamestate = .playingNow
     saveGameState()
-   // print("END OF SETUPFORNEWGAME")
+    // print("END OF SETUPFORNEWGAME")
     //chmgr.dumpTopics()
     return true
   }
@@ -197,7 +200,7 @@ class GameState :  Codable {
     let allocationResult = chmgr.deallocAt(challenge_indexes)
     switch allocationResult {
     case .success(_): break
-     // print("dealloc succeeded")
+      // print("dealloc succeeded")
     case .error(let err):
       print("dealloc failed \(err)")
     }
@@ -225,36 +228,33 @@ class GameState :  Codable {
   }
   
   // this returns unplayed challenges and their indices in the challengestatus array
-  func resetBoardReturningUnplayed() -> ([Challenge],[Int]) {
-    var unplayedChallenges: [Challenge] = []
+  func resetBoardReturningUnplayed() ->   [Int] {
     var unplayedInts: [Int] = []
     for row in 0..<boardsize {
       for col in 0..<boardsize {
         if cellstate[row][col]  == .unplayed {
-          unplayedChallenges.append(board[row][col])
           unplayedInts.append( (row * boardsize + col))
         }
-        // cellstate[row][col] = .unplayed
       }
     }
-    return (unplayedChallenges,unplayedInts)
+    return unplayedInts
   }
   
   func indexOfTopic(_ topic:String ) -> Int? {
-   for (index,t) in self.topicsinplay.enumerated()  {
-   if t == topic { return index}
-   }
-   return nil
- }
-   func colorForTopic(_ topic:String) ->   (Color, Color, UUID) {
-       if let index = indexOfTopic(topic ) {
-         //use as into into the selected appcolors sheme
-         //let scheme = AppColors.allSchemes[gs.currentscheme.rawValue]
-         return AppColors.colorForTopicIndex(index:index,gs:self)
-       } else {
-         return (Color.white, Color.black, UUID())
-       }
-     }
+    for (index,t) in self.topicsinplay.enumerated()  {
+      if t == topic { return index}
+    }
+    return nil
+  }
+  func colorForTopic(_ topic:String) ->   (Color, Color, UUID) {
+    if let index = indexOfTopic(topic ) {
+      //use as into into the selected appcolors sheme
+      //let scheme = AppColors.allSchemes[gs.currentscheme.rawValue]
+      return AppColors.colorForTopicIndex(index:index,gs:self)
+    } else {
+      return (Color.white, Color.black, UUID())
+    }
+  }
   static  func minTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
     case 3: return 2
@@ -278,47 +278,47 @@ class GameState :  Codable {
     default: return 7
     }
   }
-    
+  
   static  func preselectedTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
-//    case 3: return 1
-//    case 4: return 1
-//    case 5: return 2
-//    case 6: return 3
-//    case 7: return 4
-//    case 8: return 5
+    case 3: return 3
+    case 4: return 3
+    case 5: return 4
+    case 6: return 4
+    case 7: return 5
+    case 8: return 5
     default: return 1
     }
   }
- 
-    // Get the file path for storing challenge statuses
-    static func getGameStateFileURL() -> URL {
-      let fileManager = FileManager.default
-      let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
-      return urls[0].appendingPathComponent("gameBoard.json")
+  
+  // Get the file path for storing challenge statuses
+  static func getGameStateFileURL() -> URL {
+    let fileManager = FileManager.default
+    let urls = fileManager.urls(for:.documentDirectory, in: .userDomainMask)
+    return urls[0].appendingPathComponent("gameBoard.json")
+  }
+  
+  func saveGameState( ) {
+    let filePath = Self.getGameStateFileURL()
+    do {
+      let data = try JSONEncoder().encode(self)
+      try data.write(to: filePath)
+    } catch {
+      print("Failed to save gs: \(error)")
     }
-    
-    func saveGameState( ) {
-      let filePath = Self.getGameStateFileURL()
-      do {
-        let data = try JSONEncoder().encode(self)
-        try data.write(to: filePath)
-      } catch {
-        print("Failed to save gs: \(error)")
-      }
+  }
+  // Load the GameBoard
+  static func loadGameState() -> GameState? {
+    let filePath = getGameStateFileURL()
+    do {
+      let data = try Data(contentsOf: filePath)
+      let gb = try JSONDecoder().decode(GameState.self, from: data)
+      return gb
+    } catch {
+      print("Failed to load gs: \(error)")
+      return nil
     }
-    // Load the GameBoard
-    static func loadGameState() -> GameState? {
-      let filePath = getGameStateFileURL()
-      do {
-        let data = try Data(contentsOf: filePath)
-        let gb = try JSONDecoder().decode(GameState.self, from: data)
-        return gb
-      } catch {
-        print("Failed to load gs: \(error)")
-        return nil
-      }
-    }
+  }
   
   func isCornerCell(row:Int,col:Int ) -> Bool {
     return row==0&&col==0  ||
@@ -327,12 +327,12 @@ class GameState :  Codable {
     row==self.boardsize-1 && col == self.boardsize - 1
   }
   
- func isAlreadyPlayed(row:Int,col:Int ) -> (Bool) {
+  func isAlreadyPlayed(row:Int,col:Int ) -> (Bool) {
     return ( self.cellstate[row][col] == .playedCorrectly ||
              self.cellstate[row][col] == .playedIncorrectly)
   }
-    
+  
   func cellBorderSize() -> CGFloat {
     return CGFloat(11-self.boardsize)*(isIpad ? 3.0:1.0)
-    }
   }
+}

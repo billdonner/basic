@@ -214,7 +214,7 @@ fileprivate struct SettingsView: View {
     gs.startincorners = l_startInCorners 
     gs.faceup = l_faceUpCards
     gs.boardsize = l_boardsize
-    gs.board = Array(repeating: Array(repeating: Challenge(question: "", topic: "", hint: "", answers: [], correct: "", id: "", date: Date(), aisource: ""), count: l_boardsize), count: l_boardsize)
+    gs.board = Array(repeating: Array(repeating: -1, count: l_boardsize), count: l_boardsize)
     gs.cellstate = Array(repeating: Array(repeating: .unplayed, count: l_boardsize), count: l_boardsize)
     gs.challengeindices = Array(repeating: Array(repeating: -1, count: l_boardsize), count: l_boardsize)
     gs.topicsinplay = l_topicsinplay // //*****2
