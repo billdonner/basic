@@ -90,6 +90,7 @@ struct GameScreen: View {
             }
             
             chmgr.checkAllTopicConsistency("GameScreen StartGamePressed")
+            assert(gs.checkVsChaMan(chmgr: chmgr))
           }
         }) {
           Text("Start Game")
@@ -109,10 +110,9 @@ struct GameScreen: View {
         // END GAME
         Button(action: {
           // withAnimation {
+          assert(gs.checkVsChaMan(chmgr: chmgr)) //cant check after endgamepressed
           onEndGamePressed()  //should estore consistency
           chmgr.checkAllTopicConsistency("GameScreen EndGamePressed")
-          //  print("//GameScreen return from onEndGamePressed")
-          //   }
         }) {
           Text("End Game")
             .padding()

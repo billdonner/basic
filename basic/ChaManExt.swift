@@ -43,20 +43,27 @@ extension ChaMan {
   func loadAllData  (gs:GameState) {
     do {
       if  let gb =  GameState.loadGameState() {
-        gs.cellstate = gb.cellstate
-        gs.boardsize = gb.boardsize
+        
         gs.board = gb.board
-        gs.gimmees = gb.gimmees
+        gs.cellstate = gb.cellstate
+        gs.challengeindices = gb.challengeindices //!!!
+        gs.boardsize = gb.boardsize
+        gs.topicsinplay = gb.topicsinplay
+        gs.gamestate = gb.gamestate
+        gs.totaltime = gb.totaltime
         gs.playcount = gb.playcount
         gs.rightcount = gb.rightcount
         gs.wrongcount = gb.wrongcount
         gs.lostcount = gb.lostcount
         gs.woncount = gb.woncount
         gs.replacedcount = gb.replacedcount
-        gs.totaltime = gb.totaltime
-        gs.gamestate = gb.gamestate
-        gs.topicsinplay = gb.topicsinplay
-        gs.challengeindices = gb.challengeindices //!!!
+        gs.faceup = gb.faceup
+        gs.gimmees = gb.gimmees
+        gs.currentscheme = gb.currentscheme
+        gs.veryfirstgame = gb.veryfirstgame
+        gs.startincorners = gb.startincorners
+        gs.doublediag = gb.doublediag
+        gs.difficultylevel = gb.difficultylevel
       }
       try self.loadPlayData(from: playDataFileName)
       
@@ -163,6 +170,7 @@ extension ChaMan {
   }
   func checkAllTopicConsistency(_ message:String) {
     // assert( verifySync(),"\(message) sync")
+
     var freecount = 0
     let freeFromStati = freeChallengesCount()
     var alloccount = 0

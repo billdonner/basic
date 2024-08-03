@@ -36,7 +36,8 @@ struct ContentView:View {
       }
       restartCount += 1
       gs.veryfirstgame = false
-      assert(gs.checkVsChaMan(chmgr: chmgr))
+    
+     // assert(gs.checkVsChaMan(chmgr: chmgr))
     }
     .onDisappear {
       print("Yikes the ContentView is Disappearing!")

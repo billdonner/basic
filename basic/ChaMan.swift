@@ -222,7 +222,7 @@ func save() {
         }
       }
     }
-    
+    print("----Allocated Challenge Indices: \(allocatedChallengeIndices)")
     // Update stati to reflect allocation
     for index in allocatedChallengeIndices {
       stati[index] = .allocated
@@ -235,6 +235,8 @@ func save() {
     var topicIndexes: [String: [Int]] = [:]
     var invalidIndexes: [Int] = []
     checkAllTopicConsistency("dealloc  start")
+    
+    print("-----Deallocating Challenge Indices: \(indexes)")
     // Collect the indexes of the challenges to deallocate and group by topic
     for index in indexes {
       if index >= everyChallenge.count {

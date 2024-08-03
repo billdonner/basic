@@ -42,39 +42,40 @@ class GameState :  Codable {
       
       return false
     }
-    // check everything on the board is consistent
-    
-    for row in  0 ..< boardsize  {
-      for col in 0 ..< boardsize  {
-        
-        let j = challengeindices[row][col]
-        if j != -1 {
-          let x:ChaMan.ChallengeStatus = chmgr.stati[j]
-          switch cellstate[row][col] {
-          case .playedCorrectly:
-            if x  != ChaMan.ChallengeStatus.playedCorrectly {
-              print("*** cellstate is wrong for \(row), \(col) playedCorrectly says \(x)")
+    if gamestate != .initializingApp { 
+      // check everything on the board is consistent
+      
+      for row in  0 ..< boardsize  {
+        for col in 0 ..< boardsize  {
+          
+          let j = challengeindices[row][col]
+          if j != -1 {
+            let x:ChaMan.ChallengeStatus = chmgr.stati[j]
+            switch cellstate[row][col] {
+            case .playedCorrectly:
+              if x  != ChaMan.ChallengeStatus.playedCorrectly {
+                print("*** cellstate is wrong for \(row), \(col) playedCorrectly says \(x)")
+                return false
+              }
+            case .playedIncorrectly:
+              if x  != ChaMan.ChallengeStatus.playedIncorrectly{
+                print("*** cellstate is wrong for \(row), \(col) playedIncorrectly says \(x)")
+                return false
+              }
+            case .unplayed:
+              if x != ChaMan.ChallengeStatus.allocated {
+                print("*** cellstate is wrong for \(row), \(col) unplayed says \(x)")
+                return false
+              }
+            }// switch
+            if x == ChaMan.ChallengeStatus.abandoned {
+              print("*** cellstate is wrong for \(row), \(col) abandoned says \(x)")
               return false
             }
-          case .playedIncorrectly:
-            if x  != ChaMan.ChallengeStatus.playedIncorrectly{
-              print("*** cellstate is wrong for \(row), \(col) playedIncorrectly says \(x)")
+            if x == ChaMan.ChallengeStatus.inReserve {
+              print("*** cellstate is wrong for \(row), \(col) reserved says \(x)")
               return false
             }
-          case .unplayed:
-            if x != ChaMan.ChallengeStatus.allocated {
-              print("*** cellstate is wrong for \(row), \(col) unplayed says \(x)")
-              return false
-            }
-            
-          }// switch
-          if x == ChaMan.ChallengeStatus.abandoned {
-            print("*** cellstate is wrong for \(row), \(col) abandoned says \(x)")
-            return false
-          }
-          if x == ChaMan.ChallengeStatus.inReserve {
-            print("*** cellstate is wrong for \(row), \(col) reserved says \(x)")
-            return false
           }
         }
       }
