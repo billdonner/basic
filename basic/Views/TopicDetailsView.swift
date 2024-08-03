@@ -6,10 +6,10 @@
 //
 
 import SwiftUI
-func isPlayed(_ status:ChaMan.ChallengeStatus) -> Bool {
+func isUsedup(_ status:ChaMan.ChallengeStatus) -> Bool {
   switch status {
-//  case .allocated:
-//    return true
+  case .abandoned:
+    return true
     case .playedCorrectly:
       return true
   case .playedIncorrectly:
@@ -25,24 +25,28 @@ struct TopicDetailsView: View {
   
     var body: some View {
       let x = gs.indexOfTopic(topic)
-      let y = "\(chmgr.allocatedChallengesCount(for: topic )) - "
-           + "\(chmgr.freeChallengesCount(for: topic )) - "
-           + "\(chmgr.abandonedChallengesCount(for: topic )) - "
-           + "\(chmgr.correctChallengesCount(for: topic )) - "
-           + "\(chmgr.incorrectChallengesCount(for: topic ))"
+      let y =
+           "\(chmgr.freeChallengesCount(for: topic ))"
+//           + "\(chmgr.abandonedChallengesCount(for: topic )) - "
+//           + "\(chmgr.correctChallengesCount(for: topic )) - "
+//           + "\(chmgr.incorrectChallengesCount(for: topic ))"
+//      + "\(chmgr.allocatedChallengesCount(for: topic )) - "
       let tinfo = chmgr.tinfo[topic]
       if let tinfo = tinfo {
         let (chas,stas) = tinfo.getChallengesAndStatuses(chmgr: chmgr)
-        Text("\(topic) #\(x ?? -1 ) ")
-        Text( "\(chas.count) challenges,\(y)")
+        VStack {
+        Text("\(topic)")
+         Text("\(chas.count) challenges, of which \(y) unplayed").font(.footnote)
         
-        List {
-          ForEach(0..<chas.count,id:\.self) { idx in
-            if isPlayed(stas[idx]) {
-              Text("\(truncatedText(chas[idx].question,count:40))- \(stas[idx]) ").font(.footnote)
+          List {
+            ForEach(0..<chas.count,id:\.self) { idx in
+              if isUsedup(stas[idx]) {
+                Text("\(truncatedText(chas[idx].question,count:200))")
+                Text(" \(stas[idx]) ").font(.footnote)
+              }
             }
           }
-        }
+        }.background(gs.colorForTopic(topic).0)
         
         
         

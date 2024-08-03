@@ -7,35 +7,6 @@
 
 import Foundation
 
-enum ChallengeError: Error {
-  case notfound
-}
-
-// these will be ungainly
-// Result enum to handle allocation and deallocation outcomes
-enum AllocationResult: Equatable {
-  case success([Int])
-  case error(AllocationError)
-  
-  enum AllocationError: Equatable, Error {
-    static func ==(lhs: AllocationError, rhs: AllocationError) -> Bool {
-      switch (lhs, rhs) {
-      case (.emptyTopics, .emptyTopics):
-        return true
-      case (.invalidTopics(let lhsTopics), .invalidTopics(let rhsTopics)):
-        return lhsTopics == rhsTopics
-      case (.insufficientChallenges, .insufficientChallenges):
-        return true
-      default:
-        return false
-      }
-    }
-    case emptyTopics
-    case invalidTopics([String])
-    case invalidDeallocIndices([Int])
-    case insufficientChallenges
-  }
-}
 
 // The manager class to handle Challenge-related operations and state
 @Observable
@@ -109,45 +80,33 @@ class ChaMan {
   func invalidateAllTopicsCache() {
     _allTopics = nil
   }
-  //THIS IS BROKEN AND MUST BE FIXED WE SHOULD NOT BE UPDATING TINFO TILL THE VERY END
- //TO SEE THIS PROBLEM JUST REDUCE TO NUMBER OF TOPICS OF 1 and try two 8x8s where the second has insufficient topics 
-  
-
-func save() {
-    TopicInfo.saveTopicInfo(tinfo)
-    saveChallengeStatuses(stati)
-  }
   
   func allocateChallenges(forTopics topics: [String], count n: Int) -> AllocationResult {
     var allocatedChallengeIndices: [Int] = []
     var topicIndexes: [String: [Int]] = [:]
-    var tinfobuffer: [String: TopicInfo] = tinfo 
+    var tinfobuffer: [String: TopicInfo] = tinfo
     
- func fixup(_ topic: String, _ topicIndexes: inout [String : [Int]], _ allocatedIndexes: Array<Int>.SubSequence) {
+    func fixup(_ topic: String, _ topicIndexes: inout [String : [Int]], _ allocatedIndexes: Array<Int>.SubSequence) {
       // Update tinfo to keep it in sync
       if var topicInfo = tinfo[topic] {
-       // topicInfo.challengeIndices = topicIndexes[topic] ?? []
         topicInfo.freecount -= allocatedIndexes.count
         topicInfo.alloccount += allocatedIndexes.count
-        //tinfo[topic] = topicInfo
         tinfobuffer[topic] = topicInfo
         topicInfo.checkConsistency()
-        
       }
     }
-    
-    
-    
+   // dumpStati("allocateChallenges start")
     checkAllTopicConsistency("allocateChallenges start")
     // Defensive check for empty topics array
     guard !topics.isEmpty else {
       return .error(.emptyTopics)
     }
     
-    // Populate the dictionary with indexes for each specified topic
+    // Populate the dictionary with indexes inReserve for each specified topic
     for topic in topics {
       if let topicInfo = tinfo[topic] {
-        topicIndexes[topic] = topicInfo.challengeIndices
+        let idxs:[Int]=topicInfo.challengeIndices.compactMap{stati[$0] == .inReserve ? $0 : nil}
+      topicIndexes[topic] = idxs
       } else {
         return .error(.invalidTopics([topic]))
       }
@@ -172,11 +131,9 @@ func save() {
         let allocatedIndexes = indexes.prefix(countToAllocate)
         allocatedChallengeIndices.append(contentsOf: allocatedIndexes)
         remainingChallenges -= 1
-        
         // Update topicIndexes
         topicIndexes[topic] = Array(indexes.dropFirst(countToAllocate))
         fixup(topic, &topicIndexes, allocatedIndexes)
-        
         checkSingleTopicConsistency(topic,"First pass")
       }
     }
@@ -196,9 +153,7 @@ func save() {
         
         // Update topicIndexes
         topicIndexes[topic] = Array(indexes.dropFirst(countToAllocate))
-        
         fixup(topic, &topicIndexes, allocatedIndexes)
-        
         checkSingleTopicConsistency(topic,"Second pass")
       }
     }
@@ -229,13 +184,14 @@ func save() {
         }
       }
     }
-
+    
     // Update stati to reflect allocation
     for index in allocatedChallengeIndices {
       stati[index] = .allocated
     }
     //if we got this far
     tinfo = tinfobuffer
+    //dumpStati("allocateChallenges end")
     checkAllTopicConsistency("allocateChallenges end")
     save()
     return .success(allocatedChallengeIndices)//.shuffled()) // see if this works
@@ -243,8 +199,10 @@ func save() {
   func deallocAt(_ indexes: [Int]) -> AllocationResult {
     var topicIndexes: [String: [Int]] = [:]
     var invalidIndexes: [Int] = []
-    var tinfobuffer: [String: TopicInfo] = tinfo 
+    var tinfobuffer: [String: TopicInfo] = tinfo
     checkAllTopicConsistency("dealloc  start")
+    
+   // dumpStati("deallcx start")
     
     //print("-----Deallocating Challenge Indices: \(indexes)")
     // Collect the indexes of the challenges to deallocate and group by topic
@@ -303,9 +261,10 @@ func save() {
     tinfo = tinfobuffer
     save()
     checkAllTopicConsistency("deallc end")
+    //dumpStati("deallcx end")
     return .success([])
   }
-
+  
   // Replace a challenge at a specific index and update internal structures
   func replaceChallenge(at index: Int) -> AllocationResult {
     guard index < everyChallenge.count else {
@@ -332,7 +291,7 @@ func save() {
         
         topicInfo.replacedcount += 1
         topicInfo.freecount -= 1
-        tinfo[topic] = topicInfo 
+        tinfo[topic] = topicInfo
         save()
         // Return the index of the we supplied
         checkAllTopicConsistency("replaceChallenge end")
@@ -353,7 +312,7 @@ func save() {
     let data = try Data(contentsOf: url)
     let pd = try JSONDecoder().decode(PlayData.self, from: data)
     self.playData = pd
-
+    
     
     if let loadedStatuses = loadChallengeStatuses() {
       self.stati = loadedStatuses
@@ -365,16 +324,16 @@ func save() {
       }
       self.stati = cs
     }
-
+    
     if let loadedTinfo = TopicInfo.loadTopicInfo() {
       self.tinfo = loadedTinfo
     } else {
       self.tinfo = [:]
       setupTopicInfo() // build from scratch
     }
-
-//    dumpTopics()
-//    TopicInfo.dumpTopicInfo(info: tinfo)
+    
+    //    dumpTopics()
+    //    TopicInfo.dumpTopicInfo(info: tinfo)
     print("Loaded \(self.stati.count) challenges from PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
   }
   
@@ -396,10 +355,10 @@ func save() {
     self.stati = [ChallengeStatus](repeating:ChallengeStatus.inReserve, count: playData.gameDatum.flatMap { $0.challenges }.count)
   }
   
-
+  
   func bumpWrongcount(topic:String){
     if var t =  tinfo[topic] {
-      t.wrongcount += 1 
+      t.wrongcount += 1
       t.alloccount -= 1
       tinfo[topic] = t
     }

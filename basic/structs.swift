@@ -140,3 +140,33 @@ struct Challenge: Codable, Equatable, Hashable, Identifiable {
   }
 }
 
+
+enum ChallengeError: Error {
+  case notfound
+}
+
+// these will be ungainly
+// Result enum to handle allocation and deallocation outcomes
+enum AllocationResult: Equatable {
+  case success([Int])
+  case error(AllocationError)
+  
+  enum AllocationError: Equatable, Error {
+    static func ==(lhs: AllocationError, rhs: AllocationError) -> Bool {
+      switch (lhs, rhs) {
+      case (.emptyTopics, .emptyTopics):
+        return true
+      case (.invalidTopics(let lhsTopics), .invalidTopics(let rhsTopics)):
+        return lhsTopics == rhsTopics
+      case (.insufficientChallenges, .insufficientChallenges):
+        return true
+      default:
+        return false
+      }
+    }
+    case emptyTopics
+    case invalidTopics([String])
+    case invalidDeallocIndices([Int])
+    case insufficientChallenges
+  }
+}

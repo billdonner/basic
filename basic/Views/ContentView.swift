@@ -18,10 +18,10 @@ struct ContentView:View {
       return false
     }
     .onAppear {
-     // chmgr.checkAllTopicConsistency("ContentView onAppear1")
+      // chmgr.checkAllTopicConsistency("ContentView onAppear1")
       if gs.veryfirstgame {
         chmgr.loadAllData(gs:gs)
-          chmgr.checkAllTopicConsistency("ContentView onAppear0")
+        chmgr.checkAllTopicConsistency("ContentView onAppear0")
         current_size = gs.boardsize
         if gs.topicsinplay.count == 0 {
           gs.topicsinplay = getRandomTopics(GameState.preselectedTopicsForBoardSize(current_size),
@@ -35,9 +35,8 @@ struct ContentView:View {
         print("//ContentView onAppear restart size:\(current_size) topics:\(current_topics) restartcount \(restartCount)")
       }
       restartCount += 1
-      gs.veryfirstgame = false
-    
-     // assert(gs.checkVsChaMan(chmgr: chmgr))
+      gs.veryfirstgame = false 
+      // assert(gs.checkVsChaMan(chmgr: chmgr))
     }
     .onDisappear {
       print("Yikes the ContentView is Disappearing!")

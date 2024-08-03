@@ -15,6 +15,10 @@ extension ChaMan {
     return urls[0].appendingPathComponent("challengeStatuses.json")
   }
   
+  func save() {
+      TopicInfo.saveTopicInfo(tinfo)
+      saveChallengeStatuses(stati)
+    }
   // Save the challenge statuses to a file
   func saveChallengeStatuses(_ statuses: [ChallengeStatus]) {
     let filePath = getChallengeStatusesFilePath()
@@ -209,6 +213,20 @@ extension ChaMan {
     }
     print("=============================")
   }
+  
+
+    func dumpStati(_ mess:String){
+      var counter = 0
+      print("Dump status \(mess)")
+      print("==========================")
+      for (idx,sta) in stati.enumerated() {
+        if sta != .inReserve {
+          print (" \(idx) \(sta)")
+          counter += 1
+        }
+      }
+      print("\(counter) allocated or played out of \(stati.count)")
+    }
 }
 
 

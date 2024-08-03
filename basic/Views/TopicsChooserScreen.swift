@@ -22,45 +22,38 @@ struct TopicsChooserScreen: View {
   var body: some View {
     VStack(alignment: .leading) {
       VStack {
-        Text("If you want to change the topics, that's okay but you will end your game. If you just want to change colors or ordering, you should use 'Arrange Topics'.")
-          .font(.body)
-          .padding(.bottom)
+//        Text("If you want to change the topics, that's okay but you will end your game. If you just want to change colors or ordering, you should use 'Arrange Topics'.")
+//          .font(.body)
+//          .padding(.bottom)
+//        
+//        Text("At board size \( boardsize) you can add \(GameState.maxTopicsForBoardSize(boardsize) - selectedTopics.count) more topics")
+//          .font(.subheadline)
         
-        Text("At board size \( boardsize) you can add \(GameState.maxTopicsForBoardSize(boardsize) - selectedTopics.count) more topics")
-          .font(.subheadline)
-        
-        HStack {
-          NavigationLink(destination: TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $currentScheme, chmgr: chmgr, boardSize:boardsize)) {
-            Text("Select Topics")
-          }
-          
-          NavigationLink(destination: TopicColorizerView(topics: $selectedTopics, selectedSchemeIndex: $currentScheme, schemes: schemes)) {
-            Text("Arrange Topics")
-          }
-          .disabled(selectedTopics.isEmpty)
+        if !selectedTopics.isEmpty {
+          TopicSelectorView(allTopics: allTopics, selectedTopics: $selectedTopics, selectedSchemeIndex: $currentScheme, chmgr: chmgr, boardSize:boardsize)
         }
-        .padding()
+       
       }
       
-      ScrollView {
-        let columns = [GridItem(), GridItem(), GridItem()]
-        LazyVGrid(columns: columns, spacing: 10) {
-          ForEach($selectedTopics, id: \.self) { topic in
-            //let topic = selectedTopics[index]
-            let idx = topicsinplay.firstIndex(of: topic.wrappedValue) ?? 0
-            let t = idx % schemes[currentScheme].colors.count
-            let colorInfo = schemes[currentScheme].mappedColors[t]
-            Text(topic.wrappedValue)
-              .padding()
-              .background(colorInfo.0)
-              .foregroundColor(colorInfo.1)
-              .cornerRadius(8)
-              .padding(2)
-              .opacity(0.8)
-          }
-        }
-        .padding(.top)
-      }
+//      ScrollView {
+//        let columns = [GridItem(), GridItem(), GridItem()]
+//        LazyVGrid(columns: columns, spacing: 10) {
+//          ForEach($selectedTopics, id: \.self) { topic in
+//            //let topic = selectedTopics[index]
+//            let idx = topicsinplay.firstIndex(of: topic.wrappedValue) ?? 0
+//            let t = idx % schemes[currentScheme].colors.count
+//            let colorInfo = schemes[currentScheme].mappedColors[t]
+//            Text(topic.wrappedValue)
+//              .padding()
+//              .background(colorInfo.0)
+//              .foregroundColor(colorInfo.1)
+//              .cornerRadius(8)
+//              .padding(2)
+//              .opacity(0.8)
+//          }
+//        }
+//        .padding(.top)
+//      }
     } 
     .padding()
     .navigationTitle("Topics Chooser")

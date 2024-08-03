@@ -268,12 +268,12 @@ class GameState :  Codable {
   
   static  func preselectedTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
-    case 3: return 3
+    case 3: return 2
     case 4: return 3
     case 5: return 4
     case 6: return 4
-    case 7: return 5
-    case 8: return 5
+    case 7: return 4
+    case 8: return 4
     default: return 1
     }
   }

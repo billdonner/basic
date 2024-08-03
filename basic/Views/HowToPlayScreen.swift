@@ -55,9 +55,6 @@ struct HowToPlayScreen: View {
         .tag(mkID())
     }
     .tabViewStyle(PageTabViewStyle())
-    .onAppear{
-      chmgr.dumpTopics()
-    }
   }
 }
 
