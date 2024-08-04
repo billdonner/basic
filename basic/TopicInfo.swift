@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+
 struct TopicInfo : Codable {
       let name: String
       var alloccount: Int
@@ -37,7 +39,6 @@ struct TopicInfo : Codable {
   }
   // Save the topicInfo to a file
   static func saveTopicInfo (_ info:[String:TopicInfo]) {
-    
     let filePath = Self.getTopicInfoFilePath()
       do {
           let data = try JSONEncoder().encode(info)
@@ -47,7 +48,7 @@ struct TopicInfo : Codable {
       }
   }
 
-  // Load the challenge statuses from a file
+  // Load  from a file
   static func loadTopicInfo() -> [String:TopicInfo]? {
       let filePath = getTopicInfoFilePath()
       do {
@@ -61,12 +62,10 @@ struct TopicInfo : Codable {
   }
   
   static func dumpTopicInfo(info:[String:TopicInfo]) {
- 
         for (index,inf) in info.enumerated() {
           let tinfo:TopicInfo =    inf.value
           print("\(index): \(inf.key) \(tinfo.challengeIndices.count)")
         }
-  
   }
 }
 
@@ -100,5 +99,23 @@ extension ChaMan {
     }
 
   }
+  
+  func bumpWrongcount(topic:String){
+    if var t =  tinfo[topic] {
+      t.wrongcount += 1
+      t.alloccount -= 1
+      tinfo[topic] = t
+    }
+    TopicInfo.saveTopicInfo(tinfo)
+  }
+  func bumpRightcount(topic:String){
+    if var t =  tinfo[topic] {
+      t.rightcount += 1
+      t.alloccount -= 1
+      tinfo[topic] = t
+    }
+    TopicInfo.saveTopicInfo(tinfo)
+  }
+  
   
 }

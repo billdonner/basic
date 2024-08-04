@@ -16,6 +16,7 @@ extension ChaMan {
   }
   
   func save() {
+    AnsweredInfo.saveAnsweredInfo(ansinfo)
       TopicInfo.saveTopicInfo(tinfo)
       saveChallengeStatuses(stati)
     }
@@ -55,7 +56,7 @@ extension ChaMan {
         gs.topicsinplay = gb.topicsinplay
         gs.gamestate = gb.gamestate
         gs.totaltime = gb.totaltime
-        gs.playcount = gb.playcount
+        gs.gamenumber = gb.gamenumber
         gs.rightcount = gb.rightcount
         gs.wrongcount = gb.wrongcount
         gs.lostcount = gb.lostcount

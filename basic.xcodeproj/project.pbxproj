@@ -21,6 +21,7 @@
 		885CEB2E2C2A5C1800234C17 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 885CEB2D2C2A5C1800234C17 /* README.md */; };
 		88A5CDF52C5AB85B00157D36 /* TopicInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A5CDF42C5AB85B00157D36 /* TopicInfo.swift */; };
 		88A5CDF72C5C346300157D36 /* ChaManExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A5CDF62C5C346300157D36 /* ChaManExt.swift */; };
+		88A5CDFD2C5EEA7200157D36 /* AnsweredInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A5CDFC2C5EEA7200157D36 /* AnsweredInfo.swift */; };
 		88A6D6BC2C2C913A0080A63E /* structs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A6D6BB2C2C913A0080A63E /* structs.swift */; };
 		88CB25F22C3DB77C0083FA73 /* mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88CB25F12C3DB77C0083FA73 /* mocks.swift */; };
 		88F6F8DA2C1A1E2500A50C31 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88F6F8D92C1A1E2500A50C31 /* Preview Assets.xcassets */; };
@@ -54,6 +55,7 @@
 		885CEB2D2C2A5C1800234C17 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		88A5CDF42C5AB85B00157D36 /* TopicInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicInfo.swift; sourceTree = "<group>"; };
 		88A5CDF62C5C346300157D36 /* ChaManExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaManExt.swift; sourceTree = "<group>"; };
+		88A5CDFC2C5EEA7200157D36 /* AnsweredInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnsweredInfo.swift; sourceTree = "<group>"; };
 		88A6D6BB2C2C913A0080A63E /* structs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = structs.swift; sourceTree = "<group>"; };
 		88CB25F12C3DB77C0083FA73 /* mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mocks.swift; sourceTree = "<group>"; };
 		88F6F8CF2C1A1E2400A50C31 /* basic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = basic.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,6 +81,7 @@
 				MainGridView.swift,
 				OnboardingScreen.swift,
 				QandAScreen.swift,
+				QandAScreenExt.swift,
 				QandATopBarView.swift,
 				ScoreBarView.swift,
 				SettingsScreen.swift,
@@ -143,6 +146,7 @@
 				885CEB222C290C6000234C17 /* subs.swift */,
 				884548AF2C3C4B95009A725F /* mainapp.swift */,
 				884548B32C3D76E4009A725F /* Views */,
+				88A5CDFC2C5EEA7200157D36 /* AnsweredInfo.swift */,
 				885CEB0B2C28879000234C17 /* AppColors.swift */,
 				885CEB132C289D5300234C17 /* ChaMan.swift */,
 				88A5CDF62C5C346300157D36 /* ChaManExt.swift */,
@@ -289,6 +293,7 @@
 				885CEB0C2C28879000234C17 /* AppColors.swift in Sources */,
 				884548B02C3C4B95009A725F /* mainapp.swift in Sources */,
 				885CEB252C2A266100234C17 /* WinLose.swift in Sources */,
+				88A5CDFD2C5EEA7200157D36 /* AnsweredInfo.swift in Sources */,
 				88A5CDF52C5AB85B00157D36 /* TopicInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -441,7 +446,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;
@@ -472,7 +477,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;

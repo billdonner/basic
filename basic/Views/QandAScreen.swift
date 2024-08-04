@@ -9,20 +9,20 @@ struct QandAScreen: View {
   @Bindable  var chmgr:ChaMan //
   @Bindable var gs: GameState  //
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
-  @State private var showInfo = false
-  @State private var gimmeeAlert = false
-  @State private var gimmeeAllAlert = false
-  @State private var selectedAnswer: String? = nil  // State to track selected answer
-  @State private var answerCorrect: Bool = false   // State to track if the selected answer is correct
-  @State private var showCorrectAnswer: Bool = false  // State to show correct answer temporarily
-  @State private var showBorders: Bool = false  // State to show borders after animation
-  @State private var showHint: Bool = false  // State to show/hide hint
-  @State private var animateBackToBlue: Bool = false  // State to animate answers back to blue
-  @State private var dismissToRootFlag = false // take all the way to GameScreen if set
-  @State private var answerGiven: Bool = false  // prevent further interactions after an answer is given
-  @State private var killTimer:Bool = false // set true to get the timer to stop
-  @State private var elapsedTime: TimeInterval = 0
-  @State private var questionedWasAnswered: Bool = false
+  @State  var showInfo = false
+  @State   var gimmeeAlert = false
+  @State   var gimmeeAllAlert = false
+  @State   var selectedAnswer: String? = nil  // State to track selected answer
+  @State   var answerCorrect: Bool = false   // State to track if the selected answer is correct
+  @State   var showCorrectAnswer: Bool = false  // State to show correct answer temporarily
+  @State   var showBorders: Bool = false  // State to show borders after animation
+  @State   var showHint: Bool = false  // State to show/hide hint
+  @State   var animateBackToBlue: Bool = false  // State to animate answers back to blue
+  @State   var dismissToRootFlag = false // take all the way to GameScreen if set
+  @State   var answerGiven: Bool = false  // prevent further interactions after an answer is given
+  @State   var killTimer:Bool = false // set true to get the timer to stop
+  @State   var elapsedTime: TimeInterval = 0
+  @State   var questionedWasAnswered: Bool = false
   
   var body: some View {
     GeometryReader { geometry in
@@ -46,12 +46,15 @@ struct QandAScreen: View {
         .padding(.horizontal, 10)
         .padding(.bottom, 30)
         
-        .hintAlert(isPresented: $showHint, title: "Here's Your Hint", message: ch.hint,
+        .hintAlert(isPresented: $showHint, title: "Here's Your Hint: ", message: ch.hint,
                    buttonTitle: "Dismiss", onButtonTapped: {
           handleDismissal(toRoot:false)
         }, animation: .spring())
         
-        .answeredAlert(isPresented: $answerGiven, title: ch.correct, message: ch.explanation ?? "xxx", buttonTitle: "OK", onButtonTapped: {
+        .answeredAlert(isPresented: $answerGiven, title: (answerCorrect ? "Correct: " :"Incorrect: ") + ch.correct,
+                       message: ch.explanation ?? "xxx",
+                       buttonTitle: "OK",
+                       onButtonTapped: {
           handleDismissal(toRoot:true)
           questionedWasAnswered = false // to guard against tapping toomany times
         })
@@ -102,7 +105,8 @@ struct QandAScreen: View {
   }
   var markCorrectButton: some View {
     Button(action: {
-      answeredCorrectly(chmgr.everyChallenge[gs.board[row][col]],row:row,col:col)
+      let x = chmgr.everyChallenge[gs.board[row][col]]
+      answeredCorrectly(x,row:row,col:col,answered:x.correct)
     }) {
       Image(systemName: "checkmark.circle")
         .font(.title)
@@ -114,7 +118,8 @@ struct QandAScreen: View {
   }
   var markIncorrectButton: some View {
     Button(action: {
-      answeredIncorrectly(chmgr.everyChallenge[gs.board[row][col]],row:row,col:col)
+      let x = chmgr.everyChallenge[gs.board[row][col]]
+      answeredIncorrectly(x,row:row,col:col,answered:x.correct)
     }) {
       Image(systemName: "xmark.circle")
         .font(.title)
@@ -304,101 +309,7 @@ extension QandAScreen {
   }
   
 }
-extension QandAScreen {
-  
-  private func handleDismissal(toRoot:Bool) {
-    if toRoot {
-      withAnimation(.easeInOut(duration: 0.75)) { // Slower dismissal
-        isPresentingDetailView = false
-        dismiss()
-      }
-    } else {
-      answerGiven = false //showAnsweredAlert = false
-      showHint=false //  showHintAlert = false
-    }
-  }
-  
-  func toggleHint() {
-    if chmgr.everyChallenge[gs.board[row][col]]
-      .hint.count > 1  { // guard against short hints
-      showHint.toggle()
-    }
-  }
-  
-  func handleGimmee(row:Int,col:Int) {
-    let idx = row*gs.boardsize + col
-    let result = chmgr.replaceChallenge(at:idx)
-    switch result {
-    case .success(let index):
-      gs.gimmees -= 1
-      gs.board[row][col] = index[0]
-      print("Gimmee realloation successful")
-      
-    case .error(let error):
-      print("Couldn't handle gimmee reallocation \(error)")
-    }
-    killTimer = true
-    dismiss()
-  }
-  
-}
-extension QandAScreen { /* actions */
-  
-  func answeredCorrectly(_ ch:Challenge,row:Int,col:Int) {
-    chmgr.checkAllTopicConsistency("mark correct before")
-    assert(gs.checkVsChaMan(chmgr: chmgr))
-    answerCorrect = true
-    answerGiven = true
-    showBorders = true
-    
-    
-    gs.cellstate[row][col] = .playedCorrectly
-    gs.rightcount += 1
-    chmgr.bumpRightcount(topic: ch.topic)
-    chmgr.stati[gs.board[row][col]] = .playedCorrectly  // ****
-    killTimer=true
-    gs.saveGameState()
-    chmgr.save()
-    chmgr.checkAllTopicConsistency("mark correct after")
-  }
-  func answeredIncorrectly(_ ch:Challenge,row:Int,col:Int) {
-    chmgr.checkAllTopicConsistency("mark incorrect before")
-    assert(gs.checkVsChaMan(chmgr: chmgr))
-    answerCorrect = false
-    answerGiven = true
-    showCorrectAnswer = false
-    showBorders = true
-    
-    gs.cellstate[row][col] = .playedIncorrectly
-    gs.wrongcount += 1
-    chmgr.bumpWrongcount(topic: ch.topic)
-    chmgr.stati[gs.board[row][col]] = .playedIncorrectly  // ****
-    killTimer=true
-    chmgr.save()
-    gs.saveGameState()
-    chmgr.checkAllTopicConsistency("mark incorrect after")
-  }
-  func handleAnswerSelection(answer: String,row:Int,col:Int) {
-    if !questionedWasAnswered { // only allow one answer
-      let ch = chmgr.everyChallenge[gs.board[row][col]]
-      selectedAnswer = answer
-      answerCorrect = (answer == ch.correct)
-      answerGiven = true
-      
-      switch answerCorrect {
-      case true: answeredCorrectly(ch,row:row,col:col)
-      case false: answeredIncorrectly(ch,row:row,col:col)
-      }
-      questionedWasAnswered = true
-    } else {
-      print("dubl tap \(answer)")
-    }
-  }
-  func handlePass() {
-    killTimer=true
-    dismiss()
-  }
-}
+
 #Preview {
   QandAScreen(row: 0, col: 0, st: ChaMan.ChallengeStatus.allocated,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   

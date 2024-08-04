@@ -1,5 +1,5 @@
 //
-//  GameBoard.swift
+//  GameState.swift
 //  basic
 //
 //  Created by bill donner on 6/23/24.
@@ -15,7 +15,8 @@ class GameState :  Codable {
   var topicsinplay: [String] // a subset of allTopics (which is constant and maintained in ChaMan)
   var gamestate: StateOfPlay = .initializingApp
   var totaltime: TimeInterval // aka Double
-  var playcount:  Int  // woncount + lostcount + abandoned
+  var gamenumber:  Int
+  var movenumber:  Int
   var woncount:  Int
   var lostcount:  Int
   var rightcount: Int
@@ -89,7 +90,8 @@ class GameState :  Codable {
     case _topicsinplay = "topicsinplay"
     case _gamestate = "gamestate"
     case _totaltime = "totaltime"
-    case _playcount = "playcount"
+    case _gamenumber = "gamenumber"
+    case _movenumber = "movenumber"
     case _woncount = "woncount"
     case _lostcount = "lostcount"
     case _rightcount = "rightcount"
@@ -112,7 +114,8 @@ class GameState :  Codable {
     self.board = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
     self.gimmees = 0
-    self.playcount = 0
+    self.gamenumber = 0
+    self.movenumber = 0
     self.woncount = 0
     self.lostcount = 0
     self.rightcount = 0
@@ -130,7 +133,7 @@ class GameState :  Codable {
   func setupForNewGame (boardsize:Int, chmgr:ChaMan) -> Bool {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
-    self.playcount += 1
+    self.gamenumber += 1
     self.boardsize = boardsize ///////////////
     self.board = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)

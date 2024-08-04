@@ -15,6 +15,7 @@ class ChaMan {
     self.playData = playData
     self.stati = []
     self.tinfo = [:]
+    self.ansinfo = [:]
   }
   
   // TopicInfo is built from PlayData and is used to improve performance by simplifying searching and
@@ -34,6 +35,7 @@ class ChaMan {
   
   var tinfo: [String: TopicInfo]  // Dictionary indexed by topic
   var stati: [ChallengeStatus]  // Using array instead of dictionary
+  var ansinfo: [String:AnsweredInfo] // Dictionary indexed by challenge UUID
   
   private(set) var playData: PlayData {
     didSet {
@@ -311,9 +313,7 @@ class ChaMan {
     }
     let data = try Data(contentsOf: url)
     let pd = try JSONDecoder().decode(PlayData.self, from: data)
-    self.playData = pd
-    
-    
+    self.playData = pd 
     if let loadedStatuses = loadChallengeStatuses() {
       self.stati = loadedStatuses
     } else {
@@ -328,12 +328,14 @@ class ChaMan {
     if let loadedTinfo = TopicInfo.loadTopicInfo() {
       self.tinfo = loadedTinfo
     } else {
-      self.tinfo = [:]
       setupTopicInfo() // build from scratch
     }
-    
-    //    dumpTopics()
-    //    TopicInfo.dumpTopicInfo(info: tinfo)
+
+    if let loadedAnswers = AnsweredInfo.loadAnsweredInfo() {
+      self.ansinfo = loadedAnswers
+    } else {
+      setupAnsweredInfo()
+    }
     print("Loaded \(self.stati.count) challenges from PlayData in \(formatTimeInterval(Date.now.timeIntervalSince(starttime))) secs")
   }
   
@@ -356,21 +358,6 @@ class ChaMan {
   }
   
   
-  func bumpWrongcount(topic:String){
-    if var t =  tinfo[topic] {
-      t.wrongcount += 1
-      t.alloccount -= 1
-      tinfo[topic] = t
-    }
-    TopicInfo.saveTopicInfo(tinfo)
-  }
-  func bumpRightcount(topic:String){
-    if var t =  tinfo[topic] {
-      t.rightcount += 1
-      t.alloccount -= 1
-      tinfo[topic] = t
-    }
-    TopicInfo.saveTopicInfo(tinfo)
-  }
+
   
 }

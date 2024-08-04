@@ -23,7 +23,7 @@ struct GameScreen: View {
 
   var bodyMsg: String {
     let t =  """
-    That was game \(gs.playcount) of which you've won \(gs.woncount) and lost \(gs.lostcount) games
+    That was game \(gs.gamenumber) of which you've won \(gs.woncount) and lost \(gs.lostcount) games
 """
     return t
   }
@@ -58,7 +58,7 @@ struct GameScreen: View {
       }
       .fullScreenCover(isPresented: $showingHelp ){
         HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
-          .statusBar(hidden: true) 
+          .statusBar(hidden: true)
       }
       
       .onDisappear {
@@ -149,7 +149,7 @@ extension GameScreen /* actions */ {
   
   func onAppearAction () {
     // on a completely cold start
-    if gs.playcount == 0 {
+    if gs.gamenumber == 0 {
       print("//GameScreen OnAppear Coldstart size:\(gs.boardsize) topics: \(topics)")
     } else {
       print("//GameScreen OnAppear Warmstart size:\(gs.boardsize) topics: \(topics)")

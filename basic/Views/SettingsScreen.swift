@@ -3,21 +3,15 @@ func removeElements<T: Equatable>(from array: [T], elementsToRemove: [T]) -> [T]
     return array.filter { !elementsToRemove.contains($0) }
 }
 fileprivate struct SettingsView: View {
-  
- // let onExit: ([String])->()
+   
   @Bindable var chmgr:ChaMan
   @Bindable var gs:GameState
   
   internal init(chmgr:ChaMan,gs:GameState)//,
-                //onExit:@escaping ([String])->())
   {
-   // self.onExit = onExit
     self.gs = gs
     self.chmgr = chmgr
     self.ourTopics =    chmgr.playData.allTopics
-//    let randomTopics = ourTopics.shuffled()
-//    let chosenTopics = Array(randomTopics.prefix(gs.boardsize  - 2))
-//    let remainingTopics = Array(randomTopics.dropFirst(gs.boardsize - 2))
     let chosenTopics = gs.topicsinplay
     let remainingTopics = removeElements(from:chmgr.playData.allTopics,elementsToRemove:chosenTopics)
     _l_topicsinplay = State(initialValue: chosenTopics)

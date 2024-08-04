@@ -24,13 +24,9 @@ struct TopicDetailsView: View {
   let chmgr:ChaMan
   
     var body: some View {
-      let x = gs.indexOfTopic(topic)
       let y =
            "\(chmgr.freeChallengesCount(for: topic ))"
-//           + "\(chmgr.abandonedChallengesCount(for: topic )) - "
-//           + "\(chmgr.correctChallengesCount(for: topic )) - "
-//           + "\(chmgr.incorrectChallengesCount(for: topic ))"
-//      + "\(chmgr.allocatedChallengesCount(for: topic )) - "
+      let colors = gs.colorForTopic(topic)
       let tinfo = chmgr.tinfo[topic]
       if let tinfo = tinfo {
         let (chas,stas) = tinfo.getChallengesAndStatuses(chmgr: chmgr)
@@ -46,10 +42,8 @@ struct TopicDetailsView: View {
               }
             }
           }
-        }.background(gs.colorForTopic(topic).0)
-        
-        
-        
+        }.background(colors.0)
+          .foregroundColor(colors.1)
       } else {
         Color.red
       }

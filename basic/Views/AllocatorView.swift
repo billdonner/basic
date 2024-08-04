@@ -17,7 +17,7 @@ struct AllocatorView: View {
       HStack {
         Text("Allocated: \(chmgr.allocatedChallengesCount())")
         Text("Free: \(chmgr.freeChallengesCount())")
-        Text("Played: \(gs.playcount)")
+        Text("Played: \(gs.gamenumber)")
       }
       .font(.footnote)
       .padding(.bottom, 8)

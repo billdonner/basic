@@ -95,11 +95,6 @@ struct PlayData: Codable {
   }
 }
 
-// MARK: - Enums
-// these will be small and fast for all the math done on the matrices
-
-
-
 enum ChallengeOutcomes: Codable {
   case playedCorrectly
   case playedIncorrectly

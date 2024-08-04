@@ -41,7 +41,9 @@ struct SingleCellView: View {
       .opacity(gs.gamestate == .playingNow ? 1.0:0.3)
     }
     .sheet(item: $alreadyPlayed) { goo in
-      AlreadyPlayedView(row: goo.row,col: goo.col,gs:gs,chmgr:chmgr)
+      //    let chidx = gs.board[row][col]
+      //    let ch = chmgr.everyChallenge[chidx]
+      AlreadyPlayedView(ch: challenge,gs:gs,chmgr:chmgr)
     }
     // for some unknown reason, the tap surface area is bigger if placed outside the VStack
     .onTapGesture {
@@ -50,9 +52,7 @@ struct SingleCellView: View {
        if unplayed*/
       if  gs.gamestate == .playingNow { // is the game on
         if    gs.isAlreadyPlayed(row:row,col:col)  {
-          print("debug (((((((((((((()))))))))))))")
-          alreadyPlayed = Sdi(row:row,col:col)
-          // coming
+          alreadyPlayed = Sdi(row:row,col:col) 
         } else
         if  gs.cellstate[row][col] == .unplayed {
           // if we've got to start in corner on firstMove

@@ -13,7 +13,7 @@ private struct zz:View {
     VStack {
       HStack {
         Text(showchars).font(showchars.count<=1 ? .title:.footnote)
-        Text("games:");Text("\(gs.playcount)")
+        Text("games:");Text("\(gs.gamenumber)")
         Text("won:");Text("\(gs.woncount)")
         Text("lost:");Text("\(gs.lostcount)")
       }
