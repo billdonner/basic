@@ -34,11 +34,11 @@ struct QandAScreen: View {
             handlePass:handlePass,
             toggleHint:  toggleHint,
             elapsedTime: $elapsedTime,
-            killTimer: $killTimer)
+            killTimer: $killTimer).disabled(questionedWasAnswered)
           
-          questionAndAnswersSectionVue(geometry: geometry)
+          questionAndAnswersSectionVue(geometry: geometry).disabled(questionedWasAnswered)
           Spacer()
-          bottomButtons
+          bottomButtons.disabled(questionedWasAnswered)
         }
         .background(Color(UIColor.systemBackground))
         .cornerRadius(12)

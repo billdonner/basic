@@ -48,7 +48,7 @@ struct QandATopBarView: View {
                     .foregroundColor(.primary)
                 elapsedTimeView
                 additionalInfoView
-            }.frame(width:geometry.size.width * 0.7)
+            }.frame(width:geometry.size.width * 0.6)
         }
         .padding(.top)
         .onAppear {

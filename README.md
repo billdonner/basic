@@ -1,5 +1,5 @@
 #  Basic Recofig For Qanda
-- version 0.3.4 improved qanda topbar,increased bordersize by 2
+- version 0.3.4 improved topbar,increased bordersize, disabled other controls when alert onscreen
 - version 0.3.3 already played questions nicely displayed
 - version 0.3.2 silent crash fixed, topicdetails improved 
 - version 0.3.1 fixed allocation endzone accounting, can dismiss help

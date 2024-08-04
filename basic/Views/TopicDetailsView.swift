@@ -24,7 +24,7 @@ struct TopicDetailsView: View {
   let chmgr:ChaMan
   @State private var showApview:Challenge?  = nil
   var body: some View {
-      let unplayedCount = "\(chmgr.freeChallengesCount(for: topic))"
+//      let unplayedCount = "\(chmgr.freeChallengesCount(for: topic))"
       let colors = gs.colorForTopic(topic)
       let tinfo = chmgr.tinfo[topic]
       
@@ -41,7 +41,7 @@ struct TopicDetailsView: View {
                           .fontWeight(.bold)
                           .shadow(color: .black, radius: 1, x: 0, y: 1)
                           .padding(.top, 50)
-                      Text("\(chas.count) challenges, of which \(unplayedCount) unplayed")
+                      Text("\(chas.count) challenges in this topic")
                           .font(.footnote)
                           .shadow(color: .black, radius: 1, x: 0, y: 1)
                   }
