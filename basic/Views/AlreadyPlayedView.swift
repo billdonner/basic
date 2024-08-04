@@ -5,36 +5,7 @@
 //  Created by bill donner on 8/1/24.
 //
 import SwiftUI
-func removeString(from array: [String], stringToRemove: String) -> [String] {
-  var newArray = array
-  if let index = newArray.firstIndex(of: stringToRemove) {
-    newArray.remove(at: index)
-  }
-  return newArray
-}
-func removeStrings(from array: [String], stringsToRemove: [String]) -> [String] {
-  var newArray = array
-  for string in stringsToRemove {
-    while let index = newArray.firstIndex(of: string) {
-      newArray.remove(at: index)
-    }
-  }
-  return newArray
-}
 
-func joinWithCommasAnd(_ array: [String]) -> String {
-    guard !array.isEmpty else { return "" }
-    
-    if array.count == 1 {
-        return array[0]
-    } else if array.count == 2 {
-        return "\(array[0]) and \(array[1])"
-    } else {
-        let allButLastTwo = array.dropLast(2).joined(separator: ", ")
-        let lastTwo = "\(array[array.count - 2]) and \(array.last!)"
-        return "\(allButLastTwo), \(lastTwo)"
-    }
-}
 struct AlreadyPlayedView : View {
 //  let row:Int
 //  let col:Int
@@ -57,7 +28,7 @@ struct AlreadyPlayedView : View {
                 Spacer()
                 Image(systemName: "x.circle")
                   .font(.title)
-                  .foregroundStyle(.black)
+                  .foregroundStyle(.primary)
               }.padding()
             }
           }
@@ -66,8 +37,8 @@ struct AlreadyPlayedView : View {
             Text (ch.question).font(.title)
             VStack (alignment: .leading){
               Text ("You answered this question on \(ansinfo.timestamp)").font(.footnote)
-              HStack{Text ("The correct answer is:");Text(" \(ch.correct)").font(.headline);Spacer()}
-              HStack{Text ("Your answer was: "); Text("\(ansinfo.answer)").font(.headline);Spacer()}
+              HStack{Text ("The correct answer is:").font(.caption);Text(" \(ch.correct)").font(.headline).lineLimit(2);Spacer()}
+              HStack{Text ("Your answer was: ").font(.caption); Text("\(ansinfo.answer)").font(.headline).lineLimit(2);Spacer()}
             }
             VStack {
               if ansinfo.answer == ch.correct {
@@ -77,21 +48,27 @@ struct AlreadyPlayedView : View {
               }
             }
             ScrollView {
-            VStack (alignment: .leading){ 
+            VStack (alignment: .leading){
                 Text("The other possible answers were: \(joinWithCommasAnd( removeStrings(from: ch.answers, stringsToRemove: [ch.correct,ansinfo.answer])) )").font(.body)
                 if ch.hint.count<=1 {
                   Text("There was no hint")
                 } else {
                   Text ("The hint was: \(ch.hint)")
                 }
-                if let exp = ch.explanation  {
+              if let exp = ch.explanation,exp.count>1 {
                   Text("The explanation given was: \(exp)")
                 } else {
-                  Text ("no explanation")
+                  Text ("no explanation was given")
                 }
                 Spacer()
                 Text("Played in game \(ansinfo.gamenumber) move \(ansinfo.movenumber) at  (\(ansinfo.row),\(ansinfo.col)) ").font(.footnote)
                 Text ("You took \(Int(ansinfo.timetoanswer)) seconds to answer").font(.footnote)
+              HStack {
+                Text("id: ");
+                TextField("id", text:.constant("\(ch.id)")).font(.caption)
+                Spacer()
+              }
+              Spacer()
               }
             }
           }.padding(.horizontal)

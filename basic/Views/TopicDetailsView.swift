@@ -22,32 +22,61 @@ struct TopicDetailsView: View {
   let topic:String
   let gs:GameState
   let chmgr:ChaMan
-  
-    var body: some View {
-      let y =
-           "\(chmgr.freeChallengesCount(for: topic ))"
+  @State private var showApview:Challenge?  = nil
+  var body: some View {
+      let unplayedCount = "\(chmgr.freeChallengesCount(for: topic))"
       let colors = gs.colorForTopic(topic)
       let tinfo = chmgr.tinfo[topic]
+      
       if let tinfo = tinfo {
-        let (chas,stas) = tinfo.getChallengesAndStatuses(chmgr: chmgr)
-        VStack {
-        Text("\(topic)")
-         Text("\(chas.count) challenges, of which \(y) unplayed").font(.footnote)
-        
-          List {
-            ForEach(0..<chas.count,id:\.self) { idx in
-              if isUsedup(stas[idx]) {
-                Text("\(truncatedText(chas[idx].question,count:200))")
-                Text(" \(stas[idx]) ").font(.footnote)
+          let (chas, stas) = tinfo.getChallengesAndStatuses(chmgr: chmgr)
+          
+          VStack {
+              ZStack {
+                  colors.0
+                      .ignoresSafeArea(edges: .top)
+                  VStack {
+                      Text(topic)
+                          .font(.largeTitle)
+                          .fontWeight(.bold)
+                          .shadow(color: .black, radius: 1, x: 0, y: 1)
+                          .padding(.top, 50)
+                      Text("\(chas.count) challenges, of which \(unplayedCount) unplayed")
+                          .font(.footnote)
+                          .shadow(color: .black, radius: 1, x: 0, y: 1)
+                  }
+                  .foregroundColor(colors.1)
+                  .padding()
               }
-            }
+              List {
+                  ForEach(0..<chas.count, id: \.self) { idx in
+                      if isUsedup(stas[idx]) {
+                          HStack {
+                              VStack(alignment: .leading) {
+                                  Text(truncatedText(chas[idx].question, count: 200))
+                                  Text(" \(stas[idx]) ")
+                                      .font(.footnote)
+                              }
+                              Spacer()
+                              Image(systemName: "chevron.right")
+                                  .foregroundColor(.gray)
+                          }
+                          .contentShape(Rectangle()) // Make the entire HStack tappable
+                          .onTapGesture {
+                              showApview = chas[idx]
+                          }
+                      }
+                  }
+              }
+              .sheet(item: $showApview) { challenge in
+                  AlreadyPlayedView(ch: challenge, gs: gs, chmgr: chmgr)
+              }
           }
-        }.background(colors.0)
-          .foregroundColor(colors.1)
       } else {
-        Color.red
+          Color.red
       }
-    }
+  }
+  
 }
 
 #Preview {

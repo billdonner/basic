@@ -24,35 +24,36 @@ struct TopicIndexView: View {
   ]
   
   var body: some View {
-    VStack {
-      LazyVGrid(columns: columns, spacing: 4) {
-        ForEach(gs.basicTopics(), id: \.name) { topic in
-          HStack {
-            RoundedRectangle(cornerSize: CGSize(width: 10.0, height: 3.0))
-              .frame(width: 15, height: 15)
-              .foregroundStyle(gs.colorForTopic(topic.name).0)
-            Text(truncatedText(topic.name, count: isIpad ? 40 : 10))
-              .font(.caption2) // Smaller font
-              .foregroundColor(textColor)
-          }
-          .padding(.vertical, 0)
-          .padding(.horizontal, 4)
-          .background(Color(white: 0.9))
-          .cornerRadius(8)
-          .onTapGesture {
-            topicDetailInfo = Tdi(name: topic.name)
+    GeometryReader { geometry in
+      VStack {
+        LazyVGrid(columns: columns, spacing:2) {
+          ForEach(gs.basicTopics(), id: \.name) { topic in
+            HStack {
+              RoundedRectangle(cornerSize: CGSize(width: 10.0, height: 3.0))
+                .frame(width: 15, height: 15)
+                .foregroundStyle(gs.colorForTopic(topic.name).0)
+              Text(truncatedText(topic.name, count: isIpad ? 40 : 15))
+                .lineLimit(1)
+                .font(.caption2) // Smaller font
+                .foregroundColor(textColor)
+              Spacer()
+            }.frame(width:geometry.size.width/(1.1*CGFloat(columns.count)), height: 24)
+            .padding(.horizontal, 4)
+            .background(.clear)
+            .cornerRadius(8)
+            .onTapGesture {
+              topicDetailInfo = Tdi(name: topic.name)
+            }
           }
         }
+         .padding(4)
+        .background(Color.black.opacity(0.1)) // Dark gray outer background
+        .cornerRadius(10)
+      }.sheet(item:$topicDetailInfo) {tdi in
+        TopicDetailsView(topic:tdi.name,gs:gs, chmgr: chmgr)
       }
-      .padding(4)
-      
-      .background(Color.black.opacity(0.1)) // Dark gray outer background
-      .cornerRadius(10)
-    }.sheet(item:$topicDetailInfo) {tdi in
-      TopicDetailsView(topic:tdi.name,gs:gs, chmgr: chmgr)
+      .padding()
     }
-    
-    .padding()
   }
   
   // Computed properties for background and text colors

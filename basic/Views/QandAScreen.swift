@@ -30,7 +30,7 @@ struct QandAScreen: View {
       ZStack {
         VStack {
           QandATopBarView(
-            gs: gs, topic: ch.topic, hint: ch.hint,
+            gs: gs, geometry:geometry, topic: ch.topic, hint: ch.hint,
             handlePass:handlePass,
             toggleHint:  toggleHint,
             elapsedTime: $elapsedTime,

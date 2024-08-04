@@ -323,6 +323,6 @@ class GameState :  Codable {
   }
   
   func cellBorderSize() -> CGFloat {
-    return CGFloat(11-self.boardsize)*(isIpad ? 3.0:1.0)
+    return CGFloat(11-self.boardsize)*(isIpad ? 3.0:1.0) // sensitive
   }
 }

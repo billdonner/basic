@@ -46,7 +46,36 @@ func formatTimeInterval(_ interval: TimeInterval) -> String {
     let seconds = Int(interval) % 60
     return "\(seconds)"
 }
+func removeString(from array: [String], stringToRemove: String) -> [String] {
+  var newArray = array
+  if let index = newArray.firstIndex(of: stringToRemove) {
+    newArray.remove(at: index)
+  }
+  return newArray
+}
+func removeStrings(from array: [String], stringsToRemove: [String]) -> [String] {
+  var newArray = array
+  for string in stringsToRemove {
+    while let index = newArray.firstIndex(of: string) {
+      newArray.remove(at: index)
+    }
+  }
+  return newArray
+}
 
+func joinWithCommasAnd(_ array: [String]) -> String {
+    guard !array.isEmpty else { return "" }
+    
+    if array.count == 1 {
+        return array[0]
+    } else if array.count == 2 {
+        return "\(array[0]) and \(array[1])"
+    } else {
+        let allButLastTwo = array.dropLast(2).joined(separator: ", ")
+        let lastTwo = "\(array[array.count - 2]) and \(array.last!)"
+        return "\(allButLastTwo), \(lastTwo)"
+    }
+}
 extension Array {
   /// Chunks the array into arrays with a maximum size
   func chunked(into size: Int) -> [[Element]] {

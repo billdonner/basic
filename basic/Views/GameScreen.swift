@@ -13,13 +13,13 @@ struct GameScreen: View {
   @Binding var size:Int
   let onSingleTap: (_ row:Int, _ col:Int ) -> Bool
   
-  @State private var firstMove = true
-  @State private var startAfresh = true
-  @State private var showCantStartAlert = false
-  @State private var showSettings = false
-  @State private var showingHelp = false
-  @State private var showWinAlert = false
-  @State private var showLoseAlert = false
+  @State   var firstMove = true
+  @State   var startAfresh = true
+  @State   var showSettings = false
+  @State   var showingHelp = false
+  @State   var showWinAlert = false
+  @State   var showLoseAlert = false
+  @State   var showCantStartAlert = false 
 
   var bodyMsg: String {
     let t =  """
@@ -31,52 +31,51 @@ struct GameScreen: View {
   var body: some View {
     VStack {
       VStack {
-        Text("QandA \(AppVersionProvider.appVersion()) by Freeport Software").font(.caption2)
-        topButtonsVeew // down below
-          .padding(.horizontal)
-        ScoreBarView(gs: gs)
-        if gs.boardsize > 1 {
-          VStack(alignment: .center){
-            MainGridView(gs: gs, chmgr:chmgr,
-                         firstMove: $firstMove, onSingleTap: onSingleTap)//.border(Color.red)
+        VStack(spacing:10) {
+     
+          topButtonsVeew.frame(height:40)// down below
+            .padding()
+          ScoreBarView(gs: gs)
+          if gs.boardsize > 1 {
+            VStack(alignment: .center){
+              MainGridView(gs: gs, chmgr:chmgr,
+                           firstMove: $firstMove, onSingleTap: onSingleTap)//.border(Color.red)
+            }
+          }
+          else {
+            loadingVeew
           }
         }
-        else {
-          loadingVeew
+        
+        .onChange(of:gs.cellstate) {
+          onChangeOfCellState()
+        }
+        .onChange(of:gs.boardsize) {
+          print("//GameScreen onChangeof(Size) to \(gs.boardsize)")
+          onBoardSizeChange ()
+        }
+        .sheet(isPresented: $showSettings){
+          SettingsScreen(chmgr: chmgr, gs: gs)
+        }
+        .fullScreenCover(isPresented: $showingHelp ){
+          HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
+            .statusBar(hidden: true)
+        }
+        
+        .onDisappear {
+          print("Yikes the GameScreen is Disappearing!")
         }
       }
-
-      .onChange(of:gs.cellstate) {
-        onChangeOfCellState()
-      }
-      .onChange(of:gs.boardsize) {
-        print("//GameScreen onChangeof(Size) to \(gs.boardsize)")
-        onBoardSizeChange ()
-      }
-      .sheet(isPresented: $showSettings){
-        SettingsScreen(chmgr: chmgr, gs: gs)
-      }
-      .fullScreenCover(isPresented: $showingHelp ){
-        HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
-          .statusBar(hidden: true)
-      }
-      
-      .onDisappear {
-        print("Yikes the GameScreen is Disappearing!")
-      }
-      
-    }// outer vstack
-    
-    .youWinAlert(isPresented: $showWinAlert, title: "You Win",
-                 bodyMessage: bodyMsg, buttonTitle: "OK"){
-      onYouWin()
+  
+        .youWinAlert(isPresented: $showWinAlert, title: "You Win",
+                     bodyMessage: bodyMsg, buttonTitle: "OK"){
+          onYouWin()
+        }
+                     .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
+                                   bodyMessage: bodyMsg, buttonTitle: "OK"){
+                       onYouLose()
+                     }
     }
-                 .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
-                               bodyMessage: bodyMsg, buttonTitle: "OK"){
-                   onYouLose()
-                 }
-    Spacer()
-    TopicIndexView(gs:gs, chmgr: chmgr)//.frame(height:200)
   }
   
   var topButtonsVeew : some View{
@@ -89,16 +88,16 @@ struct GameScreen: View {
             if !ok {
               showCantStartAlert = true
             }
-            
             chmgr.checkAllTopicConsistency("GameScreen StartGamePressed")
             assert(gs.checkVsChaMan(chmgr: chmgr))
           }
         }) {
           Text("Start Game")
             .padding()
-            .background(Color.green)
+            .background(Color.blue)
             .foregroundColor(.white)
             .cornerRadius(8)
+            .font(.body)
         }
         .alert("Can't start new Game - consider changing the topics or hit Full Reset",isPresented: $showCantStartAlert){
           Button("OK", role: .cancel) {
@@ -110,25 +109,28 @@ struct GameScreen: View {
       } else {
         // END GAME
         Button(action: {
-          // withAnimation {
-          assert(gs.checkVsChaMan(chmgr: chmgr)) //cant check after endgamepressed
-          onEndGamePressed()  //should estore consistency
-          chmgr.checkAllTopicConsistency("GameScreen EndGamePressed")
+          withAnimation {
+            assert(gs.checkVsChaMan(chmgr: chmgr)) //cant check after endgamepressed
+            onEndGamePressed()  //should estore consistency
+            chmgr.checkAllTopicConsistency("GameScreen EndGamePressed")
+          }
         }) {
           Text("End Game")
             .padding()
             .background(Color.red)
             .foregroundColor(.white)
             .cornerRadius(8)
+            .font(.body)
         }
       }
       //SETTINGS
-      Button(action: {  showSettings = true }) {
+      Button(action: {  withAnimation {showSettings = true } } ) {
         Text("Settings")
           .padding()
           .background(Color.blue)
           .foregroundColor(.white)
           .cornerRadius(8)
+          .font(.body)
       }
       .disabled(gs.gamestate == .playingNow)
       .opacity(gs.gamestate != .playingNow ? 1 : 0.5)
@@ -140,78 +142,8 @@ struct GameScreen: View {
           .foregroundColor(.white)
           .cornerRadius(8)
       }
-    }
+    }.font(.body).lineLimit(1)
   }
-}
- 
-
-extension GameScreen /* actions */ {
-  
-  func onAppearAction () {
-    // on a completely cold start
-    if gs.gamenumber == 0 {
-      print("//GameScreen OnAppear Coldstart size:\(gs.boardsize) topics: \(topics)")
-    } else {
-      print("//GameScreen OnAppear Warmstart size:\(gs.boardsize) topics: \(topics)")
-    }
-    chmgr.checkAllTopicConsistency("gamescreen on appear")
-  }
-  
-  func onCantStartNewGameAction() {
-    print("//GameScreen onCantStartNewGameAction")
-    showCantStartAlert = false
-  }
-  
-  func onYouWin () {
-    endGame(status: .justWon)
-  }
-  
-  func onYouLose () {
-    endGame(status: .justLost)
-  }
-  func onEndGamePressed () {
-    print("//GameScreen EndGamePressed")
-    endGame(status:.justAbandoned)
-  }
-  
-  func onBoardSizeChange() {
-    
-  }
-  
-  func onChangeOfCellState() {
-    if isWinningPath(in:gs.cellstate) {
-      print("--->YOU WIN")
-      showWinAlert = true
-    } else {
-      if !isPossibleWinningPath(in:gs.cellstate) {
-        print("--->YOU LOSE")
-        showLoseAlert = true
-      }
-    }
-  }
-  func onDump() {
-    chmgr.dumpTopics()
-  }
-  func onStartGame(boardsize:Int ) -> Bool {
-    print("//GameScreen onStartGame before  topics: \(gs.topicsinplay) size:\( boardsize)")
-    // chmgr.dumpTopics()
-    let ok = gs.setupForNewGame(boardsize:boardsize,chmgr: chmgr )
-    print("//GameScreen onStartGame after")
-    // chmgr.dumpTopics()
-    if !ok {
-      print("Failed to allocate \(gs.boardsize*gs.boardsize) challenges for topic \(topics.joined(separator: ","))")
-      print("Consider changing the topics in setting and trying again ...")
-    } else {
-      firstMove = true
-    }
-    chmgr.checkAllTopicConsistency("on start game")
-    return ok
-  }
-  func endGame(status:StateOfPlay){
-    chmgr.checkAllTopicConsistency("end game")
-    gs.teardownAfterGame(state: status, chmgr: chmgr)
-  }
-
   var loadingVeew: some View {
     Text("Loading...")
       .onAppear {
@@ -224,6 +156,7 @@ extension GameScreen /* actions */ {
       }
   }
 }
+ 
 
 // Preview Provider for SwiftUI preview
 #Preview ("GameScreen") {

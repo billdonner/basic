@@ -1,15 +1,16 @@
 import SwiftUI
 struct QandATopBarView: View {
   let gs:GameState
+  let geometry: GeometryProxy
     let topic: String
     let hint:String
     let handlePass: () -> Void
-  let toggleHint: () -> Void
-   
-  @State private var timer: Timer? = nil  // Timer to track elapsed time
-  @Binding var elapsedTime: TimeInterval   // Elapsed time in seconds
+    let toggleHint: () -> Void
   
+  @Binding var elapsedTime: TimeInterval   // Elapsed time in seconds
   @Binding var killTimer: Bool
+  
+  @State private var timer: Timer? = nil  // Timer to track elapsed time
    
   func startTimer() {
     elapsedTime = 0
@@ -40,14 +41,14 @@ struct QandATopBarView: View {
                 hintButton
                     .padding(.trailing, 20)
             }
-            VStack {
-                Text(topic)
+          VStack(alignment:.center) {
+            Text(topic).multilineTextAlignment(.center)
                     .font(.headline)
                     .lineLimit(2)//,reservesSpace: true)
                     .foregroundColor(.primary)
                 elapsedTimeView
                 additionalInfoView
-            }
+            }.frame(width:geometry.size.width * 0.7)
         }
         .padding(.top)
         .onAppear {
@@ -104,13 +105,17 @@ struct QandATopBarView: View {
     }
 }
 
-//#Preview {
-//    QandATopBarView(
-//      gs: GameState(size:1,topics:["foo"],challenges:[Challenge.complexMock]),
-//      topic: "American History",
-//      hint: "What can we say about history?",
-//      elapsedTime: 23984923.0,
-//        handlePass: {},
-//        toggleHint: {}
-//    )
-//}
+#Preview {
+  GeometryReader { geometry in
+    
+    QandATopBarView(
+      gs: GameState(size:1, topics:["foo"],challenges:[Challenge.complexMock]),
+      geometry: geometry,
+      topic: "American History running to great lengths",
+      hint: "What can we say about history?",
+      handlePass:{}, toggleHint: {},
+      elapsedTime: .constant(23984923.0),
+      killTimer:.constant(false)
+    )
+  }
+}
