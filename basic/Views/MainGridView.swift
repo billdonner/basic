@@ -15,7 +15,7 @@ struct MainGridView : View {
   let onSingleTap: (Int,Int)->Bool
   
   var body: some View {
-    let spacing: CGFloat = 5.0 * (isIpad ? 1.8 : 1.0)
+    let spacing: CGFloat = 5.0 * (isIpad ? 1.2 : 1.0)
     
     return   GeometryReader { geometry in
       //  let _ = print("gs.boardsize \(gs.boardsize) gs.board.count \(gs.board.count) geometry.size.width \(geometry.size.width) geometry.size.height \(geometry.size.height)")

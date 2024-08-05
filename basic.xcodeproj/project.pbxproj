@@ -19,6 +19,7 @@
 		885CEB292C2A546A00234C17 /* qdemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB282C2A546A00234C17 /* qdemoTests.swift */; };
 		885CEB2C2C2A55A100234C17 /* playg.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CEB2A2C2A54DF00234C17 /* playg.swift */; };
 		885CEB2E2C2A5C1800234C17 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 885CEB2D2C2A5C1800234C17 /* README.md */; };
+		889118E42C6047B800CE8EA6 /* CloudSentiments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 889118E32C6047B800CE8EA6 /* CloudSentiments.swift */; };
 		88A5CDF52C5AB85B00157D36 /* TopicInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A5CDF42C5AB85B00157D36 /* TopicInfo.swift */; };
 		88A5CDF72C5C346300157D36 /* ChaManExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A5CDF62C5C346300157D36 /* ChaManExt.swift */; };
 		88A5CDFD2C5EEA7200157D36 /* AnsweredInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A5CDFC2C5EEA7200157D36 /* AnsweredInfo.swift */; };
@@ -53,6 +54,8 @@
 		885CEB282C2A546A00234C17 /* qdemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = qdemoTests.swift; sourceTree = "<group>"; };
 		885CEB2A2C2A54DF00234C17 /* playg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = playg.swift; sourceTree = "<group>"; };
 		885CEB2D2C2A5C1800234C17 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		889118E32C6047B800CE8EA6 /* CloudSentiments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSentiments.swift; sourceTree = "<group>"; };
+		889119082C606C1C00CE8EA6 /* basic.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = basic.entitlements; sourceTree = "<group>"; };
 		88A5CDF42C5AB85B00157D36 /* TopicInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicInfo.swift; sourceTree = "<group>"; };
 		88A5CDF62C5C346300157D36 /* ChaManExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaManExt.swift; sourceTree = "<group>"; };
 		88A5CDFC2C5EEA7200157D36 /* AnsweredInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnsweredInfo.swift; sourceTree = "<group>"; };
@@ -141,6 +144,7 @@
 		88F6F8D12C1A1E2400A50C31 /* basic */ = {
 			isa = PBXGroup;
 			children = (
+				889119082C606C1C00CE8EA6 /* basic.entitlements */,
 				88F6F8FF2C1E660600A50C31 /* Info.plist */,
 				88A6D6BB2C2C913A0080A63E /* structs.swift */,
 				88CB25F12C3DB77C0083FA73 /* mocks.swift */,
@@ -151,6 +155,7 @@
 				885CEB0B2C28879000234C17 /* AppColors.swift */,
 				885CEB132C289D5300234C17 /* ChaMan.swift */,
 				88A5CDF62C5C346300157D36 /* ChaManExt.swift */,
+				889118E32C6047B800CE8EA6 /* CloudSentiments.swift */,
 				884548972C3B9AF6009A725F /* CustomAlerts.swift */,
 				885CEB152C289DDC00234C17 /* GameState.swift */,
 				885CEB1B2C29085700234C17 /* Guts.swift */,
@@ -287,6 +292,7 @@
 				885CEB142C289D5300234C17 /* ChaMan.swift in Sources */,
 				88A6D6BC2C2C913A0080A63E /* structs.swift in Sources */,
 				88CB25F22C3DB77C0083FA73 /* mocks.swift in Sources */,
+				889118E42C6047B800CE8EA6 /* CloudSentiments.swift in Sources */,
 				884548982C3B9AF6009A725F /* CustomAlerts.swift in Sources */,
 				885CEB202C29085700234C17 /* Guts.swift in Sources */,
 				88A5CDF72C5C346300157D36 /* ChaManExt.swift in Sources */,
@@ -446,8 +452,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
+				CODE_SIGN_ENTITLEMENTS = basic/basic.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;
@@ -477,8 +484,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
+				CODE_SIGN_ENTITLEMENTS = basic/basic.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"basic/Preview Content\"";
 				DEVELOPMENT_TEAM = NEAY582ME4;
 				ENABLE_PREVIEWS = YES;

@@ -52,11 +52,9 @@ struct QandATopBarView: View {
         }
         .padding(.top)
         .onAppear {
-          print ("//QandATopBarView onAppear")
           startTimer()
         }
         .onDisappear {
-          print ("//QandATopBarView onDisAppear")
           stopTimer()
         }
         .onChange(of: killTimer) { oldValue, newValue in

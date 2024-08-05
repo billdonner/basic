@@ -23,7 +23,7 @@ private struct zz:View {
         Text("wrong:");Text("\(gs.wrongcount)")
         Text("time:");Text(formatTimeInterval(gs.totaltime))
       }
-      }.font(.footnote)
+    }.font(isIpad ?.body:.footnote)
     }
   }
 struct ScoreBarView: View {
@@ -42,7 +42,7 @@ struct ScoreBarView: View {
             "possibles: \(numberOfPossibleMoves(in: gs.cellstate))"
           }
         }
-        zz(showchars: showchars,gs:gs)
+        zz(showchars: showchars,gs:gs).font(isIpad ?.headline:.body)
       }
       
         if gs.gamestate == .playingNow {

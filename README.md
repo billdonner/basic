@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+- version 0.3.5 rudimentary logging of sentiments, needs work but its storing into cloud
 - version 0.3.4 improved topbar,increased bordersize, disabled other controls when alert onscreen
 - version 0.3.3 already played questions nicely displayed
 - version 0.3.2 silent crash fixed, topicdetails improved 

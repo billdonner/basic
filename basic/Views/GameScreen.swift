@@ -32,39 +32,38 @@ struct GameScreen: View {
     VStack {
       VStack {
         VStack(spacing:10) {
-     
-          topButtonsVeew.frame(height:40)// down below
+          topButtonsVeew//.frame(height:40)// down below
             .padding()
           ScoreBarView(gs: gs)
-          if gs.boardsize > 1 {
-            VStack(alignment: .center){
-              MainGridView(gs: gs, chmgr:chmgr,
-                           firstMove: $firstMove, onSingleTap: onSingleTap)//.border(Color.red)
-            }
-          }
-          else {
-            loadingVeew
-          }
         }
         
-        .onChange(of:gs.cellstate) {
-          onChangeOfCellState()
+        if gs.boardsize > 1 {
+          VStack(alignment: .center){
+            MainGridView(gs: gs, chmgr:chmgr,
+                         firstMove: $firstMove, onSingleTap: onSingleTap)//.border(Color.red)
+          }
+          .onChange(of:gs.cellstate) {
+            onChangeOfCellState()
+          }
+          .onChange(of:gs.boardsize) {
+            print("//GameScreen onChangeof(Size) to \(gs.boardsize)")
+            onBoardSizeChange ()
+          }
+          .sheet(isPresented: $showSettings){
+            SettingsScreen(chmgr: chmgr, gs: gs)
+          }
+          .fullScreenCover(isPresented: $showingHelp ){
+            HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
+              .statusBar(hidden: true)
+          }
+          .onDisappear {
+            print("Yikes the GameScreen is Disappearing!")
+          }
         }
-        .onChange(of:gs.boardsize) {
-          print("//GameScreen onChangeof(Size) to \(gs.boardsize)")
-          onBoardSizeChange ()
-        }
-        .sheet(isPresented: $showSettings){
-          SettingsScreen(chmgr: chmgr, gs: gs)
-        }
-        .fullScreenCover(isPresented: $showingHelp ){
-          HowToPlayScreen (chmgr: chmgr, isPresented: $showingHelp)
-            .statusBar(hidden: true)
-        }
+      else {
+        loadingVeew
+      }
         
-        .onDisappear {
-          print("Yikes the GameScreen is Disappearing!")
-        }
       }
   
         .youWinAlert(isPresented: $showWinAlert, title: "You Win",

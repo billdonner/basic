@@ -12,6 +12,8 @@ struct QandAScreen: View {
   @State  var showInfo = false
   @State   var gimmeeAlert = false
   @State   var gimmeeAllAlert = false
+  @State   var showThumbsUp:Challenge? = nil
+  @State   var showThumbsDown: Challenge? = nil
   @State   var selectedAnswer: String? = nil  // State to track selected answer
   @State   var answerCorrect: Bool = false   // State to track if the selected answer is correct
   @State   var showCorrectAnswer: Bool = false  // State to show correct answer temporarily
@@ -61,6 +63,12 @@ struct QandAScreen: View {
         .sheet(isPresented: $showInfo){
           ChallengeInfoScreen(challenge: ch)
         }
+        .sheet(item:$showThumbsDown) { ch in
+          NegativeSentimentView(id: ch.id)
+        }
+        .sheet(item:$showThumbsUp) { ch in
+          PositiveSentimentView(id: ch.id)
+        }
         .gimmeeAlert(isPresented: $gimmeeAlert, title: "I will replace this Question \nwith another from the same topic, \nif possible", message: "I will charge you one gimmee", button1Title: "OK", button2Title: "Cancel",onButton1Tapped: {
           handleGimmee(row:row,col:col)
           // let color = colorForTopic(ch.topic, gs: gs)
@@ -82,7 +90,8 @@ struct QandAScreen: View {
   
   var bottomButtons: some View {
     HStack(spacing: 10) {
-      passButton
+      thumbsUpButton
+      thumbsDownButton
       markCorrectButton
       markIncorrectButton
       gimmeeButton
@@ -90,6 +99,29 @@ struct QandAScreen: View {
     }
     .padding(.bottom)
     .frame(height: 60)
+  }
+  
+  var thumbsUpButton: some View {
+      Button(action: {
+        showThumbsUp =  chmgr.everyChallenge[gs.board[row][col]]
+      }){
+        Image(systemName: "hand.thumbsup").symbolEffect(.wiggle,isActive: true).font(.title)
+              .padding()
+              .background(Color.blue)
+              .foregroundColor(.white)
+              .cornerRadius(8)
+      }
+  }
+  var thumbsDownButton: some View {
+      Button(action: {
+        showThumbsDown = chmgr.everyChallenge[gs.board[row][col]]
+      }){
+        Image(systemName: "hand.thumbsdown").symbolEffect(.wiggle,isActive: true).font(.title)
+              .padding()
+              .background(Color.red)
+              .foregroundColor(.white)
+              .cornerRadius(8)
+      }
   }
   var passButton: some View {
     Button(action: {
