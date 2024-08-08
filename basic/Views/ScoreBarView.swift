@@ -30,7 +30,6 @@ struct ScoreBarView: View {
   let gs: GameState
   @State var showWinAlert = false
   @State var showLoseAlert = false
-  
   var body:some View {
     return  VStack{
       HStack {
@@ -44,14 +43,13 @@ struct ScoreBarView: View {
         }
         zz(showchars: showchars,gs:gs).font(isIpad ?.headline:.body)
       }
-      
         if gs.gamestate == .playingNow {
-          Text ("game in progress...").foregroundStyle(.blue )
+         /// Text ("game in progress...").foregroundStyle(.blue )
         } else {
-          Text ("you can start a new game now ").foregroundStyle(.green )
+        //  Text ("you can start a new game now ").foregroundStyle(.green )
           if gs.startincorners {
-            Text("you've got to start in a corner")
-              .font(.footnote).foregroundStyle(.green )
+         //   Text("you've got to start in a corner")
+            //  .font(.footnote).foregroundStyle(.green )
           }
         }
       }

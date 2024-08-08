@@ -28,7 +28,7 @@ struct AlreadyPlayedView : View {
                 Spacer()
                 Image(systemName: "x.circle")
                   .font(.title)
-                  .foregroundStyle(.primary)
+                  .foregroundStyle(.secondary)
               }.padding()
             }
           }

@@ -7,10 +7,11 @@
 import SwiftUI
 
 struct GameScreen: View {
+
   @Bindable var gs: GameState
   @Bindable var chmgr: ChaMan
   @Binding  var topics: [String]
-  @Binding var size:Int
+  @Binding  var size:Int
   let onSingleTap: (_ row:Int, _ col:Int ) -> Bool
   
   @State   var firstMove = true
@@ -19,8 +20,8 @@ struct GameScreen: View {
   @State   var showingHelp = false
   @State   var showWinAlert = false
   @State   var showLoseAlert = false
-  @State   var showCantStartAlert = false 
-
+  @State   var showCantStartAlert = false
+  
   var bodyMsg: String {
     let t =  """
     That was game \(gs.gamenumber) of which you've won \(gs.woncount) and lost \(gs.lostcount) games
@@ -60,20 +61,20 @@ struct GameScreen: View {
             print("Yikes the GameScreen is Disappearing!")
           }
         }
-      else {
-        loadingVeew
-      }
+        else {
+          loadingVeew
+        }
         
       }
-  
-        .youWinAlert(isPresented: $showWinAlert, title: "You Win",
-                     bodyMessage: bodyMsg, buttonTitle: "OK"){
-          onYouWin()
-        }
-                     .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
-                                   bodyMessage: bodyMsg, buttonTitle: "OK"){
-                       onYouLose()
-                     }
+      
+      .youWinAlert(isPresented: $showWinAlert, title: "You Win",
+                   bodyMessage: bodyMsg, buttonTitle: "OK"){
+        onYouWin()
+      }
+                   .youLoseAlert(isPresented: $showLoseAlert, title: "You Lose",
+                                 bodyMessage: bodyMsg, buttonTitle: "OK"){
+                     onYouLose()
+                   }
     }
   }
   
@@ -155,7 +156,7 @@ struct GameScreen: View {
       }
   }
 }
- 
+
 
 // Preview Provider for SwiftUI preview
 #Preview ("GameScreen") {

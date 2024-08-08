@@ -42,6 +42,7 @@ struct SingleCellView: View {
           .opacity(gs.gamestate == .playingNow ? 1.0:0.4)
       }
       Color.orange.opacity(lastmove ? 0.3 : 0.0).frame(width:40,height:40)
+      Text("\(gs.moveindex[row][col])").font(.footnote).opacity(gs.moveindex[row][col] != -1 ? 1.0:0.0)
     }
     .sheet(item: $alreadyPlayed) { goo in
       AlreadyPlayedView(ch: challenge,gs:gs,chmgr:chmgr)

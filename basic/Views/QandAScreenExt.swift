@@ -55,6 +55,7 @@ func handleDismissal(toRoot:Bool) {
     answerGiven = true
     showBorders = true
     gs.movenumber += 1
+    gs.moveindex[row][col] = gs.movenumber
     gs.cellstate[row][col] = .playedCorrectly
     gs.rightcount += 1
     chmgr.bumpRightcount(topic: ch.topic)
@@ -75,6 +76,7 @@ func handleDismissal(toRoot:Bool) {
     showCorrectAnswer = false
     showBorders = true
     gs.movenumber += 1
+    gs.moveindex[row][col] = gs.movenumber
     gs.cellstate[row][col] = .playedIncorrectly
     gs.wrongcount += 1
     chmgr.bumpWrongcount(topic: ch.topic)

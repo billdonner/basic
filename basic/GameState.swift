@@ -34,6 +34,7 @@ class GameState :  Codable {
   var doublediag:Bool
   var difficultylevel:Int
   var lastmove: GameMove?
+  var moveindex: [[Int]] // -1 is unplayed
   
   func checkVsChaMan(chmgr:ChaMan) -> Bool {
     let a=chmgr.correctChallengesCount()
@@ -109,6 +110,7 @@ class GameState :  Codable {
     case _startincorners = "startincorners"
     case _doublediag = "doublediag"
     case _difficultylevel = "difficultylevel"
+    case _moveindex = "moveindex"
   }
   func basicTopics()->[BasicTopic] {
     return topicsinplay.map {BasicTopic(name: $0)}
@@ -118,6 +120,7 @@ class GameState :  Codable {
     self.boardsize = size
     self.board = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
+    self.moveindex = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.gimmees = 0
     self.gamenumber = 0
     self.movenumber = 0
@@ -139,6 +142,7 @@ class GameState :  Codable {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
     self.gamenumber += 1
+    self.movenumber = 1
     self.boardsize = boardsize ///////////////
     self.board = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
