@@ -105,22 +105,24 @@ struct QandAScreen: View {
       Button(action: {
         showThumbsUp =  chmgr.everyChallenge[gs.board[row][col]]
       }){
-        Image(systemName: "hand.thumbsup").symbolEffect(.wiggle,isActive: true).font(.title)
+        Image(systemName: "hand.thumbsup").font(.title)
               .padding()
               .background(Color.blue)
               .foregroundColor(.white)
               .cornerRadius(8)
+              //.symbolEffect(.wiggle,isActive: true)
       }
   }
   var thumbsDownButton: some View {
       Button(action: {
         showThumbsDown = chmgr.everyChallenge[gs.board[row][col]]
       }){
-        Image(systemName: "hand.thumbsdown").symbolEffect(.wiggle,isActive: true).font(.title)
+        Image(systemName: "hand.thumbsdown").font(.title)
               .padding()
               .background(Color.red)
               .foregroundColor(.white)
               .cornerRadius(8)
+             // .symbolEffect(.wiggle,isActive: true)
       }
   }
   var passButton: some View {

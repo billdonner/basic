@@ -6,6 +6,10 @@
 //
 
 import SwiftUI
+struct GameMove : Codable {
+  let row:Int
+  let col:Int
+}
 
 @Observable
 class GameState :  Codable {
@@ -29,6 +33,7 @@ class GameState :  Codable {
   var startincorners:Bool
   var doublediag:Bool
   var difficultylevel:Int
+  var lastmove: GameMove?
   
   func checkVsChaMan(chmgr:ChaMan) -> Bool {
     let a=chmgr.correctChallengesCount()

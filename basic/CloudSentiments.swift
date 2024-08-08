@@ -217,20 +217,22 @@ struct FetcherView: View {
         NavigationView {
             VStack {
               NavigationLink(destination: PositiveSentimentView(id: UUID().uuidString)) {
-                  Image(systemName: "hand.thumbsup").symbolEffect(.wiggle,isActive: true).font(.title)
+                  Image(systemName: "hand.thumbsup").font(.title)
                         .padding()
                         .background(Color.green)
                         .foregroundColor(.white)
                         .cornerRadius(8)
+                       // .symbolEffect(.wiggle,isActive: true)
                 }
                 .padding()
                 
               NavigationLink(destination: NegativeSentimentView(id: UUID().uuidString)) {
-                  Image(systemName: "hand.thumbsdown").symbolEffect(.wiggle,isActive: true).font(.title)
+                  Image(systemName: "hand.thumbsdown").font(.title)
                         .padding()
                         .background(Color.red)
                         .foregroundColor(.white)
                         .cornerRadius(8)
+                       // .symbolEffect(.wiggle,isActive: true)
                 }
                 .padding()
                 
