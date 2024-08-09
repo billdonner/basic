@@ -62,6 +62,8 @@ struct SingleCellView: View {
     let challenge = chidx < 0 ? Challenge.amock : chmgr.everyChallenge[chidx]
     let colormix = gs.colorForTopic(challenge.topic)
     return ZStack {
+      // part 1:
+      // if faceup show the question else blank
       VStack(alignment:.center, spacing:0) {
         Text(!gs.faceup ? " " : challenge.question)
           .font(.caption)
@@ -69,26 +71,46 @@ struct SingleCellView: View {
           .frame(width: cellSize, height: cellSize)
           .background(colormix.0)
           .foregroundColor(.secondary)
+        //part 2:
+        //color border according to correctness
           .border(status.borderColor , width: gs.cellBorderSize()) //3=8,8=3
           .cornerRadius(8)
           .opacity(gs.gamestate == .playingNow ? 1.0:0.4)
       }
+      // part 3:
+      // mark corner of last move with orange circle
       if thisCellIsLastMove == true {
         Circle()
           .fill(Color.orange)
           .frame(width: cellSize/5, height: cellSize/5)
           .offset(x:-cellSize/2 + 10,y:-cellSize/2 + 10) 
       }
-      if gs.moveindex[row][col] > 50 {     Text("\(gs.moveindex[row][col])").font(.footnote).opacity(gs.moveindex[row][col] != -1 ? 1.0:0.0)
-      }
-      else {
-        Image(systemName:"\(gs.moveindex[row][col]).circle")
-          .font(.title)
-          .opacity(gs.moveindex[row][col] != -1 ? 0.7:0.0)
-          .foregroundColor(
-            .black
-        )
-      }
+      if row<gs.boardsize && col<gs.boardsize {
+        
+        // part 4:
+        // nice sfsymbols only until 50
+        if gs.moveindex[row][col] == -1 {
+          Text("???").font(.footnote).opacity(gs.moveindex[row][col] != -1 ? 1.0:0.0)
+        } else
+        if gs.moveindex[row][col] > 50 {     Text("\(gs.moveindex[row][col])").font(.footnote).opacity(gs.moveindex[row][col] != -1 ? 1.0:0.0)
+        }
+        else {
+          //use the sfsymbol
+          Image(systemName:"\(gs.moveindex[row][col]).circle")
+            .font(.title)
+            .opacity(gs.moveindex[row][col] != -1 ? 0.7:0.0)
+            .foregroundColor(
+              .black
+            )
+        }
+        // part 5:
+        // highlight the winning path with a green checkmark overlays
+        if gs.onwinpath[row][col] {
+          Image(systemName:"checkmark")
+            .font(.largeTitle)
+            .foregroundColor(.green)
+        }
+      }// row in bounds
     }
     .sheet(item: $alreadyPlayed) { goo in
       AlreadyPlayedView(ch: challenge,gs:gs,chmgr:chmgr)

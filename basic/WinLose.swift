@@ -37,11 +37,67 @@ func numberOfPossibleMoves(in matrix: [[ChallengeOutcomes]]) -> Int {
 func areCellsAdjacent(_ cell1: (Int, Int), _ cell2: (Int, Int)) -> Bool {
     let rowDifference = abs(cell1.0 - cell2.0)
     let colDifference = abs(cell1.1 - cell2.1)
-    
     return rowDifference <= 1 && colDifference <= 1 && !(rowDifference == 0 && colDifference == 0)
 }
-
 func isWinningPath(in matrix: [[ChallengeOutcomes]]) -> Bool {
+  let (_,x) = winningPath(in: matrix)
+  return x
+}
+func winningPath(in matrix: [[ChallengeOutcomes]]) -> ([(Int, Int)], Bool) {
+    let n = matrix.count
+    guard n > 0 else { return ([], false) }
+
+    // Defines directions: right, down, left, up, and the four diagonals
+    let directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    
+    // Starting points for four corners of the matrix
+    let startPoints = [(0, 0), (0, n - 1), (n - 1, 0), (n - 1, n - 1)]
+    
+    func dfs(_ row: Int, _ col: Int, _ visited: inout Set<String>, _ path: inout [(Int, Int)], _ endRow: Int, _ endCol: Int) -> Bool {
+        // Reached the opposite corner
+        if row == endRow && col == endCol {
+            if matrix[row][col] == .playedCorrectly {
+                path.append((row, col))
+                return true
+            }
+            return false
+        }
+        
+        let key = "\(row),\(col)"
+        if visited.contains(key) || matrix[row][col] != .playedCorrectly {
+            return false
+        }
+        
+        visited.insert(key)
+        path.append((row, col))
+        
+        for direction in directions {
+            let newRow = row + direction.0
+            let newCol = col + direction.1
+            if newRow >= 0, newRow < n, newCol >= 0, newCol < n {
+                if dfs(newRow, newCol, &visited, &path, endRow, endCol) {
+                    return true
+                }
+            }
+        }
+        
+        // Backtrack if no path is found
+        path.removeLast()
+        return false
+    }
+    
+    for startPoint in startPoints {
+        let endPoint = (n - 1 - startPoint.0, n - 1 - startPoint.1)
+        var visited = Set<String>()
+        var path: [(Int, Int)] = []
+        if dfs(startPoint.0, startPoint.1, &visited, &path, endPoint.0, endPoint.1) {
+            return (path, true)
+        }
+    }
+    
+    return ([], false)
+}
+func OLDisWinningPath(in matrix: [[ChallengeOutcomes]]) -> Bool {
     let n = matrix.count
     guard n > 0 else { return false }
 

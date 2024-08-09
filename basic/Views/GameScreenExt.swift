@@ -7,8 +7,7 @@
 
 import Foundation
 
-extension GameScreen /* actions */ {
-  
+extension GameScreen /* actions */ { 
   func onAppearAction () {
     // on a completely cold start
     if gs.gamenumber == 0 {
@@ -18,16 +17,13 @@ extension GameScreen /* actions */ {
     }
     chmgr.checkAllTopicConsistency("gamescreen on appear")
   }
-  
   func onCantStartNewGameAction() {
     print("//GameScreen onCantStartNewGameAction")
     showCantStartAlert = false
   }
-  
   func onYouWin () {
     endGame(status: .justWon)
   }
-  
   func onYouLose () {
     endGame(status: .justLost)
   }
@@ -35,14 +31,16 @@ extension GameScreen /* actions */ {
     print("//GameScreen EndGamePressed")
     endGame(status:.justAbandoned)
   }
-  
   func onBoardSizeChange() {
     
   }
-  
   func onChangeOfCellState() {
-    if isWinningPath(in:gs.cellstate) {
-      print("--->YOU WIN")
+    let (path,iswinner) = winningPath(in:gs.cellstate)
+    if iswinner {
+      print("--->YOU WIN path is \(path)")
+      for p in path {
+        gs.onwinpath[p.0][p.1] = true
+      }
       showWinAlert = true
     } else {
       if !isPossibleWinningPath(in:gs.cellstate) {
@@ -73,6 +71,4 @@ extension GameScreen /* actions */ {
     chmgr.checkAllTopicConsistency("end game")
     gs.teardownAfterGame(state: status, chmgr: chmgr)
   }
-
-
 }

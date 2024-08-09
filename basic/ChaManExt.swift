@@ -71,6 +71,7 @@ extension ChaMan {
         gs.difficultylevel = gb.difficultylevel
         gs.movenumber = gb.movenumber
         gs.moveindex = gb.moveindex
+        gs.onwinpath = gb.onwinpath
       }
       try self.loadPlayData(from: playDataFileName)
       

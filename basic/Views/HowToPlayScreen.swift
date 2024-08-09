@@ -27,8 +27,8 @@ struct HowToPlayScreen: View {
         .tag(mkID())
       move2(isPresented: $isPresented)
         .tag(mkID())
-     // MoreFrontMatter()
-     //   .tag(mkID())
+      // MoreFrontMatter()
+      //   .tag(mkID())
       interiorAdjacency(isPresented: $isPresented)
         .tag(mkID())
       borderAdjacency(isPresented: $isPresented)
@@ -72,12 +72,10 @@ struct FrontMatter :View{
           { HStack  {
             Spacer()
             Image(systemName: "x.circle")
-                .font(.title)
-                .foregroundStyle(.white)
-            
+              .font(.title)
+              .foregroundStyle(.white)
           }
           }
-          
         }
         Spacer()
         Text("How to Play").font(.largeTitle).foregroundStyle(.white)
@@ -85,7 +83,7 @@ struct FrontMatter :View{
       }
     }.ignoresSafeArea()// Hides the status bar in this view
   }
-  }
+}
 
 #Preview {
   FrontMatter(isPresented: .constant(true))
@@ -109,18 +107,18 @@ struct Intermission :View{
 
 // Helper function to convert number to equivalent circled SF Symbol
 func ntoSF(_  number:  Int) -> String {
-      return "\(number).circle"
+  return "\(number).circle"
 }
 func notA3x3Winner(isPresented:Binding<Bool>) -> MatrixView {
-    return MatrixView(rows: 3, cols: 3, matrix: PDMatrix(rows: 3, cols: 3, pdms: [
-        PDM((row: 0, col: 0), move: Move(.correct, text: ntoSF(1))),
-        PDM((row: 0, col: 1), move: Move(.incorrect, text: ntoSF(6))),
-        PDM((row: 0, col: 2), move: Move(.correct, text: ntoSF(3))),
-        PDM((row: 1, col: 1), move: Move(.incorrect, text: ntoSF(2))),
-        PDM((row: 1, col: 2), move: Move(.correct, text: ntoSF(4))),
-        PDM((row: 2, col: 1), move: Move(.incorrect, text: ntoSF(7))),
-        PDM((row: 2, col: 2), move: Move(.correct, text: ntoSF(5))),
-    ]), topLabel: "Tough Loss", bottomLabel: "Not a winner", correctColor: .green, incorrectColor: .red, isPresented: isPresented)
+  return MatrixView(rows: 3, cols: 3, matrix: PDMatrix(rows: 3, cols: 3, pdms: [
+    PDM((row: 0, col: 0), move: Move(.correct, text: ntoSF(1))),
+    PDM((row: 0, col: 1), move: Move(.incorrect, text: ntoSF(6))),
+    PDM((row: 0, col: 2), move: Move(.correct, text: ntoSF(3))),
+    PDM((row: 1, col: 1), move: Move(.incorrect, text: ntoSF(2))),
+    PDM((row: 1, col: 2), move: Move(.correct, text: ntoSF(4))),
+    PDM((row: 2, col: 1), move: Move(.incorrect, text: ntoSF(7))),
+    PDM((row: 2, col: 2), move: Move(.correct, text: ntoSF(5))),
+  ]), topLabel: "Tough Loss", bottomLabel: "Not a winner", correctColor: .green, incorrectColor: .red, isPresented: isPresented)
 }
 
 func cornerAdjacency(isPresented: Binding<Bool>) -> MatrixView {
@@ -324,7 +322,7 @@ func niceWinner(isPresented: Binding<Bool>) -> MatrixView {
       PDM((row: 1, col: 2), move: Move(.correct, text: ntoSF(4))),
       PDM((row: 2, col: 2), move: Move(.correct, text: ntoSF(5))),
       PDM((row: 3, col: 3), move: Move(.correct, text: ntoSF(6))),
-      PDM((row: 4, col: 4), move: Move(.incorrect, text: ntoSF(7))), 
+      PDM((row: 4, col: 4), move: Move(.incorrect, text: ntoSF(7))),
       PDM((row: 4, col: 3), move: Move(.correct, text: ntoSF(8))),
       PDM((row: 5, col: 4), move: Move(.correct, text: ntoSF(9))),
       PDM((row: 5, col: 5), move: Move(.correct, text: ntoSF(10))),

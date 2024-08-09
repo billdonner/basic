@@ -35,6 +35,8 @@ class GameState :  Codable {
   var difficultylevel:Int
   var lastmove: GameMove?
   var moveindex: [[Int]] // -1 is unplayed
+  var onwinpath: [[Bool]] // only set after win detected
+  
   
   func checkVsChaMan(chmgr:ChaMan) -> Bool {
     let a=chmgr.correctChallengesCount()
@@ -111,6 +113,7 @@ class GameState :  Codable {
     case _doublediag = "doublediag"
     case _difficultylevel = "difficultylevel"
     case _moveindex = "moveindex"
+    case _onwinpath = "onwinpath"
   }
   func basicTopics()->[BasicTopic] {
     return topicsinplay.map {BasicTopic(name: $0)}
@@ -120,7 +123,8 @@ class GameState :  Codable {
     self.boardsize = size
     self.board = Array(repeating: Array(repeating: -1, count: size), count: size)
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
-    self.moveindex = Array(repeating: Array(repeating: -1, count: size), count: size)
+    self.moveindex = Array(repeating: Array(repeating: -1, count: size), count: size) 
+    self.onwinpath = Array(repeating: Array(repeating: false, count: size), count: size)
     self.gimmees = 0
     self.gamenumber = 0
     self.movenumber = 0
@@ -143,10 +147,12 @@ class GameState :  Codable {
     var allocatedChallengeIndices:[Int] = []
     self.gamenumber += 1
     self.movenumber = 0
+    self.lastmove = nil
     self.boardsize = boardsize ///////////////
     self.board = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
-    self.moveindex = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
-    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
+    self.moveindex = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize) 
+    self.onwinpath = Array(repeating: Array(repeating:false, count:  boardsize), count:   boardsize)
+    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: boardsize), count:  boardsize)
     // give player a few gimmees depending on boardsize
     self.gimmees += boardsize - 1
     // use topicsinplay and allocated fresh challenges
@@ -214,8 +220,6 @@ class GameState :  Codable {
     chmgr.resetChallengeStatuses(at: challenge_indexes)
     saveGameState()
   }
-  
-
   func dumpGameBoard () {
     print("Dump of GameBoard")
     print("================")

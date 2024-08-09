@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+- version 0.3.8 highlights winning path
 - version 0.3.7 reset movenumbber each game,show movenumber in cell of completed questions
 - version 0.3.6 track last move, allow clicking on previously answered questions after game ends
 - version 0.3.5 rudimentary logging of sentiments, needs work but its storing into cloud
