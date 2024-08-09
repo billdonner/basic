@@ -69,6 +69,8 @@ extension ChaMan {
         gs.startincorners = gb.startincorners
         gs.doublediag = gb.doublediag
         gs.difficultylevel = gb.difficultylevel
+        gs.movenumber = gb.movenumber
+        gs.moveindex = gb.moveindex
       }
       try self.loadPlayData(from: playDataFileName)
       

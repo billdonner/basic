@@ -115,7 +115,7 @@ class ColorScheme {
         if _mappedColors == nil {
             _mappedColors = colors.map {
                 let bgColor = Color(red: $0.backrgb.0 / 255, green: $0.backrgb.1 / 255, blue: $0.backrgb.2 / 255)
-                let textColor = self.contrastingTextColor(for: $0.backrgb)
+                let textColor = Self.contrastingTextColor(for: $0.backrgb)
                 return (bgColor, textColor, UUID())
             }
         }
@@ -123,8 +123,9 @@ class ColorScheme {
     }
     
     /// Determines the contrasting text color (black or white) for a given background color.
-    private func contrastingTextColor(for rgb: (Double, Double, Double)) -> Color {
+   static func contrastingTextColor(for rgb: (Double, Double, Double)) -> Color {
         let luminance = 0.299 * rgb.0 + 0.587 * rgb.1 + 0.114 * rgb.2
         return luminance > 186 ? .black : .white
     }
+
 }

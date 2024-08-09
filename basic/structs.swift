@@ -98,28 +98,6 @@ extension Color {
     static let neonGreen = Color(red: 57/255, green: 255/255, blue: 20/255)
     static let neonRed = Color(red: 255/255, green: 16/255, blue: 16/255)
 }
-enum ChallengeOutcomes: Codable {
-//  static func == (lhs: ChallengeOutcomes, rhs: ChallengeOutcomes) -> Bool {
-//    switch (lhs, rhs) {
-//    case (.playedCorrectly, .playedCorrectly): return true
-//    case (.playedIncorrectly, .playedIncorrectly): return true
-//    case (.unplayed, .unplayed): return true
-//    default: return false
-//    }
-//  }
-  
-  case playedCorrectly
-  case playedIncorrectly
-  case unplayed
-  
-  var borderColor: Color {
-    switch self {
-    case .playedCorrectly: return Color.neonGreen
-    case .playedIncorrectly: return Color.neonRed
-    case .unplayed: return .gray
-    }
-  }
-}
 
 struct Challenge: Codable, Equatable, Hashable, Identifiable {
   public let question: String

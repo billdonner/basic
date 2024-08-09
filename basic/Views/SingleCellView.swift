@@ -7,12 +7,44 @@
 
 
 import SwiftUI
-
+@ViewBuilder
+func markView(at position: CornerPosition, size: CGFloat) -> some View {
+  
+   let markSize: CGFloat = CGFloat(size)/10.0
+    let offset: CGFloat = 100.0
+    let xpos = position == .topLeft || position == .bottomLeft ? offset : size - offset
+    let ypos =  position == .topLeft || position == .topRight ? offset : size - offset
+  
+    Circle()
+        .fill(Color.orange)
+        .frame(width: markSize, height: markSize)
+        .position(x: xpos, y: ypos)
+}
 struct Sdi: Identifiable
 {
   let row:Int
   let col:Int
   let id=UUID()
+}
+enum ChallengeOutcomes: Codable {
+  
+  case playedCorrectly
+  case playedIncorrectly
+  case unplayed
+  
+  var borderColor: Color {
+    switch self {
+    case .playedCorrectly: return Color.neonGreen
+    case .playedIncorrectly: return Color.neonRed
+    case .unplayed: return .gray
+    }
+  }
+}
+enum CornerPosition: CaseIterable {
+    case topLeft
+    case topRight
+    case bottomLeft
+    case bottomRight
 }
 struct SingleCellView: View {
   let gs:GameState
@@ -26,7 +58,7 @@ struct SingleCellView: View {
   @Binding var firstMove:Bool
   @State var alreadyPlayed:Sdi?
   var body: some View {
-    let lastmove = gs.lastmove?.row == row &&  gs.lastmove?.col == col
+    let thisCellIsLastMove:Bool  = gs.lastmove?.row == row &&  gs.lastmove?.col == col
     let challenge = chidx < 0 ? Challenge.amock : chmgr.everyChallenge[chidx]
     let colormix = gs.colorForTopic(challenge.topic)
     return ZStack {
@@ -36,13 +68,27 @@ struct SingleCellView: View {
           .padding(10)
           .frame(width: cellSize, height: cellSize)
           .background(colormix.0)
-          .foregroundColor(colormix.1)
+          .foregroundColor(.secondary)
           .border(status.borderColor , width: gs.cellBorderSize()) //3=8,8=3
           .cornerRadius(8)
           .opacity(gs.gamestate == .playingNow ? 1.0:0.4)
       }
-      Color.orange.opacity(lastmove ? 0.3 : 0.0).frame(width:40,height:40)
-      Text("\(gs.moveindex[row][col])").font(.footnote).opacity(gs.moveindex[row][col] != -1 ? 1.0:0.0)
+      if thisCellIsLastMove == true {
+        Circle()
+          .fill(Color.orange)
+          .frame(width: cellSize/5, height: cellSize/5)
+          .offset(x:-cellSize/2 + 10,y:-cellSize/2 + 10) 
+      }
+      if gs.moveindex[row][col] > 50 {     Text("\(gs.moveindex[row][col])").font(.footnote).opacity(gs.moveindex[row][col] != -1 ? 1.0:0.0)
+      }
+      else {
+        Image(systemName:"\(gs.moveindex[row][col]).circle")
+          .font(.title)
+          .opacity(gs.moveindex[row][col] != -1 ? 0.7:0.0)
+          .foregroundColor(
+            .black
+        )
+      }
     }
     .sheet(item: $alreadyPlayed) { goo in
       AlreadyPlayedView(ch: challenge,gs:gs,chmgr:chmgr)
@@ -66,9 +112,28 @@ struct SingleCellView: View {
         }
       } // actually playing the game
       if tap {
-        firstMove =    onSingleTap(row,col)
+        
         gs.lastmove =    GameMove(row:row,col:col)
+        firstMove =    onSingleTap(row,col)
       }
     }
   }// make one cell
+}
+
+struct SingleCellView_Previews: PreviewProvider {
+    static var previews: some View {
+        SingleCellView(
+          gs: GameState.mock,
+            chmgr: ChaMan(playData:PlayData.mock),
+            row: 0,
+            col: 0,
+            chidx: 0,
+            status: .unplayed,
+            cellSize: 50,
+            onSingleTap: { _, _ in true },
+            firstMove: .constant(true)
+        )
+        .previewLayout(.sizeThatFits)
+        .padding()
+    }
 }

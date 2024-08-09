@@ -28,8 +28,12 @@ extension PlayData {
 extension GameState {
 
   static var mock = {
-    GameState(size:3,topics:Array(MockTopics.mockTopics.prefix(5)),  challenges:Challenge.mockChallenges)
-  }
+    let x = GameState(size:3,topics:Array(MockTopics.mockTopics.prefix(5)),  challenges:Challenge.mockChallenges)
+    x.movenumber = 1
+    x.moveindex[0][0] = 1
+    x.lastmove = .init(row: 0, col: 0)
+    return x
+  } ()
 }
 
 extension Challenge {

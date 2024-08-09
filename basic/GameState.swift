@@ -142,9 +142,10 @@ class GameState :  Codable {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
     self.gamenumber += 1
-    self.movenumber = 1
+    self.movenumber = 0
     self.boardsize = boardsize ///////////////
     self.board = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
+    self.moveindex = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
     self.cellstate = Array(repeating: Array(repeating:.unplayed, count: self.boardsize), count: self.boardsize)
     // give player a few gimmees depending on boardsize
     self.gimmees += boardsize - 1
