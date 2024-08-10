@@ -110,11 +110,6 @@ import SwiftUI
     }
 }
 
-#Preview ("TopicSelectorView"){
- 
-  @Previewable @State var selectedTopics:[String] = Array(MockTopics.mockTopics.prefix(6-2))
-  @Previewable @State var selectedSchemeIndex:Int = 3// ColorSchemeName = .autumn
-  
-  TopicSelectorView(allTopics: MockTopics.mockTopics, selectedTopics: $selectedTopics , selectedSchemeIndex: $selectedSchemeIndex, chmgr: ChaMan(playData: PlayData.mock),boardSize: 6)
-}
+//
+
 

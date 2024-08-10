@@ -159,25 +159,25 @@ struct GameScreen: View {
 
 
 // Preview Provider for SwiftUI preview
-#Preview ("GameScreen") {
-  @Previewable @State var topics: [String] = GameState.mock.topicsinplay
-  Group {
-    ForEach([8], id: \.self) { s in
-      GameScreen(
-        gs:GameState.mock ,
-        chmgr: ChaMan(playData: PlayData.mock),
-        topics:$topics,
-        size:.constant(s),
-        onSingleTap: { row,col in
-          print("Tapped cell with challenge \(row) \(col)")
-          return false
-        }
-      )
-      //.previewLayout(.fixed(width: 300, height: 300))
-      .previewDisplayName("Size \(s)x\(s)")
-    }
-  }
-}
+//#Preview ("GameScreen") {
+//  @Previewable @State var topics: [String] = GameState.mock.topicsinplay
+//  Group {
+//    ForEach([8], id: \.self) { s in
+//      GameScreen(
+//        gs:GameState.mock ,
+//        chmgr: ChaMan(playData: PlayData.mock),
+//        topics:$topics,
+//        size:.constant(s),
+//        onSingleTap: { row,col in
+//          print("Tapped cell with challenge \(row) \(col)")
+//          return false
+//        }
+//      )
+//      //.previewLayout(.fixed(width: 300, height: 300))
+//      .previewDisplayName("Size \(s)x\(s)")
+//    }
+//  }
+//}
 
 
 
