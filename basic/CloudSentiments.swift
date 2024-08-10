@@ -79,40 +79,40 @@ class CloudKitManager  {
             }
         }
     }
-    
-    func fetchLogRecords() {
-        let predicate = NSPredicate(value: true)
-        let query = CKQuery(recordType: "LogRecord", predicate: predicate)
-        
-        publicDatabase.perform(query, inZoneWith: nil) { records, error in
-            if let error = error {
-                print("Error fetching records: \(error)")
-                self.errorMessage = error.localizedDescription
-                return
-            }
-            
-            guard let records = records else { return }
-            
-            DispatchQueue.main.async {
-                self.logRecords = records.map { record in
-                    LogRecord(id: record.recordID,
-                              message: record["message"] as? String ?? "",
-                              timestamp: record["timestamp"] as? Date ?? Date(),
-                              userIdentifier: record["userIdentifier"] as? String ?? "",
-                              sentiment: record["sentiment"] as? String ?? "",
-                              predefinedFeeling: record["predefinedFeeling"] as? String ?? "",
-                              challengeIdentifier: record["challengeIdentifier"] as? String ?? "")
-                }
-            }
-        }
-    }
+//    
+//    func fetchLogRecords() {
+//        let predicate = NSPredicate(value: true)
+//        let query = CKQuery(recordType: "LogRecord", predicate: predicate)
+//        
+//        publicDatabase.perform(query, inZoneWith: nil) { records, error in
+//            if let error = error {
+//                print("Error fetching records: \(error)")
+//                self.errorMessage = error.localizedDescription
+//                return
+//            }
+//            
+//            guard let records = records else { return }
+//            
+//            DispatchQueue.main.async {
+//                self.logRecords = records.map { record in
+//                    LogRecord(id: record.recordID,
+//                              message: record["message"] as? String ?? "",
+//                              timestamp: record["timestamp"] as? Date ?? Date(),
+//                              userIdentifier: record["userIdentifier"] as? String ?? "",
+//                              sentiment: record["sentiment"] as? String ?? "",
+//                              predefinedFeeling: record["predefinedFeeling"] as? String ?? "",
+//                              challengeIdentifier: record["challengeIdentifier"] as? String ?? "")
+//                }
+//            }
+//        }
+//    }
 }
 
 let predefinedFeelings = ["Incorrect", "Crazy", "Illogical", "Confusing", "Insightful", "Brilliant"]
 
 struct PositiveSentimentView: View {
   let id: String
-    @State  private var cloudKitManager = CloudKitManager.shared
+   // @State  private var cloudKitManager = CloudKitManager.shared
     @State private var message: String = ""
     @State private var selectedFeeling: String = "Insightful"
     @State private var showAlert = false
@@ -133,7 +133,7 @@ struct PositiveSentimentView: View {
             .padding()
             
             Button(action: {
-                let timestamp = Date()
+               // let timestamp = Date()
 //              cloudKitManager.saveLogRecord(message: message, sentiment: "Positive", predefinedFeeling: selectedFeeling, timestamp: timestamp, challengeIdentifier: id) { result in
 //                    switch result {
 //                    case .success(let record):
@@ -151,9 +151,9 @@ struct PositiveSentimentView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text("Error"), message: Text(cloudKitManager.errorMessage ?? "Unknown error"), dismissButton: .default(Text("OK")))
-            }
+//            .alert(isPresented: $showAlert) {
+//                Alert(title: Text("Error"), message: Text(cloudKitManager.errorMessage ?? "Unknown error"), dismissButton: .default(Text("OK")))
+//            }
         }
         .padding()
         .navigationTitle("Positive Sentiment")
@@ -162,7 +162,7 @@ struct PositiveSentimentView: View {
 
 struct NegativeSentimentView: View {
   let id: String
-    @State  private var cloudKitManager = CloudKitManager.shared
+   // @State  private var cloudKitManager = CloudKitManager.shared
     @State private var message: String = ""
     @State private var selectedFeeling: String = "Incorrect"
     @State private var showAlert = false
@@ -183,7 +183,7 @@ struct NegativeSentimentView: View {
             .padding()
             
             Button(action: {
-                let timestamp = Date()
+               // let timestamp = Date()
 //              cloudKitManager.saveLogRecord(message: message, sentiment: "Negative", predefinedFeeling: selectedFeeling, timestamp: timestamp, challengeIdentifier: id) { result in
 //                    switch result {
 //                    case .success(let record):
@@ -201,72 +201,72 @@ struct NegativeSentimentView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text("Error"), message: Text(cloudKitManager.errorMessage ?? "Unknown error"), dismissButton: .default(Text("OK")))
-            }
+//            .alert(isPresented: $showAlert) {
+//                Alert(title: Text("Error"), message: Text(cloudKitManager.errorMessage ?? "Unknown error"), dismissButton: .default(Text("OK")))
+//            }
         }
         .padding()
         .navigationTitle("Negative Sentiment")
     }
 }
-
-struct FetcherView: View {
-    @State  private var cloudKitManager = CloudKitManager.shared
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-              NavigationLink(destination: PositiveSentimentView(id: UUID().uuidString)) {
-                  Image(systemName: "hand.thumbsup").font(.title)
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                       // .symbolEffect(.wiggle,isActive: true)
-                }
-                .padding()
-                
-              NavigationLink(destination: NegativeSentimentView(id: UUID().uuidString)) {
-                  Image(systemName: "hand.thumbsdown").font(.title)
-                        .padding()
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                       // .symbolEffect(.wiggle,isActive: true)
-                }
-                .padding()
-                
-                Button(action: {
-                   // cloudKitManager.fetchLogRecords()
-                }) {
-                    Text("Fetch All Log Records")
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding()
-                
-                List(cloudKitManager.logRecords) { record in
-                    VStack(alignment: .leading) {
-                        Text(record.message)
-                            .font(.headline)
-                        Text("\(record.timestamp)")
-                            .font(.subheadline)
-                      Text("\(record.challengeIdentifier)")
-                          .font(.body)
-                        Text("User: \(record.userIdentifier)")
-                            .font(.footnote)
-                        Text("Sentiment: \(record.sentiment)")
-                            .font(.footnote)
-                        Text("Feeling: \(record.predefinedFeeling)")
-                            .font(.footnote)
-                    }
-                }
-            }
-            .navigationTitle("Sentiment Logger")
-        }
-    }
-}
-
-
+//
+//struct FetcherView: View {
+//    //@State  private var cloudKitManager = CloudKitManager.shared
+//    
+//    var body: some View {
+//        NavigationView {
+//            VStack {
+//              NavigationLink(destination: PositiveSentimentView(id: UUID().uuidString)) {
+//                  Image(systemName: "hand.thumbsup").font(.title)
+//                        .padding()
+//                        .background(Color.green)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(8)
+//                       // .symbolEffect(.wiggle,isActive: true)
+//                }
+//                .padding()
+//                
+//              NavigationLink(destination: NegativeSentimentView(id: UUID().uuidString)) {
+//                  Image(systemName: "hand.thumbsdown").font(.title)
+//                        .padding()
+//                        .background(Color.red)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(8)
+//                       // .symbolEffect(.wiggle,isActive: true)
+//                }
+//                .padding()
+//                
+//                Button(action: {
+//                   // cloudKitManager.fetchLogRecords()
+//                }) {
+//                    Text("Fetch All Log Records")
+//                        .padding()
+//                        .background(Color.blue)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(8)
+//                }
+//                .padding()
+//                
+//                List(cloudKitManager.logRecords) { record in
+//                    VStack(alignment: .leading) {
+//                        Text(record.message)
+//                            .font(.headline)
+//                        Text("\(record.timestamp)")
+//                            .font(.subheadline)
+//                      Text("\(record.challengeIdentifier)")
+//                          .font(.body)
+//                        Text("User: \(record.userIdentifier)")
+//                            .font(.footnote)
+//                        Text("Sentiment: \(record.sentiment)")
+//                            .font(.footnote)
+//                        Text("Feeling: \(record.predefinedFeeling)")
+//                            .font(.footnote)
+//                    }
+//                }
+//            }
+//            .navigationTitle("Sentiment Logger")
+//        }
+//    }
+//}
+//
+//
