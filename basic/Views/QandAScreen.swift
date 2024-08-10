@@ -4,7 +4,7 @@ import SwiftUI
 struct QandAScreen: View {
   let row: Int
   let col: Int
-  let st: ChaMan.ChallengeStatus?
+ // let st: ChaMan.ChallengeStatus?
   @Binding var isPresentingDetailView: Bool
   @Bindable  var chmgr:ChaMan //
   @Bindable var gs: GameState  //
@@ -213,7 +213,7 @@ extension QandAScreen {
     }
     .padding(.horizontal)
     .padding(.bottom)
-    .frame(maxWidth: max(0, geometry.size.width), maxHeight: max(0, geometry.size.height * 0.8))
+    .frame(maxWidth: max(0, geometry.size.width), maxHeight: max(0, geometry.size.height * 0.8))//make bigger when bottom buttons gone
   }
   
   func questionSectionVue(geometry: GeometryProxy) -> some View {
@@ -222,14 +222,20 @@ extension QandAScreen {
     let ch = chmgr.everyChallenge[gs.board[row][col]]
     let topicColor =   gs.colorForTopic(ch.topic).0
     
-    return Text(ch.question)
-      .font(.headline)
-      .padding(.horizontal)
-      .background(RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.2))) // Use topic color for background
-      .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.2))
-      .lineLimit(8)
-      .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
+    return ZStack {
+      RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.8))
+      .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.3))
+      Text(ch.question)
+        .font(.title2)
+        .padding(.horizontal)
+        //.background(topicColor.opacity(0.8)) // Use topic color for background //topicColor
+        .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.3))//0.2
+        .lineLimit(8)
+        .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
+        .foregroundColor(.white)
+    }
   }
+ 
   
   func answerButtonsVue(geometry: GeometryProxy) -> some View {
     let answers = chmgr.everyChallenge[gs.board[row][col]]
@@ -345,10 +351,10 @@ extension QandAScreen {
 }
 
 #Preview {
-  QandAScreen(row: 0, col: 0, st: ChaMan.ChallengeStatus.allocated,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0,   isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
   
 }
 #Preview {
-  QandAScreen(row: 0, col: 0, st:ChaMan.ChallengeStatus.playedCorrectly,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState(size: starting_size,                                                                      topics: Array(MockTopics.mockTopics.prefix(starting_size)), challenges:Challenge.mockChallenges))
+  QandAScreen(row: 0, col: 0,  isPresentingDetailView: .constant(true), chmgr: ChaMan(playData: .mock), gs: GameState.mock )
   
 }

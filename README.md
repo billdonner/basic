@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+- version 0.3.9 fix version,integrated .trial1 as autumn for now
 - version 0.3.8 highlights winning path
 - version 0.3.7 reset movenumbber each game,show movenumber in cell of completed questions
 - version 0.3.6 track last move, allow clicking on previously answered questions after game ends

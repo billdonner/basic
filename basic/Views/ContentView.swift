@@ -40,7 +40,7 @@ struct ContentView: View {
                         print("Yikes the ContentView is Disappearing!")
                     }
                     .sheet(item: $chal) { cha in
-                        QandAScreen(row: cha.row, col: cha.col, st: cha.status,
+                        QandAScreen(row: cha.row, col: cha.col,
                                     isPresentingDetailView: $isPresentingDetailView, chmgr: chmgr, gs: gs)
                     }
                     

@@ -218,6 +218,8 @@ class GameState :  Codable {
       print("dealloc failed \(err)")
     }
     chmgr.resetChallengeStatuses(at: challenge_indexes)
+    // clear out last move
+    lastmove = nil
     saveGameState()
   }
   func dumpGameBoard () {
