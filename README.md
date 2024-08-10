@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+- version 0.3.11 withdrew  cloudkit for now, rendered sentiment sumbit buttons useless
 - version 0.3.10 fix cloudkit entitlements
 - version 0.3.9 fix version,integrated .trial1 as autumn for now
 - version 0.3.8 highlights winning path

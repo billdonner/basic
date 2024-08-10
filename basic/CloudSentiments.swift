@@ -134,16 +134,16 @@ struct PositiveSentimentView: View {
             
             Button(action: {
                 let timestamp = Date()
-              cloudKitManager.saveLogRecord(message: message, sentiment: "Positive", predefinedFeeling: selectedFeeling, timestamp: timestamp, challengeIdentifier: id) { result in
-                    switch result {
-                    case .success(let record):
-                        print("Successfully saved positive sentiment record: \(record)")
-                      dismiss()
-                    case .failure(let error):
-                        print("Error saving positive sentiment record: \(error)")
-                        showAlert = true
-                    }
-                }
+//              cloudKitManager.saveLogRecord(message: message, sentiment: "Positive", predefinedFeeling: selectedFeeling, timestamp: timestamp, challengeIdentifier: id) { result in
+//                    switch result {
+//                    case .success(let record):
+//                        print("Successfully saved positive sentiment record: \(record)")
+//                      dismiss()
+//                    case .failure(let error):
+//                        print("Error saving positive sentiment record: \(error)")
+//                        showAlert = true
+//                    }
+//                }
             }) {
                 Text("Submit Positive Sentiment")
                     .padding()
@@ -184,16 +184,16 @@ struct NegativeSentimentView: View {
             
             Button(action: {
                 let timestamp = Date()
-              cloudKitManager.saveLogRecord(message: message, sentiment: "Negative", predefinedFeeling: selectedFeeling, timestamp: timestamp, challengeIdentifier: id) { result in
-                    switch result {
-                    case .success(let record):
-                        print("Successfully saved negative sentiment record: \(record)")
-                      dismiss()
-                    case .failure(let error):
-                        print("Error saving negative sentiment record: \(error)")
-                        showAlert = true
-                    }
-                }
+//              cloudKitManager.saveLogRecord(message: message, sentiment: "Negative", predefinedFeeling: selectedFeeling, timestamp: timestamp, challengeIdentifier: id) { result in
+//                    switch result {
+//                    case .success(let record):
+//                        print("Successfully saved negative sentiment record: \(record)")
+//                      dismiss()
+//                    case .failure(let error):
+//                        print("Error saving negative sentiment record: \(error)")
+//                        showAlert = true
+//                    }
+//                }
             }) {
                 Text("Submit Negative Sentiment")
                     .padding()
@@ -237,7 +237,7 @@ struct FetcherView: View {
                 .padding()
                 
                 Button(action: {
-                    cloudKitManager.fetchLogRecords()
+                   // cloudKitManager.fetchLogRecords()
                 }) {
                     Text("Fetch All Log Records")
                         .padding()
