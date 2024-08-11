@@ -24,7 +24,7 @@ struct GameScreen: View {
   
   var bodyMsg: String {
     let t =  """
-    That was game \(gs.gamenumber) of which you've won \(gs.woncount) and lost \(gs.lostcount) games
+    That was game \(gs.gamenumber) of which:\nyou've won \(gs.woncount) and \nlost \(gs.lostcount) games
 """
     return t
   }

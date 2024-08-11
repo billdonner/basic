@@ -90,7 +90,7 @@ struct SingleCellView: View {
         Circle()
           .fill(Color.neonRed)
           .frame(width: cellSize/5, height: cellSize/5)
-          .offset(x:+cellSize/2 + 10,y:-cellSize/2 + 10)
+          .offset(x:-cellSize/2 + 10,y:cellSize/2 - 10)
       }
           
       if row<gs.boardsize && col<gs.boardsize {

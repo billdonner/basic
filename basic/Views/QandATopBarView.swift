@@ -12,7 +12,7 @@ struct QandATopBarView: View {
   @Binding var killTimer: Bool
   
   @State private var timer: Timer? = nil  // Timer to track elapsed time 
-  @State   var gimmeeAlert = false
+ // @State   var gimmeeAlert = false
   func startTimer() {
     elapsedTime = 0
     timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
@@ -39,11 +39,11 @@ struct QandATopBarView: View {
                 passButton
                     .padding(.leading, 20)
                 Spacer()
-              gimmeeButton
-                .padding(.trailing, 4)
+//              gimmeeButton
+//                .padding(.trailing, 4)
           
-                hintButton
-                    .padding(.trailing, 20)
+//                hintButton
+//                    .padding(.trailing, 20)
             }
           VStack(alignment:.center) {
             Text(topic).multilineTextAlignment(.center)
@@ -55,14 +55,7 @@ struct QandATopBarView: View {
             }.frame(width:geometry.size.width * 0.6)
         }
         .padding(.top)
-        .gimmeeAlert(isPresented: $gimmeeAlert,
-                     title: "I will replace this Question \nwith another from the same topic, \nif possible",
-                     message: "I will charge you one gimmee",
-                     button1Title: "OK",
-                     button2Title: "Cancel",
-                     onButton1Tapped: handleGimmee,
-                     onButton2Tapped: { print("Gimmee cancelled")  },
-                     animation: .spring())
+
         .onAppear {
           startTimer()
         }
@@ -81,38 +74,10 @@ struct QandATopBarView: View {
             Image(systemName: "multiply.circle")
                 .font(.title)
                 .foregroundColor(.white)
-                .frame(width: 40, height: 40)
+                .frame(width: buttSize, height: buttSize)
                 .background(Color.gray)
                 .cornerRadius(10)
         }
-    }
-  var gimmeeButton: some View {
-      Button(action: {
-        gimmeeAlert = true
-      }) {
-          Image(systemName: "arcade.stick.and.arrow.down")
-              .font(.title)
-              .foregroundColor(.white)
-              .frame(width: 40, height: 40)
-              .background(Color.purple)
-              .cornerRadius(10)
-      }    .disabled(gs.gimmees<1)
-      .opacity(gs.gimmees<1 ? 0.5:1)
-  }
-     
-    var hintButton: some View {
-        Button(action: {
-            toggleHint()
-        }) {
-            Image(systemName: "lightbulb")
-                .font(.title)
-                .foregroundColor(.white)
-                .frame(width: 40, height:40)
-                .background(Color.orange)
-                .cornerRadius(10)
-        }
-        .disabled(hint.count <= 1 )
-        .opacity(hint.count <= 1 ? 0.5:1.0)
     }
 
     var elapsedTimeView: some View {

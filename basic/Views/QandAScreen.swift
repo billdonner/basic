@@ -11,6 +11,7 @@ struct QandAScreen: View {
   @Environment(\.dismiss) var dismiss  // Environment value for dismissing the view
   @State  var showInfo = false
  // @State   var gimmeeAllAlert = false
+   @State   var gimmeeAlert = false
   @State   var showThumbsUp:Challenge? = nil
   @State   var showThumbsDown: Challenge? = nil
   @State   var selectedAnswer: String? = nil  // State to track selected answer
@@ -42,8 +43,6 @@ struct QandAScreen: View {
           .disabled(questionedWasAnswered)
           
           questionAndAnswersSectionVue(geometry: geometry).disabled(questionedWasAnswered)
-          Spacer()
-          bottomButtons.disabled(questionedWasAnswered)
         }
         .background(Color(UIColor.systemBackground))
         .cornerRadius(12)
@@ -73,132 +72,20 @@ struct QandAScreen: View {
         .sheet(item:$showThumbsUp) { ch in
           PositiveSentimentView(id: ch.id)
         }
-  
-        
-//        .gimmeeAllAlert(isPresented: $gimmeeAllAlert, title: "I will replace this Question \nwith another from any topic", message: "I will charge you one gimmee", buttonTitle: "OK", onButtonTapped: {
-//          handleGimmee(row:row,col:col)
-//          handleDismissal(toRoot:false)
-//        }, animation: .spring())
+        .gimmeeAlert(isPresented: $gimmeeAlert,
+                     title: "I will replace this Question \nwith another from the same topic, \nif possible",
+                     message: "I will charge you one gimmee",
+                     button1Title: "OK",
+                     button2Title: "Cancel",
+                     onButton1Tapped: handleGimmee,
+                     onButton2Tapped: { print("Gimmee cancelled")  },
+                     animation: .spring())
+ 
       }
     }
   }
   
-  var bottomButtons: some View {
-    HStack(spacing: 10) {
-      thumbsUpButton
-      thumbsDownButton
-      markCorrectButton
-      markIncorrectButton
-      //gimmeeButton
-      infoButton
-    }
-    .padding(.bottom)
-    .frame(height: 60)
-  }
-  
-  var thumbsUpButton: some View {
-      Button(action: {
-        showThumbsUp =  chmgr.everyChallenge[gs.board[row][col]]
-      }){
-        Image(systemName: "hand.thumbsup").font(.title)
-              .padding()
-              .background(Color.blue)
-              .foregroundColor(.white)
-              .cornerRadius(8)
-              //.symbolEffect(.wiggle,isActive: true)
-      }
-  }
-  var thumbsDownButton: some View {
-      Button(action: {
-        showThumbsDown = chmgr.everyChallenge[gs.board[row][col]]
-      }){
-        Image(systemName: "hand.thumbsdown").font(.title)
-              .padding()
-              .background(Color.red)
-              .foregroundColor(.white)
-              .cornerRadius(8)
-             // .symbolEffect(.wiggle,isActive: true)
-      }
-  }
-  var passButton: some View {
-    Button(action: {
-      handlePass()
-    }) {
-      Image(systemName: "multiply.circle")
-        .font(.title)
-        .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        .background(Color.gray)
-        .cornerRadius(10)
-    }
-  }
-  var markCorrectButton: some View {
-    Button(action: {
-      let x = chmgr.everyChallenge[gs.board[row][col]]
-      answeredCorrectly(x,row:row,col:col,answered:x.correct)
-    }) {
-      Image(systemName: "checkmark.circle")
-        .font(.headline)
-       // .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-       // .background(Color.green)
-        .cornerRadius(10)
-    }
-  }
-  var markIncorrectButton: some View {
-    Button(action: {
-      let x = chmgr.everyChallenge[gs.board[row][col]]
-      answeredIncorrectly(x,row:row,col:col,answered:x.correct)
-    }) {
-      Image(systemName: "xmark.circle")
-        .font(.headline)
-       // .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        //.background(Color.red)
-        .cornerRadius(10)
-    }
-  }
-//  var gimmeeButton: some View {
-//    Button(action: {
-//      gimmeeAlert = true
-//    }) {
-//      Image(systemName: "arcade.stick.and.arrow.down")
-//        .font(.title)
-//        .foregroundColor(.white)
-//        .frame(width: 50, height: 50)
-//        .background(Color.purple)
-//        .cornerRadius(10)
-//    }
-//    .disabled(gs.gimmees<1)
-//    .opacity(gs.gimmees<1 ? 0.5:1)
-//    
-//  }
-  var infoButton: some View {
-    Button(action: {
-      showInfo = true
-    }) {
-      Image(systemName: "info.circle")
-        .font(.headline)
-      //  .foregroundColor(.white)
-        .frame(width: 50, height: 50)
-        //.background(Color.blue)
-        .cornerRadius(10)
-    }
-  }
-//  var gimmeeAllButton: some View {
-//    Button(action: {
-//      gimmeeAllAlert = true
-//    }) {
-//      Image(systemName: "arcade.stick.and.arrow.up")
-//        .font(.title)
-//        .foregroundColor(.white)
-//        .frame(width: 50, height: 50)
-//        .background(Color.purple)
-//        .cornerRadius(10)
-//    }
-//    .disabled(gs.gimmees<1)
-//    .opacity(gs.gimmees<1 ? 0.5:1)
-//  }
+ 
 }
 extension QandAScreen {
   func questionAndAnswersSectionVue(geometry: GeometryProxy) -> some View {
@@ -224,16 +111,19 @@ extension QandAScreen {
       // Invalid frame dimension (negative or non-finite).?
       .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.3))
       HStack {
-        Spacer()
-        markCorrectButton
-          .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))
-        markIncorrectButton
-          .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))
-        infoButton
-          .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))
-        
-      }.offset(x:0, y:-geometry.size.height * 0.15 + 25)
-    
+        gimmeeButton 
+        hintButton
+        thumbsUpButton
+        thumbsDownButton
+        if freeportButtons {
+          markCorrectButton
+          markIncorrectButton
+          infoButton
+        }
+      }
+      .frame(width: max(0,contentWidth*0.9),height:buttSize)
+      .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))
+      .offset(x:0, y:-geometry.size.height * 0.15 + 25)
       Text(ch.question)
         .font(.title2)
         .padding(.horizontal)

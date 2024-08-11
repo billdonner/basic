@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+- version 0.3.15 fix visuals, white/black etc, leave red mark on played cells
 - version 0.3.14 fix mocks, fix gimmees all around
 - version 0.3.13 removed previews using previewable
 - version 0.3.12 trying again
