@@ -60,8 +60,8 @@ struct ContentView: View {
     }
 }
 
-//#Preview {
-//  ContentView(gs: GameState(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges), chmgr: ChaMan(playData: PlayData.mock))
-//}
+#Preview {
+  ContentView(gs: GameState.mock, chmgr: ChaMan.mock)
+}
 
 

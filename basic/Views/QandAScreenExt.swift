@@ -27,19 +27,25 @@ func handleDismissal(toRoot:Bool) {
     }
   }
   
-  func handleGimmee(row:Int,col:Int) {
-    let idx = row*gs.boardsize + col
+  func handleGimmee() {
+
+    killTimer = true
+     
+    let idx = gs.board[row][col]
     let result = chmgr.replaceChallenge(at:idx)
     switch result {
     case .success(let index):
       gs.gimmees -= 1
       gs.board[row][col] = index[0]
-      print("Gimmee realloation successful")
+      gs.cellstate[row][col] = .unplayed
+      gs.replaced[row][col] += [idx] // keep track of what we are replacing
+      gs.replacedcount += 1
+      print("Gimmee realloation successful \(index)")
       
     case .error(let error):
       print("Couldn't handle gimmee reallocation \(error)")
     }
-    killTimer = true
+    gs.saveGameState()
     dismiss()
   }
   

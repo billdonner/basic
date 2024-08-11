@@ -212,6 +212,7 @@ fileprivate struct SettingsView: View {
     gs.cellstate = Array(repeating: Array(repeating: .unplayed, count: l_boardsize), count: l_boardsize)
     gs.moveindex = Array(repeating: Array(repeating: -1, count: l_boardsize), count: l_boardsize)
     gs.onwinpath = Array(repeating: Array(repeating: false, count: l_boardsize), count: l_boardsize)
+    gs.replaced = Array(repeating: Array(repeating: [], count: l_boardsize), count: l_boardsize)
     gs.topicsinplay = l_topicsinplay // //*****2
     gs.currentscheme = ColorSchemeName(rawValue:l_currentScheme) ?? .bleak
     chmgr.checkAllTopicConsistency("GameSettingScreen onDonePressed")

@@ -250,3 +250,34 @@ extension Color: Codable {
   }
 }
 
+// Helper function to calculate luminance
+func calculateLuminance(red: CGFloat, green: CGFloat, blue: CGFloat) -> CGFloat {
+    return 0.299 * red + 0.587 * green + 0.114 * blue
+}
+
+// Function with Color argument
+func foregroundColorFrom( backgroundColor: Color) -> Color {
+    // Convert Color to UIColor to extract components
+    let uiColor = UIColor(backgroundColor)
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+    
+    uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    
+    // Use the helper function to calculate luminance
+    let luminance = calculateLuminance(red: red, green: green, blue: blue)
+    
+    // Return either white or black based on luminance
+    return luminance > 0.5 ? Color.black : Color.white
+}
+
+// Function with RGB values as arguments
+func foregroundColorFrom( red: CGFloat, green: CGFloat, blue: CGFloat) -> Color {
+    // Use the helper function to calculate luminance
+    let luminance = calculateLuminance(red: red, green: green, blue: blue)
+    
+    // Return either white or black based on luminance
+    return luminance > 0.5 ? Color.black : Color.white
+}

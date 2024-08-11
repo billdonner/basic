@@ -79,9 +79,8 @@ struct TopicIndexView: View {
 struct TopicIndexView_Previews: PreviewProvider {
     static var previews: some View {
         TopicIndexView(
-            gs: GameState(size: 3, topics: Array(MockTopics.mockTopics.prefix(12)),
-                          challenges: Challenge.mockChallenges),
-            chmgr: ChaMan(playData: PlayData.mock)
+          gs: GameState.mock,
+            chmgr: ChaMan.mock
         )
     }
 }

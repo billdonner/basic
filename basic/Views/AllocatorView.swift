@@ -67,7 +67,7 @@ struct AllocatorView: View {
 struct AllocatorView_Previews: PreviewProvider {
   static var previews: some View {
     AllocatorView(chmgr: ChaMan(playData:PlayData.mock),
-                  gs: GameState(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges))
+                  gs: GameState.mock)
     
   }
 }

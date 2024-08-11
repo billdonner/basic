@@ -80,5 +80,6 @@ struct TopicDetailsView: View {
 }
 
 #Preview {
-  TopicDetailsView(topic:"Fun",gs:GameState(size: 3, topics:Array(MockTopics.mockTopics.prefix(7)), challenges: Challenge.mockChallenges), chmgr: ChaMan(playData: PlayData.mock))
+  TopicDetailsView(topic:"Fun",gs:GameState.mock,
+    chmgr: ChaMan.mock )
 }

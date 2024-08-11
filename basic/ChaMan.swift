@@ -97,7 +97,7 @@ class ChaMan {
         topicInfo.checkConsistency()
       }
     }
-   // dumpStati("allocateChallenges start")
+    // dumpStati("allocateChallenges start")
     checkAllTopicConsistency("allocateChallenges start")
     // Defensive check for empty topics array
     guard !topics.isEmpty else {
@@ -108,7 +108,7 @@ class ChaMan {
     for topic in topics {
       if let topicInfo = tinfo[topic] {
         let idxs:[Int]=topicInfo.challengeIndices.compactMap{stati[$0] == .inReserve ? $0 : nil}
-      topicIndexes[topic] = idxs
+        topicIndexes[topic] = idxs
       } else {
         return .error(.invalidTopics([topic]))
       }
@@ -204,7 +204,7 @@ class ChaMan {
     var tinfobuffer: [String: TopicInfo] = tinfo
     checkAllTopicConsistency("dealloc  start")
     
-   // dumpStati("deallcx start")
+    // dumpStati("deallcx start")
     
     //print("-----Deallocating Challenge Indices: \(indexes)")
     // Collect the indexes of the challenges to deallocate and group by topic
@@ -266,8 +266,7 @@ class ChaMan {
     //dumpStati("deallcx end")
     return .success([])
   }
-  
-  // Replace a challenge at a specific index and update internal structures
+  // find another challenge index for same topic and allocate it
   func replaceChallenge(at index: Int) -> AllocationResult {
     guard index < everyChallenge.count else {
       return .error(.invalidTopics(["Invalid index: \(index)"]))
@@ -279,31 +278,25 @@ class ChaMan {
     
     // Find a new challenge to replace the old one
     if var topicInfo = tinfo[topic] {
-      if let newChallengeIndex = topicInfo.challengeIndices.last(where: { stati[$0] == .inReserve }) {
-        let newChallenge = everyChallenge[newChallengeIndex]
-        // swap the actual challenges
-        everyChallenge[index] = newChallenge
-        everyChallenge[newChallengeIndex] = challenge
-        print("replaceChallenge at \(index) with challenge at \(newChallengeIndex)")
-        stati[newChallengeIndex] = .abandoned
-        print("marking \(newChallengeIndex) as abandoned")
-        print("status of \(index) is \(stati[index])")
-        
-        // dont need to change the indices because we swapped challenges
-        
-        topicInfo.replacedcount += 1
-        topicInfo.freecount -= 1
-        tinfo[topic] = topicInfo
-        save()
-        // Return the index of the we supplied
-        checkAllTopicConsistency("replaceChallenge end")
-        return .success([index])
-      } else {
+      // for now just try within topic
+      guard let newChallengeIndex = topicInfo.challengeIndices.last(where: { stati[$0] == .inReserve }) else {
         return .error(.insufficientChallenges)
       }
-    } else {
-      return .error(.invalidTopics([topic]))
+
+      print("replacing Challenge at \(index) with challenge at \(newChallengeIndex)")
+      stati[index] = .abandoned
+      print("marking \(index) as abandoned")
+      stati[newChallengeIndex] = .allocated
+      print("marking \(newChallengeIndex) is \(stati[newChallengeIndex])")
+      topicInfo.replacedcount += 1
+      topicInfo.freecount -= 1
+      tinfo[topic] = topicInfo
+      save()
+      // Return the index of the we supplied
+      checkAllTopicConsistency("replaceChallenge end")
+      return .success([newChallengeIndex])
     }
+    return .error(.invalidTopics([topic]))
   }
   
   func loadPlayData(from filename: String ) throws {
@@ -313,7 +306,7 @@ class ChaMan {
     }
     let data = try Data(contentsOf: url)
     let pd = try JSONDecoder().decode(PlayData.self, from: data)
-    self.playData = pd 
+    self.playData = pd
     if let loadedStatuses = loadChallengeStatuses() {
       self.stati = loadedStatuses
     } else {
@@ -330,7 +323,7 @@ class ChaMan {
     } else {
       setupTopicInfo() // build from scratch
     }
-
+    
     if let loadedAnswers = AnsweredInfo.loadAnsweredInfo() {
       self.ansinfo = loadedAnswers
     } else {
@@ -358,6 +351,6 @@ class ChaMan {
   }
   
   
-
+  
   
 }

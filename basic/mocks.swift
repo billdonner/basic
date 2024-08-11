@@ -12,7 +12,7 @@ extension PlayData {
   static let topic1 = BasicTopic(name: "topic1", subject: "topic1", pic: "", notes: "notes", subtopics: [])
   static let topic2 = BasicTopic(name: "topic2", subject: "topic2", pic: "", notes: "notes", subtopics: [])
   static let topic3 = BasicTopic(name: "topic3", subject: "topic3", pic: "", notes: "notes", subtopics: [])
-  static let topic4 = BasicTopic(name: "topic4", subject: "topic4", pic: "", notes: "notes", subtopics: [])
+  static let topic4 = BasicTopic(name: "Fantasy Geography", subject: "Fantasy Geography", pic: "", notes: "notes", subtopics: [])
   static var tg : TopicGroup =  TopicGroup(description: "Mock Topics",
                                            version:"1.0",
                                            author: "WLD",
@@ -24,11 +24,20 @@ extension PlayData {
   static let mock = PlayData(topicData: tg, gameDatum: [gd1], playDataId: "id123", blendDate: Date.now, pic: nil)
 }
 
-
-extension GameState {
-
+extension ChaMan {
   static var mock = {
-    let x = GameState(size:3,topics:Array(MockTopics.mockTopics.prefix(5)),  challenges:Challenge.mockChallenges)
+    ChaMan(playData: PlayData.mock)
+  }()
+  
+}
+extension GameState {
+  static let mockTopics = [
+      "Fantasy Geography", "History", "Science", "Literature",
+      "Cuisine"
+  ]
+  
+  static var mock = {
+    let x = GameState(size:3,topics:mockTopics,  challenges:Challenge.mockChallenges)
     x.movenumber = 1
     x.moveindex[0][0] = 1
     x.lastmove = .init(row: 0, col: 0)
@@ -184,45 +193,19 @@ func getRandomTopics(_ count: Int, from topics: [String]) -> [String] {
   print("Choosing \(count) random topics : \(t)")
   return t
 }
-class MockTopics {
-static let mockTopics = [
-    "Science", "Technology", "Engineering", "Mathematics",
-    "History", "Geography", "Art", "Literature",
-    "Music", "Philosophy", "Sports", "Nature",
-    "Politics", "Economics", "Culture", "Health",
-    "Education", "Language", "Religion", "Society",
-    "Psychology", "Law", "Media", "Environment",
-    "Space", "Travel", "Food", "Fashion",
-    "Movies", "Games", "Animals", "Plants",
-    "Computers", "Robotics", "AI", "Software",
-    "Hardware", "Networking", "Data", "Security",
-    "Biology", "Chemistry", "Physics", "Astronomy",
-    "Geology", "Meteorology", "Oceanography", "Ecology"
-]
-  static let shared = MockTopics()
-  private let topicsKey = "selectedTopics"
-  private let schemeIndexKey = "selectedSchemeIndex"
-  private init() {}
 
-
-
-  /// Loads topics from UserDefaults.
-  func loadTopics() -> [String] {
-      return UserDefaults.standard.stringArray(forKey: topicsKey) ?? []
-  }
-
-  /// Saves topics to UserDefaults.
-  func saveTopics(_ topics: [String]) {
-      UserDefaults.standard.setValue(topics, forKey: topicsKey)
-  }
-
-  /// Loads the color scheme index from UserDefaults.
-  func loadSchemeIndex() -> Int {
-      return UserDefaults.standard.integer(forKey: schemeIndexKey)
-  }
-
-  /// Saves the color scheme index to UserDefaults.
-  func saveSchemeIndex(_ index: Int) {
-      UserDefaults.standard.setValue(index, forKey: schemeIndexKey)
-  }
-}
+/* ,
+ 
+ 
+ "Geography", "Art", "Literature",
+ "Music", "Philosophy", "Sports", "Nature",
+ "Politics", "Economics", "Culture", "Health",
+ "Education", "Language", "Religion", "Society",
+ "Psychology", "Law", "Media", "Environment",
+ "Space", "Travel", "Food", "Fashion",
+ "Movies", "Games", "Animals", "Plants",
+ "Computers", "Robotics", "AI", "Software",
+ "Hardware", "Networking", "Data", "Security",
+ "Biology", "Chemistry", "Physics", "Astronomy",
+ "Geology", "Meteorology", "Oceanography", "Ecology"
+ */

@@ -96,9 +96,8 @@ struct FreeportSettingsScreen: View {
 
 #Preview ("Settings"){
   FreeportSettingsScreen(gs: 
-                          GameState(size: starting_size,topics: Array(MockTopics.mockTopics.prefix(starting_size)),
-                                                challenges:Challenge.mockChallenges)  
-                          , chmgr: ChaMan(playData: PlayData.mock))
+                          GameState.mock,
+                         chmgr: ChaMan.mock)
 }
 
 

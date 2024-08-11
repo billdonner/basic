@@ -72,6 +72,7 @@ extension ChaMan {
         gs.movenumber = gb.movenumber
         gs.moveindex = gb.moveindex
         gs.onwinpath = gb.onwinpath
+        gs.replaced = gb.replaced
       }
       try self.loadPlayData(from: playDataFileName)
       

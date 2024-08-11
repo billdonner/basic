@@ -36,6 +36,7 @@ class GameState :  Codable {
   var lastmove: GameMove?
   var moveindex: [[Int]] // -1 is unplayed
   var onwinpath: [[Bool]] // only set after win detected
+  var replaced:[[[Int]]] // list of replacements in this cell
   
   
   func checkVsChaMan(chmgr:ChaMan) -> Bool {
@@ -114,6 +115,7 @@ class GameState :  Codable {
     case _difficultylevel = "difficultylevel"
     case _moveindex = "moveindex"
     case _onwinpath = "onwinpath"
+    case _replaced = "replaced"
   }
   func basicTopics()->[BasicTopic] {
     return topicsinplay.map {BasicTopic(name: $0)}
@@ -125,6 +127,7 @@ class GameState :  Codable {
     self.cellstate = Array(repeating: Array(repeating: .unplayed, count: size), count: size)
     self.moveindex = Array(repeating: Array(repeating: -1, count: size), count: size) 
     self.onwinpath = Array(repeating: Array(repeating: false, count: size), count: size)
+    self.replaced = Array(repeating: Array(repeating: [], count: size), count: size)
     self.gimmees = 0
     self.gamenumber = 0
     self.movenumber = 0
@@ -152,7 +155,8 @@ class GameState :  Codable {
     self.board = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize)
     self.moveindex = Array(repeating: Array(repeating: -1, count:  boardsize), count:   boardsize) 
     self.onwinpath = Array(repeating: Array(repeating:false, count:  boardsize), count:   boardsize)
-    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: boardsize), count:  boardsize)
+    self.cellstate = Array(repeating: Array(repeating:.unplayed, count: boardsize), count:  boardsize) 
+    self.replaced  = Array(repeating: Array(repeating:[], count: boardsize), count:  boardsize)
     // give player a few gimmees depending on boardsize
     self.gimmees += boardsize - 1
     // use topicsinplay and allocated fresh challenges
@@ -221,16 +225,6 @@ class GameState :  Codable {
     // clear out last move
     lastmove = nil
     saveGameState()
-  }
-  func dumpGameBoard () {
-    print("Dump of GameBoard")
-    print("================")
-    print("size ",boardsize)
-    print("gamestate",gamestate)
-    print("gimmees ",gimmees)
-    print("totaltime ",totaltime)
-    print("topicsinplay ",topicsinplay)
-    print("================")
   }
   
   // this returns unplayed challenges and their indices in the challengestatus array

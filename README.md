@@ -1,4 +1,5 @@
 #  Basic Recofig For Qanda
+- version 0.3.14 fix mocks, fix gimmees all around
 - version 0.3.13 removed previews using previewable
 - version 0.3.12 trying again
 - version 0.3.11 withdrew  cloudkit for now, rendered sentiment sumbit buttons useless

@@ -85,6 +85,14 @@ struct SingleCellView: View {
           .frame(width: cellSize/5, height: cellSize/5)
           .offset(x:-cellSize/2 + 10,y:-cellSize/2 + 10) 
       }
+      // mark upper right as well if its been replaced
+      if gs.replaced[row][col] != [] {
+        Circle()
+          .fill(Color.neonRed)
+          .frame(width: cellSize/5, height: cellSize/5)
+          .offset(x:+cellSize/2 + 10,y:-cellSize/2 + 10)
+      }
+          
       if row<gs.boardsize && col<gs.boardsize {
         
         // part 4:
@@ -99,8 +107,7 @@ struct SingleCellView: View {
           Image(systemName:"\(gs.moveindex[row][col]).circle")
             .font(.title)
             .opacity(gs.moveindex[row][col] != -1 ? 0.7:0.0)
-            .foregroundColor(
-              .black
+            .foregroundColor(foregroundColorFrom( backgroundColor:gs.colorForTopic (   challenge.topic ).0)
             )
         }
         // part 5:
