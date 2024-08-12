@@ -61,7 +61,8 @@ struct SingleCellView: View {
     let thisCellIsLastMove:Bool  = gs.lastmove?.row == row &&  gs.lastmove?.col == col
     let challenge = chidx < 0 ? Challenge.amock : chmgr.everyChallenge[chidx]
     let colormix = gs.colorForTopic(challenge.topic)
-    return ZStack {
+
+    return  ZStack {
       // part 1:
       // if faceup show the question else blank
       VStack(alignment:.center, spacing:0) {
@@ -84,8 +85,10 @@ struct SingleCellView: View {
           .fill(Color.orange)
           .frame(width: cellSize/5, height: cellSize/5)
           .offset(x:-cellSize/2 + 10,y:-cellSize/2 + 10) 
-      }
+      }// might have row or col out of whack here
       // mark upper right as well if its been replaced
+      
+  if row<gs.boardsize && col<gs.boardsize {
       if gs.replaced[row][col] != [] {
         Circle()
           .fill(Color.neonRed)
@@ -93,7 +96,6 @@ struct SingleCellView: View {
           .offset(x:-cellSize/2 + 10,y:cellSize/2 - 10)
       }
           
-      if row<gs.boardsize && col<gs.boardsize {
         
         // part 4:
         // nice sfsymbols only until 50
