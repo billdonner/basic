@@ -53,10 +53,10 @@ extension GameScreen /* actions */ {
     chmgr.dumpTopics()
   }
   func onStartGame(boardsize:Int ) -> Bool {
-    print("//GameScreen onStartGame before  topics: \(gs.topicsinplay) size:\( boardsize)")
+   // print("//GameScreen onStartGame before  topics: \(gs.topicsinplay) size:\( boardsize)")
     // chmgr.dumpTopics()
     let ok = gs.setupForNewGame(boardsize:boardsize,chmgr: chmgr )
-    print("//GameScreen onStartGame after")
+   // print("//GameScreen onStartGame after")
     // chmgr.dumpTopics()
     if !ok {
       print("Failed to allocate \(gs.boardsize*gs.boardsize) challenges for topic \(topics.joined(separator: ","))")
