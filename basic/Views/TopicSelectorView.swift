@@ -11,8 +11,7 @@ import SwiftUI
    
     let allTopics: [String]
     @Binding var selectedTopics: [String]
-    @Binding var selectedSchemeIndex: Int//ColorSchemeName
-   
+    @Binding var selectedSchemeIndex: Int
     let chmgr: ChaMan
     let boardSize: Int
     @State private var searchText = ""
@@ -25,14 +24,17 @@ import SwiftUI
           Text("board size:\(boardSize)x\(boardSize) requires \(minTopics)-\(maxTopics) topics.")
             Text("You can select \(maxTopics - selectedTopics.count) more topics.")
                 .font(.subheadline)
-                .padding(.bottom)
+          Text("You can reroll the pre-selected topics once.\nAfter that you must pay in gimmees.")
+              .font(.caption)
+              .padding(.bottom)
 
             List {
                 Section(header: Text("Pre-selected Topics")) {
                
                   ForEach(selectedTopics.prefix(GameState.preselectedTopicsForBoardSize(boardSize)), id: \.self) { topic in
                         HStack {
-                            Text(topic)
+                          Text(topic).font(.body)
+                          Text("\(chmgr.freeChallengesCount(for: topic))").font(.caption2)
                             Spacer()
                             if let previousTopic = rerolledTopics[topic] {
                                 Text(previousTopic)
@@ -56,16 +58,16 @@ import SwiftUI
                     }
                 }
 
-                Section(header: Text("Selected Topics")) {
-                    ForEach(selectedTopics.dropFirst(boardSize - 1), id: \.self) { topic in
+                Section(header: Text("Your Selected Topics")) {
+                  ForEach(selectedTopics.dropFirst(GameState.preselectedTopicsForBoardSize(boardSize)), id: \.self) { topic in
                         Button(action: {
                             if selectedTopics.contains(topic) {
                                 selectedTopics.removeAll { $0 == topic }
                             }
                         }) {
-                          let count = chmgr.freeChallengesCount(for: topic)
                             HStack {
-                                Text(topic+"\(count)")
+                              Text(topic).font(.body)
+                              Text("\(chmgr.freeChallengesCount(for: topic))").font(.caption2)
                                 Spacer()
                                 Image(systemName: "checkmark")
                                     .foregroundColor(.green)
@@ -74,7 +76,7 @@ import SwiftUI
                     }
                 }
 
-                Section(header: Text("All Topics")) {
+                Section(header: Text("Remaining Topics")) {
                     ForEach(filteredTopics, id: \.self) { topic in
                         Button(action: {
                             if !selectedTopics.contains(topic) && selectedTopics.count < maxTopics {
@@ -82,7 +84,8 @@ import SwiftUI
                             }
                         }) {
                             HStack {
-                                Text(topic)
+                              Text(topic).font(.body)
+                              Text("\(chmgr.freeChallengesCount(for: topic))").font(.caption2)
                                 Spacer()
                             }
                         }

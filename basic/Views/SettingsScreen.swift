@@ -62,144 +62,122 @@ fileprivate struct SettingsView: View {
   }
   
   var body: some View {
-    Form {
-      Section(header: Text("Board Size")) {
-        Picker("Board Size", selection: $l_boardsize) {
-          Text("3x3").tag(3)
-          Text("4x4").tag(4)
-          Text("5x5").tag(5)
-          Text("6x6").tag(6)
-          Text("7x7").tag(7)
-          Text("8x8").tag(8)
-        }
-        .pickerStyle(SegmentedPickerStyle())
-      }
-      Section(header: Text("Difficulty Level")) {
-        Picker("Difficulty Level", selection: $l_difficultyLevel) {
-          Text("Easy").tag(1)
-          Text("Normal").tag(2)
-          Text("Hard").tag(3)
-        }
-        .pickerStyle(SegmentedPickerStyle())
-        .background(Color(.systemBackground).clipShape(RoundedRectangle(cornerRadius: 10)))
-      }
-      // .onChange(of: l_difficultyLevel, initial: false)
-      // { _,_ in onParameterChange() }
-      Section(header: Text("Starting Position")) {
-        HStack {
-          Text("Anywhere")
-          Spacer()
-          Toggle("", isOn: $l_startInCorners)
-            .labelsHidden()
-          Spacer()
-          Text("Corners")
-        }
-        .frame(maxWidth: .infinity)
-      }
-      // .onChange(of: l_startInCorners, initial: false)
-      // { _,_ in onParameterChange() }
-      Section(header: Text("Cards Face")) {
-        HStack {
-          Text("Face Down")
-          Spacer()
-          Toggle("", isOn: $l_faceUpCards)
-            .labelsHidden()
-          Spacer()
-          Text("Face Up")
-        }
-        .frame(maxWidth: .infinity)
-      }
-      // .onChange(of: l_faceUpCards, initial: false )
-      // { _,_ in onParameterChange() }
-//      Section(header: Text("Double Diag")) {
-//        HStack {
-//          Text("One Diag")
-//          Spacer()
-//          Toggle("", isOn: $l_doubleDiag)
-//            .labelsHidden()
-//          Spacer()
-//          Text("Both Diags")
-//        }
-//        .frame(maxWidth: .infinity)
-//      }
-      //.onChange(of: l_doubleDiag, initial: false)
-      // { _,_ in onParameterChange() }
-      Section(header: Text("Color Palette")) {
-        Picker("Color Palette", selection: $l_currentScheme) {
-          ForEach(AppColors.allSchemes.indices.sorted(),id:\.self) { idx in
-            Text("\(AppColors.allSchemes[idx].name)")
-              .tag(idx)
+    VStack {
+
+      Form {
+        Section(header: Text("Settings")) {
+          
+          Picker("Board Size", selection: $l_boardsize) {
+            Text("3x3").tag(3)
+            Text("4x4").tag(4)
+            Text("5x5").tag(5)
+            Text("6x6").tag(6)
+            Text("7x7").tag(7)
+            Text("8x8").tag(8)
           }
-        }
-        .pickerStyle(SegmentedPickerStyle())
-        .background(colorPaletteBackground.clipShape(RoundedRectangle(cornerRadius: 10)))
-      }
-//      .onChange(of: l_currentScheme, initial: false)      {
-//        print("Scheme changed to \(l_currentScheme)")
-//      }
-      
-      Section(header: Text("Topics")) {
-        NavigationLink(destination: TopicsChooserScreen(
-              allTopics:chmgr.everyTopicName,
-              schemes: AppColors.allSchemes,
-              boardsize: gs.boardsize,
-              topicsinplay: gs.topicsinplay, 
-              chmgr: chmgr,
-              currentScheme: $l_currentScheme,
-              selectedTopics: $l_topicsinplay))
-        {
-          Text("Choose Topics")
-            .padding()
-            .foregroundColor(.blue)
-        }
-      }
-      .onAppear {
-        if firstOnAppear {
-          firstOnAppear = false
-          chmgr.checkAllTopicConsistency("GameSettings onAppear")
-        }
-      }
-      
-      Section(header:Text("About QANDA")) {
-        VStack{
-          HStack { Spacer()
-            AppVersionInformationView(
-              name:AppNameProvider.appName(),
-              versionString: AppVersionProvider.appVersion(),
-              appIcon: AppIconProvider.appIcon()
-            )
+          .pickerStyle(SegmentedPickerStyle())
+          Picker("Difficulty Level", selection: $l_difficultyLevel) {
+            Text("Easy").tag(1)
+            Text("Normal").tag(2)
+            Text("Hard").tag(3)
+          }
+          .pickerStyle(SegmentedPickerStyle())
+          .background(Color(.systemBackground).clipShape(RoundedRectangle(cornerRadius: 10)))
+          
+          
+          HStack {
+            Text("Start Anywhere")
             Spacer()
+            Toggle("", isOn: $l_startInCorners)
+              .labelsHidden()
+            Spacer()
+            Text("Start in Corners")
           }
-          .onChange(of:l_topicsinplay,initial:true ) { old,newer in
-            print("Game With Topics:",l_topicsinplay.joined(separator: ","))
+          .frame(maxWidth: .infinity)
+          
+          
+          HStack {
+            Text("Face Down")
+            Spacer()
+            Toggle("", isOn: $l_faceUpCards)
+              .labelsHidden()
+            Spacer()
+            Text("Face Up")
+          }.disabled(l_boardsize>4)
+            .frame(maxWidth: .infinity)
+          
+          
+          Picker("Color Palette", selection: $l_currentScheme) {
+            ForEach(AppColors.allSchemes.indices.sorted(),id:\.self) { idx in
+              Text("\(AppColors.allSchemes[idx].name)")
+                .tag(idx)
+            }
+          }
+          .pickerStyle(SegmentedPickerStyle())
+          .background(colorPaletteBackground.clipShape(RoundedRectangle(cornerRadius: 10)))
+          
+          NavigationLink(destination: TopicsChooserScreen(
+            allTopics:chmgr.everyTopicName,
+            schemes: AppColors.allSchemes,
+            boardsize: gs.boardsize,
+            topicsinplay: gs.topicsinplay,
+            chmgr: chmgr,
+            currentScheme: $l_currentScheme,
+            selectedTopics: $l_topicsinplay))
+          {
+            Text("Choose Topics")
           }
           
-          Button(action: { showSettings.toggle() }) {
-            Text("Freeport Settings")
+          
+        }
+        .onAppear {
+          if firstOnAppear {
+            firstOnAppear = false
+            chmgr.checkAllTopicConsistency("GameSettings onAppear")
+          }
+        }
+        
+        Section(header:Text("About QANDA")) {
+          VStack{
+            HStack { Spacer()
+              AppVersionInformationView(
+                name:AppNameProvider.appName(),
+                versionString: AppVersionProvider.appVersion(),
+                appIcon: AppIconProvider.appIcon()
+              )
+              Spacer()
+            }
+            .onChange(of:l_topicsinplay,initial:true ) { old,newer in
+              print("Game With Topics:",l_topicsinplay.joined(separator: ","))
+            }
+            
+            Button(action: { showSettings.toggle() }) {
+              Text("Freeport Settings")
+            }
           }
         }
       }
-    }
-    .sheet(isPresented:$showSettings){
-      FreeportSettingsScreen(gs: gs, chmgr: chmgr)
-    }
-//    .onDisappear {
-//      onExit(l_topicsinplay) // do whatever
-//    }
-    .navigationBarTitle("Game Settings", displayMode: .inline)
-    .navigationBarItems(
-      leading: Button("Cancel") {
-        // dont touch anything
-        print("//GameSettingsScreen Cancel Pressed topics were: \(l_topicsinplay)")
-        self.presentationMode.wrappedValue.dismiss()
-      },
-      trailing: Button("Done") {
-        print("//GameSettingsScreen Done Pressed ")
-        onDonePressed()
-        self.presentationMode.wrappedValue.dismiss()
+      .sheet(isPresented:$showSettings){
+        FreeportSettingsScreen(gs: gs, chmgr: chmgr)
       }
-    )
-    //}
+      //    .onDisappear {
+      //      onExit(l_topicsinplay) // do whatever
+      //    }
+      .navigationBarTitle("Game Settings", displayMode: .inline)
+      .navigationBarItems(
+        leading: Button("Cancel") {
+          // dont touch anything
+          // print("//GameSettingsScreen Cancel Pressed topics were: \(l_topicsinplay)")
+          self.presentationMode.wrappedValue.dismiss()
+        },
+        trailing: Button("Done") {
+          // print("//GameSettingsScreen Done Pressed ")
+          onDonePressed()
+          self.presentationMode.wrappedValue.dismiss()
+        }
+      )
+
+    }
   }
   private func onDonePressed() {
     // copy every change into gameState
@@ -235,4 +213,7 @@ struct SettingsScreen :
       )
     }
   }
+}
+#Preview {
+  SettingsScreen(chmgr: ChaMan.mock,gs:GameState.mock)
 }

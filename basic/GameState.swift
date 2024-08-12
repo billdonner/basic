@@ -257,38 +257,38 @@ class GameState :  Codable {
   }
   static  func minTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
-    case 3: return 2
+    case 3: return 3
     case 4: return 3
-    case 5: return 4
-    case 6: return 4
-    case 7: return 4
-    case 8: return 4
-    default: return 2
-    }
+    case 5: return 3
+    case 6: return 3
+    case 7: return 3
+    case 8: return 3
+    default: return 3    }
   }
   
   static  func maxTopicsForBoardSize(_ size:Int) -> Int {
     switch size  {
-    case 3: return 7
-    case 4: return 8
-    case 5: return 9
+    case 3: return 10
+    case 4: return 10
+    case 5: return 10
     case 6: return 10
     case 7: return 10
     case 8: return 10
-    default: return 7
+    default: return 10
     }
   }
   
   static  func preselectedTopicsForBoardSize(_ size:Int) -> Int {
-    switch size  {
-    case 3: return 2
-    case 4: return 3
-    case 5: return 4
-    case 6: return 4
-    case 7: return 4
-    case 8: return 4
-    default: return 1
-    }
+    return minTopicsForBoardSize(size)
+//    switch size  {
+//    case 3: return 2
+//    case 4: return 2
+//    case 5: return 2
+//    case 6: return 2
+//    case 7: return 2
+//    case 8: return 2
+//    default: return 2
+//    }
   }
   
   // Get the file path for storing challenge statuses

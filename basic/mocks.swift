@@ -9,15 +9,16 @@ import Foundation
 
 extension PlayData {
 
-  static let topic1 = BasicTopic(name: "topic1", subject: "topic1", pic: "", notes: "notes", subtopics: [])
-  static let topic2 = BasicTopic(name: "topic2", subject: "topic2", pic: "", notes: "notes", subtopics: [])
-  static let topic3 = BasicTopic(name: "topic3", subject: "topic3", pic: "", notes: "notes", subtopics: [])
+  static let topic1 = BasicTopic(name: "History", subject: "topic1", pic: "", notes: "notes", subtopics: [])
+  static let topic2 = BasicTopic(name: "Science", subject: "topic2", pic: "", notes: "notes", subtopics: [])
+  static let topic3 = BasicTopic(name: "Literature", subject: "topic3", pic: "", notes: "notes", subtopics: [])
   static let topic4 = BasicTopic(name: "Fantasy Geography", subject: "Fantasy Geography", pic: "", notes: "notes", subtopics: [])
+  static let topic5 = BasicTopic(name: "Cuisine", subject: "Fantasy Geography", pic: "", notes: "notes", subtopics: [])
   static var tg : TopicGroup =  TopicGroup(description: "Mock Topics",
                                            version:"1.0",
                                            author: "WLD",
                                            date: "\(Date.now)",
-                                           topics: [topic1,topic2,topic3,topic4])
+                                           topics: [topic1,topic2,topic3,topic4,topic5])
   
   static let gd1 : GameData = GameData(topic: "Fantasy Geography", challenges: Challenge.mockChallenges)
                                        
@@ -35,7 +36,14 @@ extension GameState {
       "Fantasy Geography", "History", "Science", "Literature",
       "Cuisine"
   ]
-  
+  static var starting = {
+    // when starting, a size of 1 triggers a load of gamestate
+    let x = GameState(size:1,topics:[],  challenges:Challenge.mockChallenges)
+//    x.movenumber = 1
+//    x.moveindex[0][0] = 1
+//    x.lastmove = .init(row: 0, col: 0)
+    return x
+  } ()
   static var mock = {
     let x = GameState(size:3,topics:mockTopics,  challenges:Challenge.mockChallenges)
     x.movenumber = 1
