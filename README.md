@@ -1,5 +1,6 @@
 #  Basic Recofig For Qanda
-- version 0.3.17 fix topics, qanda picks 3, they pick 0-7 more
+- version 0.3.18 general release for demo purposes
+- version 0.3.17 fix topics, qanda picks 3, they pick 0-7 more, game log, set requires full screen,spacing of flags
 - version 0.3.16 fix size change bug
 - version 0.3.15 fix visuals, white/black etc, leave red mark on played cells
 - version 0.3.14 fix mocks, fix gimmees all around

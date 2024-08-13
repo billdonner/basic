@@ -28,7 +28,7 @@ extension GameScreen /* actions */ {
     endGame(status: .justLost)
   }
   func onEndGamePressed () {
-    print("//GameScreen EndGamePressed")
+   // print("//GameScreen EndGamePressed")
     endGame(status:.justAbandoned)
   }
   func onBoardSizeChange() {

@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
-struct GameMove : Codable {
+struct GameMove : Codable,Hashable {
   let row:Int
   let col:Int
+  let movenumber:Int 
 }
 
 @Observable
@@ -37,7 +38,19 @@ class GameState :  Codable {
   var moveindex: [[Int]] // -1 is unplayed
   var onwinpath: [[Bool]] // only set after win detected
   var replaced:[[[Int]]] // list of replacements in this cell
+  var gamestart:Date // when game started
   
+  func moveHistory() -> [GameMove] {
+    var moves:[GameMove]=[]
+    for row in 0 ..< boardsize{
+      for col in 0 ..< boardsize{
+        if  cellstate[row][col] != .unplayed {
+          moves.append(GameMove(row:row,col:col,movenumber: moveindex[row][col]))
+        }
+      }
+    }
+   return moves.sorted(by: { $0.movenumber < $1.movenumber })
+  }
   
   func checkVsChaMan(chmgr:ChaMan) -> Bool {
     let a=chmgr.correctChallengesCount()
@@ -116,6 +129,7 @@ class GameState :  Codable {
     case _moveindex = "moveindex"
     case _onwinpath = "onwinpath"
     case _replaced = "replaced"
+    case _gamestart =   "gamestart"
   }
   func basicTopics()->[BasicTopic] {
     return topicsinplay.map {BasicTopic(name: $0)}
@@ -143,12 +157,14 @@ class GameState :  Codable {
     self.doublediag = false
     self.difficultylevel = 0
     self.startincorners = false
+    self.gamestart = Date()
   }
   
   func setupForNewGame (boardsize:Int, chmgr:ChaMan) -> Bool {
     // assume all cleaned up, using size
     var allocatedChallengeIndices:[Int] = []
     self.gamenumber += 1
+    self.gamestart = Date()
     self.movenumber = 0
     self.lastmove = nil
     self.boardsize = boardsize ///////////////

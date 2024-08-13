@@ -23,6 +23,7 @@ struct TopicDetailsView: View {
   let gs:GameState
   let chmgr:ChaMan
   @State private var showApview:Challenge?  = nil
+  @State var  showGamesLog =  false
   var body: some View {
 //      let unplayedCount = "\(chmgr.freeChallengesCount(for: topic))"
       let colors = gs.colorForTopic(topic)
@@ -33,8 +34,9 @@ struct TopicDetailsView: View {
           
           VStack {
               ZStack {
-                  colors.0
+                colors.0
                       .ignoresSafeArea(edges: .top)
+       
                   VStack {
                       Text(topic)
                           .font(.largeTitle)
@@ -68,9 +70,15 @@ struct TopicDetailsView: View {
                       }
                   }
               }
+            Button(action:{showGamesLog = true})
+            {
+              Text("Games")
+            }
               .sheet(item: $showApview) { challenge in
                   AlreadyPlayedView(ch: challenge, gs: gs, chmgr: chmgr)
               }
+          }.sheet(isPresented: $showGamesLog) {
+            GameLogScreen(gs:gs, chmgr: chmgr)
           }
       } else {
           Color.red

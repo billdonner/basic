@@ -110,16 +110,20 @@ extension QandAScreen {
       RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.8))
       // Invalid frame dimension (negative or non-finite).?
       .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.3))
-      HStack {
-        gimmeeButton 
-        hintButton
-        thumbsUpButton
-        thumbsDownButton
+      HStack(spacing:10) {
+        HStack(spacing:5){
+          gimmeeButton
+          thumbsUpButton
+          thumbsDownButton
+        }
+        Spacer()
         if freeportButtons {
           markCorrectButton
           markIncorrectButton
           infoButton
         }
+        
+        hintButton
       }
       .frame(width: max(0,contentWidth*0.9),height:buttSize)
       .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))

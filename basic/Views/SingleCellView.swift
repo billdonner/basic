@@ -144,7 +144,7 @@ struct SingleCellView: View {
       } // actually playing the game
       if tap {
         
-        gs.lastmove =    GameMove(row:row,col:col)
+        gs.lastmove =    GameMove(row:row,col:col,movenumber: gs.movenumber)
         firstMove =    onSingleTap(row,col)
       }
     }
