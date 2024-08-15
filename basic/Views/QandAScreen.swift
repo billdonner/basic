@@ -106,39 +106,41 @@ extension QandAScreen {
     let ch = chmgr.everyChallenge[gs.board[row][col]]
     let topicColor =   gs.colorForTopic(ch.topic).0
     
-    return ZStack {
-      RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.8))
-      // Invalid frame dimension (negative or non-finite).?
-      .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.3))
-      HStack(spacing:10) {
-        HStack(spacing:5){
-          gimmeeButton
-          thumbsUpButton
-          thumbsDownButton
-        }
-        Spacer()
-        if freeportButtons {
-          markCorrectButton
-          markIncorrectButton
-          infoButton
+    return
+      ZStack {
+        RoundedRectangle(cornerRadius: 10).fill(topicColor.opacity(0.8))
+        // Invalid frame dimension (negative or non-finite).?
+          .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.4))
+        VStack {
+        HStack(spacing:10) {
+          HStack(spacing:5){
+            gimmeeButton
+            thumbsUpButton
+            thumbsDownButton
+          }
+          Spacer()
+          if freeportButtons {
+            markCorrectButton
+            markIncorrectButton
+            infoButton
+          }
+          hintButton
         }
         
-        hintButton
-      }
-      .frame(width: max(0,contentWidth*0.9),height:buttSize)
-      .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))
-      .offset(x:0, y:-geometry.size.height * 0.15 + 25)
-      Text(ch.question)
-        .font(.title2)
-        .padding(.horizontal)
-        //.background(topicColor.opacity(0.8)) // Use topic color for background //topicColor
-      
-      
-      // Invalid frame dimension (negative or non-finite).?
-        .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.3))//0.2
-        .lineLimit(8)
-        .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
+        .frame(width: max(0,contentWidth*0.9),height:buttSize)
         .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))
+        //      .offset(x:0, y:-geometry.size.height * 0.15 + 25)
+        
+        Text(ch.question)
+          .font(.title2)
+          .padding(.horizontal)
+          .frame(width: max(0,contentWidth), height:max(0,  geometry.size.height * 0.3))//0.2
+          .lineLimit(8)
+          .fixedSize(horizontal: false, vertical: true) // Ensure the text box grows vertically
+          .foregroundColor(foregroundColorFrom( backgroundColor: topicColor ))
+        
+      }
+
     }
   }
  

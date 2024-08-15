@@ -89,6 +89,18 @@ struct SingleCellView: View {
       // mark upper right as well if its been replaced
       
   if row<gs.boardsize && col<gs.boardsize {
+    if gs.startincorners { // playing corners
+       
+      if   ( gs.isCornerCell(row: row, col: col))  ||
+        hasAdjacentNeighbor(withStates: [.playedCorrectly,.playedIncorrectly], in: gs.cellstate, for: (row,col)) {
+        Circle()
+          .fill(Color.blue)
+          .frame(width: cellSize/6, height: cellSize/6)
+          .offset(x:cellSize/2 - 7,y:-cellSize/2 + 10)
+      }
+ 
+    }
+    
       if gs.replaced[row][col] != [] {
         Circle()
           .fill(Color.neonRed)
@@ -134,8 +146,12 @@ struct SingleCellView: View {
      if  gs.gamestate == .playingNow { // is the game on
         if  gs.cellstate[row][col] == .unplayed {
           // if we've got to start in corner on firstMove
-          if gs.startincorners&&firstMove{
-            tap =  gs.isCornerCell(row: row,col: col)
+          if gs.startincorners {
+            if firstMove{
+              tap =  gs.isCornerCell(row: row,col: col)
+            } else {
+              tap =  gs.isCornerCell(row: row,col: col) ||      hasAdjacentNeighbor(withStates: [.playedCorrectly,.playedIncorrectly], in: gs.cellstate, for: (row,col))
+            }
           }
           else {
             tap = true

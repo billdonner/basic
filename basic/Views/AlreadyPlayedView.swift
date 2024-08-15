@@ -69,7 +69,7 @@ struct AlreadyPlayedView : View {
                 Spacer()
               }
               Spacer()
-              }
+            }.background(Color.gray.opacity(0.2))
             }
           }.padding(.horizontal)
           Spacer()
